@@ -10,11 +10,6 @@ const port = 3001; // Defina a porta desejada para a API
 // Registre a rota "cyclist-count"
 app.use('/cyclist-counts', cyclistCountsRouter);
 
-// Rota GET para verificar as variáveis de ambiente
-app.get('/env', (req, res) => {
-  res.json(process.env);
-});
-
 // Rota para listar todos os endpoints
 app.get('/', (req, res) => {
   const endpoints = [];
