@@ -2,17 +2,17 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 
-// Importe o arquivo cyclistCount.js
-const cyclistCountsRouter = require('./cyclist-counts');
-const cyclistCountsEditionsRouter = require('./cyclist-counts-editions');
-
 const port = 3000; // Defina a porta desejada para a API
 
-// Registre a rota "cyclist-count"
+const cyclistCountsRouter = require('./cyclist-counts');
 app.use('/cyclist-counts', cyclistCountsRouter);
 
-// Registre a rota "cyclist-count"
+const cyclistCountsEditionsRouter = require('./cyclist-counts-editions');
 app.use('/cyclist-counts-editions', cyclistCountsEditionsRouter);
+
+const cyclistProfieRouter = require('./cyclist-profile');
+app.use('/cyclist-profile', cyclistProfieRouter);
+
 
 app.listen(port, () => {
   console.log(`API rodando na porta ${port}`);
