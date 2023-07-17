@@ -4,11 +4,15 @@ const app = express();
 
 // Importe o arquivo cyclistCount.js
 const cyclistCountsRouter = require('./cyclist-counts');
+const cyclistCountsEditionsRouter = require('./cyclist-counts-editions');
 
 const port = 3001; // Defina a porta desejada para a API
 
 // Registre a rota "cyclist-count"
 app.use('/cyclist-counts', cyclistCountsRouter);
+
+// Registre a rota "cyclist-count"
+app.use('/cyclist-counts-editions', cyclistCountsEditionsRouter);
 
 // Rota para listar todos os endpoints
 app.get('/', (req, res) => {
