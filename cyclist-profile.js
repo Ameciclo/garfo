@@ -33,29 +33,72 @@ async function getCategories() {
   }
 }
 
-// Rota GET para "cyclist-profile"
+// Função para obter o total de contagem de valores de uma categoria específica para uma edição específica
+async function getCategoryCount(editionId, categoryType, categoryName) {
+  try {
+    const colName = categoryType + '_id'
+    const categoriesCountQuery = `
+    SELECT COUNT(*) AS count
+    FROM cyclist_profile.edition_form_data ef
+    JOIN cyclist_profile.form_data f ON ef.form_data_id = f.id
+    JOIN cyclist_profile.categories c ON f.${colName} = c.id
+    WHERE ef.edition_id = ${editionId}
+      AND c."type" = '${categoryType}'
+      AND c."name" = '${categoryName}'
+  `;
+  
+
+    const { rows } = await sql.query(categoriesCountQuery);
+    const count = rows[0].count;
+
+    return count;
+  } catch (error) {
+    console.error('Error executing SQL queries:', error);
+    throw error;
+  }
+}
+
+
 router.get("/", async (req, res) => {
   try {
-    // retorna categorias
     const categories = await getCategories();
 
-    // Consulta para obter as edições da pesquisa com o total de questionários em cada uma
     const editionsQuery = `
       SELECT e.id, e."year", CAST(COUNT(*) AS INTEGER) AS total_questionnaires
       FROM cyclist_profile.edition e
       JOIN cyclist_profile.edition_form_data ef ON e.id = ef.edition_id
       JOIN cyclist_profile.form_data f ON ef.form_data_id = f.id
-      WHERE e.city_id = 29 -- ID da cidade do Recife
+      WHERE e.city_id = 29
       GROUP BY e.id, e."year"
     `;
 
     const { rows: editionsData } = await sql.query(editionsQuery);
 
-    const editions = editionsData.map(row => ({
-      id: row.id,
-      year: row.year,
-      total_questionnaires: row.total_questionnaires,
-    }));
+    const editions = await Promise.all(
+      editionsData.map(async row => {
+        const editionId = row.id;
+        const categoriesCount = {};
+
+        for (const categoryType in categories) {
+          const categoryNames = categories[categoryType];
+          const categoryCount = {};
+
+          for (const categoryName of categoryNames) {
+            const count = await getCategoryCount(editionId, categoryType, categoryName);
+            categoryCount[categoryName] = count;
+          }
+
+          categoriesCount[categoryType] = categoryCount;
+        }
+
+        return {
+          id: editionId,
+          year: row.year,
+          total_questionnaires: row.total_questionnaires,
+          categories: categoriesCount
+        };
+      })
+    );
 
     res.json({ editions, categories });
   } catch (error) {
