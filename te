@@ -1,0 +1,136 @@
+(area, gender, age, schooling, wage, color_race, distance_time, years_using, week_days_total_cat, transportation, collisions_last_years, biggest_issue, biggest_needs, motivation_to_start e motivation_to_continue).
+
+async function getStatistics(id) {
+  const summary_res = await sql`SELECT 
+                                  cyclist_profile.year AS year,
+                                  total_questionaries,
+                                  percent_week_at_least_5_days,
+                                  percent_collisions
+                                FROM 
+                                  summary
+                                JOIN 
+                                  cyclist_profile ON summary.id = cyclist_profile.id
+                                WHERE 
+                                  cyclist_profile.city = ${id}
+                                ORDER BY 
+                                  cyclist_profile.year DESC
+                                `;
+  const summaryData = summary_res.rows;
+  const total_editions = summary_res.rowCount;
+  const total_forms = summary_res.rows.reduce(
+    (a, c) => (a += c.total_questionaries),
+    0
+  );
+  const last_year = summary_res.rows[0].year;
+  const last_year_forms = summary_res.rows[0].total_questionaries;
+  const age_res = await sql`SELECT
+                              cyclist_profile.year AS year,
+                              c.name AS category,
+                              sd.value
+                            FROM 
+                              summary.age_distribution sd
+                            JOIN 
+                              cyclist_profile ON sd.summary_id = cyclist_profile.id
+                            JOIN 
+                              categories.age c ON sd.category_id = c.id
+                            WHERE 
+                              cyclist_profile.city = ${id}`;
+  const schooling_res = await sql`SELECT 
+                                    cyclist_profile.year AS year,
+                                    c.name AS category,
+                                    sd.value
+                                  FROM 
+                                    summary.schooling_distribution sd
+                                  JOIN 
+                                    cyclist_profile ON sd.summary_id = cyclist_profile.id
+                                  JOIN 
+                                    categories.schooling c ON sd.category_id = c.id
+                                  WHERE 
+                                    cyclist_profile.city = ${id}`;
+  const color_race_res = await sql`SELECT 
+                                    cyclist_profile.year AS year,
+                                    c.name AS category,
+                                    sd.value
+                                  FROM 
+                                    summary.color_race_distribution sd
+                                  JOIN 
+                                    cyclist_profile ON sd.summary_id = cyclist_profile.id
+                                  JOIN 
+                                    categories.color_race c ON sd.category_id = c.id
+                                  WHERE 
+                                    cyclist_profile.city = ${id}`;
+
+  const years_using_res = await sql`SELECT 
+                                  cyclist_profile.year AS year,
+                                  c.name AS category,
+                                  sd.value
+                                FROM 
+                                  summary.years_using_distribution sd
+                                JOIN 
+                                  cyclist_profile ON sd.summary_id = cyclist_profile.id
+                                JOIN 
+                                  categories.years_using c ON sd.category_id = c.id
+                                WHERE 
+                                  cyclist_profile.city = ${id}`;
+  const distance_time_res = await sql`SELECT 
+                                        cyclist_profile.year AS year,
+                                        c.name AS category,
+                                        sd.value
+                                      FROM 
+                                        summary.distance_time_distribution sd
+                                      JOIN 
+                                        cyclist_profile ON sd.summary_id = cyclist_profile.id
+                                      JOIN 
+                                        categories.distance_time c ON sd.category_id = c.id
+                                      WHERE 
+                                        cyclist_profile.city = ${id}`;
+  const wage_res = await sql`SELECT 
+                                cyclist_profile.year AS year,
+                                c.name AS category,
+                                sd.value
+                              FROM 
+                                summary.wage_distribution sd
+                              JOIN 
+                                cyclist_profile ON sd.summary_id = cyclist_profile.id
+                              JOIN 
+                                categories.wage c ON sd.category_id = c.id
+                              WHERE 
+                                cyclist_profile.city = ${id}`;
+  const last_years_age = age_res.rows
+    .filter((c) => c.year === last_year)
+    .sort((a, b) => b.value - a.value);
+  const last_years_schooling = schooling_res.rows
+    .filter((c) => c.year === last_year)
+    .sort((a, b) => b.value - a.value);
+  const last_years_color_race = color_race_res.rows
+    .filter((c) => c.year === last_year)
+    .sort((a, b) => b.value - a.value);
+  const last_years_years_using = years_using_res.rows
+    .filter((c) => c.year === last_year)
+    .sort((a, b) => b.value - a.value);
+  const last_years_distance_time = distance_time_res.rows
+    .filter((c) => c.year === last_year)
+    .sort((a, b) => b.value - a.value);
+  const last_years_wage = wage_res.rows
+    .filter((c) => c.year === last_year)
+    .sort((a, b) => b.value - a.value);
+  const summaryExtraData = {
+    age: last_years_age[0],
+    schooling: last_years_schooling[0],
+    color_race: last_years_color_race[0],
+    years_using: last_years_years_using[0],
+    distance_time: last_years_distance_time[0],
+    wage: last_years_wage[0],
+  };
+  const summary = {
+    main: summaryData,
+    extra: summaryExtraData,
+  };
+  return {
+    total_editions,
+    total_forms,
+    last_year,
+    last_year_forms,
+    summary,
+  };
+}
