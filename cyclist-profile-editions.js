@@ -52,26 +52,39 @@ function filterCategories(filters, filterableCategories) {
     notSelectedFilterableCategoriesTypes,
   };
 }
-
-async function getCategoryCount(editionId, categoryType, categoryName, filterConditions) {
+async function getCategoryCount(editionId, categoryType, filterConditions) {
   const filters = filterConditions ? filterConditions : null;
   try {
     const colName = categoryType + "_id";
     const categoriesCountQuery = `
-      SELECT COUNT(*) AS count
+      SELECT f.${colName}, COUNT(*) AS count
       FROM cyclist_profile.edition_form_data ef
       JOIN cyclist_profile.form_data f ON ef.form_data_id = f.id
       JOIN cyclist_profile.categories c ON f.${colName} = c.id
       WHERE ef.edition_id = ${editionId}
         AND c."type" = '${categoryType}'
-        AND c."name" = '${categoryName}'
-        ${filters ? `AND ${filters.map(({ categoryType, filterValue }) => `f.${categoryType}_id = ${filterValue}`).join(" AND ")} ` : ""}
+        ${
+          filters
+            ? `AND ${filters
+                .map(
+                  ({ categoryType, filterValue }) =>
+                    `f.${categoryType}_id = ${filterValue}`
+                )
+                .join(" AND ")} `
+            : ""
+        }
+      GROUP BY f.${colName}
     `;
 
     const { rows } = await sql.query(categoriesCountQuery);
-    const count = rows[0].count;
+    const categoryCount = {};
 
-    return count;
+    rows.forEach((row) => {
+      const { [colName]: category, count } = row;
+      categoryCount[category] = count;
+    });
+
+    return categoryCount;
   } catch (error) {
     console.error("Error executing SQL queries:", error);
     throw error;
@@ -131,17 +144,13 @@ router.get("/:editionId", async (req, res) => {
     const categoriesCount = {};
 
     for (const type of concatenatedCategoriesTypes) {
-      const category = categories[type];
-      const categoryCount = {};
-    
-      for (const categoryName of category) {
-        const count = await getCategoryCount(editionId, type, categoryName, filterConditions);
-        categoryCount[categoryName] = count;
-      }
-    
+      const categoryCount = await getCategoryCount(
+        editionId,
+        type,
+        filterConditions
+      );
       categoriesCount[type] = categoryCount;
     }
-    
 
     res.json({ editionId, categoriesCount });
   } catch (error) {

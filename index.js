@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 
-const port = 3000; // Defina a porta desejada para a API
+const port = 3001; // Defina a porta desejada para a API
 
 const cyclistCountsRouter = require('./cyclist-counts');
 app.use('/cyclist-counts', cyclistCountsRouter);
