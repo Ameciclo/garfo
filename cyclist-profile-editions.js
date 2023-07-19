@@ -53,9 +53,8 @@ function filterCategories(filters, filterableCategories) {
   };
 }
 
-// Função para obter o total de contagem de valores de uma categoria específica para uma edição específica
 async function getCategoryCount(editionId, categoryType, categoryName, filterConditions) {
-  const filters = filterConditions != "" ? filterConditions : ""
+  const filters = filterConditions ? filterConditions : null;
   try {
     const colName = categoryType + "_id";
     const categoriesCountQuery = `
@@ -66,7 +65,7 @@ async function getCategoryCount(editionId, categoryType, categoryName, filterCon
       WHERE ef.edition_id = ${editionId}
         AND c."type" = '${categoryType}'
         AND c."name" = '${categoryName}'
-        ${filters}
+        ${filters ? `AND ${filters.map(({ categoryType, filterValue }) => `f.${categoryType}_id = ${filterValue}`).join(" AND ")} ` : ""}
     `;
 
     const { rows } = await sql.query(categoriesCountQuery);
@@ -80,18 +79,26 @@ async function getCategoryCount(editionId, categoryType, categoryName, filterCon
 }
 
 function createFilterConditions(selectedFilterableCategoriesTypes, filters) {
-  let filterConditions = "";
+  let filterConditions = null;
 
   selectedFilterableCategoriesTypes.forEach((categoryType) => {
     if (filters.hasOwnProperty(categoryType)) {
       const filterValue = filters[categoryType];
-      
+
       if (Array.isArray(filterValue)) {
         filterValue.forEach((value) => {
-          filterConditions += `AND f.${categoryType}_id = ${value} `;
+          filterConditions = filterConditions || [];
+          filterConditions.push({
+            categoryType,
+            filterValue: parseInt(value),
+          });
         });
       } else {
-        filterConditions += `AND f.${categoryType}_id = ${filterValue} `;
+        filterConditions = filterConditions || [];
+        filterConditions.push({
+          categoryType,
+          filterValue: parseInt(filterValue),
+        });
       }
     }
   });
