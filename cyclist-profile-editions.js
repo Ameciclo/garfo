@@ -54,7 +54,8 @@ function filterCategories(filters, filterableCategories) {
 }
 
 // Função para obter o total de contagem de valores de uma categoria específica para uma edição específica
-async function getCategoryCount(editionId, categoryType, categoryName) {
+async function getCategoryCount(editionId, categoryType, categoryName, filterConditions) {
+  const filters = filterConditions != "" ? filterConditions : ""
   try {
     const colName = categoryType + "_id";
     const categoriesCountQuery = `
@@ -65,6 +66,7 @@ async function getCategoryCount(editionId, categoryType, categoryName) {
       WHERE ef.edition_id = ${editionId}
         AND c."type" = '${categoryType}'
         AND c."name" = '${categoryName}'
+        ${filters}
     `;
 
     const { rows } = await sql.query(categoriesCountQuery);
@@ -75,6 +77,26 @@ async function getCategoryCount(editionId, categoryType, categoryName) {
     console.error("Error executing SQL queries:", error);
     throw error;
   }
+}
+
+function createFilterConditions(selectedFilterableCategoriesTypes, filters) {
+  let filterConditions = "";
+
+  selectedFilterableCategoriesTypes.forEach((categoryType) => {
+    if (filters.hasOwnProperty(categoryType)) {
+      const filterValue = filters[categoryType];
+      
+      if (Array.isArray(filterValue)) {
+        filterValue.forEach((value) => {
+          filterConditions += `AND f.${categoryType}_id = ${value} `;
+        });
+      } else {
+        filterConditions += `AND f.${categoryType}_id = ${filterValue} `;
+      }
+    }
+  });
+
+  return filterConditions;
 }
 
 router.get("/:editionId", async (req, res) => {
@@ -94,6 +116,11 @@ router.get("/:editionId", async (req, res) => {
       nonFilterableCategories
     ).concat(notSelectedFilterableCategoriesTypes);
 
+    const filterConditions = createFilterConditions(
+      selectedFilterableCategoriesTypes,
+      filters
+    );
+
     const categoriesCount = {};
 
     for (const type of concatenatedCategoriesTypes) {
@@ -101,7 +128,7 @@ router.get("/:editionId", async (req, res) => {
       const categoryCount = {};
     
       for (const categoryName of category) {
-        const count = await getCategoryCount(editionId, type, categoryName);
+        const count = await getCategoryCount(editionId, type, categoryName, filterConditions);
         categoryCount[categoryName] = count;
       }
     
