@@ -13,7 +13,7 @@ async function getCategories() {
   const filterableCategories = {};
   const nonFilterableCategories = {};
 
-  rows.forEach(row => {
+  rows.forEach((row) => {
     const { type, name, filterable } = row;
 
     if (filterable) {
@@ -32,12 +32,52 @@ async function getCategories() {
   return { filterableCategories, nonFilterableCategories };
 }
 
+// Função para selecionar as categorias filtráveis com base nos filtros escolhidos
+function filterCategories(filters, filterableCategories) {
+  const selectedFilterableCategoriesTypes = [];
+  const notSelectedFilterableCategoriesTypes = [];
+
+  const filterKeys = Object.keys(filters);
+
+  for (const categoryType in filterableCategories) {
+    if (filterKeys.includes(categoryType)) {
+      selectedFilterableCategoriesTypes.push(categoryType);
+    } else {
+      notSelectedFilterableCategoriesTypes.push(categoryType);
+    }
+  }
+
+  return {
+    selectedFilterableCategoriesTypes,
+    notSelectedFilterableCategoriesTypes,
+  };
+}
+
 router.get("/:editionId", async (req, res) => {
   try {
     const { editionId } = req.params;
-    const { filterableCategories, nonFilterableCategories } = await getCategories();
+    const { filterableCategories, nonFilterableCategories } =
+      await getCategories();
+    const filters = req.query;
 
-    res.json({ editionId, filterableCategories, nonFilterableCategories });
+    const {
+      selectedFilterableCategoriesTypes,
+      notSelectedFilterableCategoriesTypes,
+    } = filterCategories(filters, filterableCategories);
+
+    const concatenatedCategoriesTypes = Object.keys(nonFilterableCategories).concat(
+      notSelectedFilterableCategoriesTypes
+    );
+
+    console.log(
+      selectedFilterableCategoriesTypes,
+      concatenatedCategoriesTypes,
+      filters
+    );
+
+    
+
+    res.json({ editionId });
   } catch (error) {
     console.error("Error executing SQL queries:", error);
     res.status(500).json({ error: "Internal Server Error" });
