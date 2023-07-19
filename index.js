@@ -13,6 +13,8 @@ app.use('/cyclist-counts-editions', cyclistCountsEditionsRouter);
 const cyclistProfieRouter = require('./cyclist-profile');
 app.use('/cyclist-profile', cyclistProfieRouter);
 
+const cyclistProfileEditionsRouter = require('./cyclist-profile-editions'); // Importe o roteador para cyclist-profile-editions
+app.use('/cyclist-profile-editions', cyclistProfileEditionsRouter); // Registre o roteador para cyclist-profile-editions
 
 app.listen(port, () => {
   console.log(`API rodando na porta ${port}`);
