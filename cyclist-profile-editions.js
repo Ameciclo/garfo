@@ -35,22 +35,16 @@ async function getCategories() {
 // Função para selecionar as categorias filtráveis com base nos filtros escolhidos
 function filterCategories(filters, filterableCategories) {
   const selectedFilterableCategoriesTypes = [];
-  const notSelectedFilterableCategoriesTypes = [];
 
   const filterKeys = Object.keys(filters);
 
   for (const categoryType in filterableCategories) {
     if (filterKeys.includes(categoryType)) {
       selectedFilterableCategoriesTypes.push(categoryType);
-    } else {
-      notSelectedFilterableCategoriesTypes.push(categoryType);
     }
   }
 
-  return {
-    selectedFilterableCategoriesTypes,
-    notSelectedFilterableCategoriesTypes,
-  };
+  return selectedFilterableCategoriesTypes;
 }
 
 // Função para obter o total de contagem de valores de uma categoria específica para uma edição específica
@@ -83,7 +77,7 @@ async function getCategoryCount(editionId, categoryType, filterConditions) {
 
     rows.forEach((row) => {
       const { [colName]: category, count } = row;
-      categoryCount[category] = count;
+      categoryCount[category] = parseInt(count);
     });
 
     return categoryCount;
@@ -128,18 +122,15 @@ router.get("/:editionId", async (req, res) => {
     const { filterableCategories, nonFilterableCategories } =
       await getCategories();
     const filters = req.query;
-    const categories = { ...filterableCategories, ...nonFilterableCategories };
 
     // Filtrar as categorias selecionáveis com base nos filtros escolhidos
-    const {
-      selectedFilterableCategoriesTypes,
-      notSelectedFilterableCategoriesTypes,
-    } = filterCategories(filters, filterableCategories);
-
-    // Concatenar os tipos de categoria não filtráveis com os tipos não selecionados das categorias filtráveis
-    const concatenatedCategoriesTypes = Object.keys(nonFilterableCategories).concat(
-      notSelectedFilterableCategoriesTypes
+    const selectedFilterableCategoriesTypes = filterCategories(
+      filters,
+      filterableCategories
     );
+
+    // Apenas os tipos de categoria não filtráveis
+    const nonFilterableCategoriesTypes = Object.keys(nonFilterableCategories);
 
     // Criar as condições dos filtros com base nos tipos de categoria selecionados e nos valores dos filtros
     const filterConditions = createFilterConditions(
@@ -150,7 +141,7 @@ router.get("/:editionId", async (req, res) => {
     const categoriesCount = {};
 
     // Obter o total de contagem de valores para cada tipo de categoria
-    for (const type of concatenatedCategoriesTypes) {
+    for (const type of nonFilterableCategoriesTypes) {
       const categoryCount = await getCategoryCount(
         editionId,
         type,
