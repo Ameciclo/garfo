@@ -52,6 +52,8 @@ function filterCategories(filters, filterableCategories) {
     notSelectedFilterableCategoriesTypes,
   };
 }
+
+// Função para obter o total de contagem de valores de uma categoria específica para uma edição específica
 async function getCategoryCount(editionId, categoryType, filterConditions) {
   const filters = filterConditions ? filterConditions : null;
   try {
@@ -91,6 +93,7 @@ async function getCategoryCount(editionId, categoryType, filterConditions) {
   }
 }
 
+// Função para criar as condições dos filtros com base nos tipos de categorias selecionados e nos valores dos filtros
 function createFilterConditions(selectedFilterableCategoriesTypes, filters) {
   let filterConditions = null;
 
@@ -127,15 +130,18 @@ router.get("/:editionId", async (req, res) => {
     const filters = req.query;
     const categories = { ...filterableCategories, ...nonFilterableCategories };
 
+    // Filtrar as categorias selecionáveis com base nos filtros escolhidos
     const {
       selectedFilterableCategoriesTypes,
       notSelectedFilterableCategoriesTypes,
     } = filterCategories(filters, filterableCategories);
 
-    const concatenatedCategoriesTypes = Object.keys(
-      nonFilterableCategories
-    ).concat(notSelectedFilterableCategoriesTypes);
+    // Concatenar os tipos de categoria não filtráveis com os tipos não selecionados das categorias filtráveis
+    const concatenatedCategoriesTypes = Object.keys(nonFilterableCategories).concat(
+      notSelectedFilterableCategoriesTypes
+    );
 
+    // Criar as condições dos filtros com base nos tipos de categoria selecionados e nos valores dos filtros
     const filterConditions = createFilterConditions(
       selectedFilterableCategoriesTypes,
       filters
@@ -143,6 +149,7 @@ router.get("/:editionId", async (req, res) => {
 
     const categoriesCount = {};
 
+    // Obter o total de contagem de valores para cada tipo de categoria
     for (const type of concatenatedCategoriesTypes) {
       const categoryCount = await getCategoryCount(
         editionId,
