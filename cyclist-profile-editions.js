@@ -53,31 +53,63 @@ function filterCategories(filters, filterableCategories) {
   };
 }
 
+// Função para obter o total de contagem de valores de uma categoria específica para uma edição específica
+async function getCategoryCount(editionId, categoryType, categoryName) {
+  try {
+    const colName = categoryType + "_id";
+    const categoriesCountQuery = `
+      SELECT COUNT(*) AS count
+      FROM cyclist_profile.edition_form_data ef
+      JOIN cyclist_profile.form_data f ON ef.form_data_id = f.id
+      JOIN cyclist_profile.categories c ON f.${colName} = c.id
+      WHERE ef.edition_id = ${editionId}
+        AND c."type" = '${categoryType}'
+        AND c."name" = '${categoryName}'
+    `;
+
+    const { rows } = await sql.query(categoriesCountQuery);
+    const count = rows[0].count;
+
+    return count;
+  } catch (error) {
+    console.error("Error executing SQL queries:", error);
+    throw error;
+  }
+}
+
 router.get("/:editionId", async (req, res) => {
   try {
     const { editionId } = req.params;
     const { filterableCategories, nonFilterableCategories } =
       await getCategories();
     const filters = req.query;
+    const categories = { ...filterableCategories, ...nonFilterableCategories };
 
     const {
       selectedFilterableCategoriesTypes,
       notSelectedFilterableCategoriesTypes,
     } = filterCategories(filters, filterableCategories);
 
-    const concatenatedCategoriesTypes = Object.keys(nonFilterableCategories).concat(
-      notSelectedFilterableCategoriesTypes
-    );
+    const concatenatedCategoriesTypes = Object.keys(
+      nonFilterableCategories
+    ).concat(notSelectedFilterableCategoriesTypes);
 
-    console.log(
-      selectedFilterableCategoriesTypes,
-      concatenatedCategoriesTypes,
-      filters
-    );
+    const categoriesCount = {};
 
+    for (const type of concatenatedCategoriesTypes) {
+      const category = categories[type];
+      const categoryCount = {};
+    
+      for (const categoryName of category) {
+        const count = await getCategoryCount(editionId, type, categoryName);
+        categoryCount[categoryName] = count;
+      }
+    
+      categoriesCount[type] = categoryCount;
+    }
     
 
-    res.json({ editionId });
+    res.json({ editionId, categoriesCount });
   } catch (error) {
     console.error("Error executing SQL queries:", error);
     res.status(500).json({ error: "Internal Server Error" });
