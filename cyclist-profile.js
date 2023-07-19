@@ -22,42 +22,46 @@ async function getCategories() {
         WHERE "type" = '${categoryType}'
       `;
       const { rows: categoryNamesData } = await sql.query(categoryNamesQuery);
-      const categoryNames = categoryNamesData.map(row => row.name);
+      const categoryNames = categoryNamesData.map((row) => row.name);
       categories[categoryType] = categoryNames;
     }
 
     return categories;
   } catch (error) {
-    console.error('Error executing SQL queries:', error);
+    console.error("Error executing SQL queries:", error);
     throw error;
   }
 }
 
 // Função para obter o total de contagem de valores de uma categoria específica para uma edição específica
-async function getCategoryCount(editionId, categoryType, categoryName) {
+async function getCategoryCount(editionId, categoryType) {
   try {
-    const colName = categoryType + '_id'
+    const colName = categoryType + "_id";
+
     const categoriesCountQuery = `
-    SELECT COUNT(*) AS count
-    FROM cyclist_profile.edition_form_data ef
-    JOIN cyclist_profile.form_data f ON ef.form_data_id = f.id
-    JOIN cyclist_profile.categories c ON f.${colName} = c.id
-    WHERE ef.edition_id = ${editionId}
-      AND c."type" = '${categoryType}'
-      AND c."name" = '${categoryName}'
-  `;
-  
+        SELECT f.${colName}, COUNT(*) AS count
+        FROM cyclist_profile.edition_form_data ef
+        JOIN cyclist_profile.form_data f ON ef.form_data_id = f.id
+        JOIN cyclist_profile.categories c ON f.${colName} = c.id
+        WHERE ef.edition_id = ${editionId}
+          AND c."type" = '${categoryType}'
+        GROUP BY f.${colName}
+      `;
 
     const { rows } = await sql.query(categoriesCountQuery);
-    const count = rows[0].count;
+    const categoryCount = {};
 
-    return count;
+    rows.forEach((row) => {
+      const { [colName]: category, count } = row;
+      categoryCount[category] = parseInt(count);
+    });
+
+    return categoryCount;
   } catch (error) {
-    console.error('Error executing SQL queries:', error);
+    console.error("Error executing SQL queries:", error);
     throw error;
   }
 }
-
 
 router.get("/", async (req, res) => {
   try {
@@ -75,27 +79,20 @@ router.get("/", async (req, res) => {
     const { rows: editionsData } = await sql.query(editionsQuery);
 
     const editions = await Promise.all(
-      editionsData.map(async row => {
+      editionsData.map(async (row) => {
         const editionId = row.id;
         const categoriesCount = {};
 
         for (const categoryType in categories) {
-          const categoryNames = categories[categoryType];
-          const categoryCount = {};
-
-          for (const categoryName of categoryNames) {
-            const count = await getCategoryCount(editionId, categoryType, categoryName);
-            categoryCount[categoryName] = count;
-          }
-
-          categoriesCount[categoryType] = categoryCount;
+          const count = await getCategoryCount(editionId, categoryType);
+          categoriesCount[categoryType] = count;
         }
 
         return {
           id: editionId,
           year: row.year,
           total_questionnaires: row.total_questionnaires,
-          categories: categoriesCount
+          categories: categoriesCount,
         };
       })
     );
