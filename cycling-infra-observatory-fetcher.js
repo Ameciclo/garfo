@@ -27,7 +27,11 @@ async function fetchInfrastructureData() {
       const pdcRef = row.pdc_ref;
 
       // Faça a requisição ao Overpass API para obter as ways relacionadas à infraestrutura
-      const overpassQuery = `[out:json][timeout:300][bbox:{{bbox}}];relation(${relationId});out geom;`;
+      const overpassQuery = `[out:json];
+      (
+      relation(${relationId});
+      );
+      out geom;`;
       const response = await axios.get(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`);
 
       // Manipule os dados recebidos conforme necessário
