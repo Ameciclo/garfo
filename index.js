@@ -52,6 +52,16 @@ app.get('/relation/:relationId', async (req, res) => {
   }
 });
 
+app.get('/relations', async (req, res) => {
+  try {
+    const relationData = await OSMController.getAllRelationsData();
+    res.json(relationData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`API running on port ${port}`);
 });

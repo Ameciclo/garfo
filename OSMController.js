@@ -207,7 +207,17 @@ class OSMController {
         });
     });
   }
-
+  static getMultipleRelationQuery(relationIds) {
+    const relationQueries = relationIds.map((id) => `relation(${id});`).join('\n');
+    return `
+      [out:json];
+      (
+      ${relationQueries}
+      );
+      out geom;
+    `;
+  }
+  
   static getRelationQuery(relationId) {
     return `
       [out:json][timeout:500];
@@ -254,6 +264,47 @@ class OSMController {
       throw error;
     }
   }
+
+  static async getAllRelationsData() {
+    try {
+      const query = OSMController.getMultipleRelationQuery(RELATION_IDS);
+      console.debug("generated query:", query);
+
+      const encodedQuery = encodeURI(query);
+
+      let geoJson = null;
+
+      for (let i = 0; i < OVERPASS_SERVERS.length; i++) {
+        const endpoint = OVERPASS_SERVERS[i] + "?data=" + encodedQuery;
+
+        console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
+
+        try {
+          const response = await axios.get(endpoint);
+
+          if (response.status === 200 && response.data.elements.length > 0) {
+            console.debug(`[SERVER #${i}] Success!`);
+            geoJson = osmtogeojson(response.data);
+            break; // Stop iterating servers once we get data
+          } else {
+            console.debug(`[SERVER #${i}] Empty result`);
+          }
+        } catch (error) {
+          console.error(`[SERVER #${i}] Error:`, error);
+        }
+      }
+
+      return geoJson;
+    } catch (error) {
+      console.error(
+        `Error fetching data for relation ID ${relationId}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
 }
+
 
 module.exports = OSMController;
