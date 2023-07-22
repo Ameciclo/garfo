@@ -2,7 +2,6 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors')
-const OSMController = require('./osm-data'); // Add this line to require the OSMController module
 
 const app = express();
 
@@ -23,6 +22,7 @@ const cyclistProfileEditionsRouter = require('./cyclist-profile-editions');
 app.use('/cyclist-profile-editions', cyclistProfileEditionsRouter);
 
 // Add the route to fetch OSM data
+const OSMController = require('./OSMController'); // Add this line to require the OSMController module
 app.get('/osm-data', async (req, res) => {
   try {
     const constraints = {
@@ -38,6 +38,17 @@ app.get('/osm-data', async (req, res) => {
   } catch (error) {
     console.error('Error fetching OSM data:', error);
     res.status(500).json({ error: 'Error fetching OSM data' });
+  }
+});
+
+app.get('/relation/:relationId', async (req, res) => {
+  try {
+    const { relationId } = req.params;
+    const relationData = await OSMController.getRelationData(relationId);
+    res.json(relationData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
