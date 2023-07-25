@@ -1,23 +1,27 @@
 // INDEX.JS
+// Import necessary modules and packages
 require("dotenv").config();
-const {RELATION_IDS} = require("constants")
+const { RELATION_IDS } = require("constants");
 const express = require("express");
 const cors = require("cors");
 
+// Create an instance of Express app
 const app = express();
 
 const port = 3000; // Define the desired port for the API
 
+// Enable CORS to allow cross-origin requests
 app.use(cors());
 
+// Import and use routes for cyclist counts and editions
 const cyclistCountsRouter = require("./cyclist-counts");
 app.use("/cyclist-counts", cyclistCountsRouter);
 
 const cyclistCountsEditionsRouter = require("./cyclist-counts-editions");
 app.use("/cyclist-counts-editions", cyclistCountsEditionsRouter);
 
-const cyclistProfieRouter = require("./cyclist-profile");
-app.use("/cyclist-profile", cyclistProfieRouter);
+const cyclistProfileRouter = require("./cyclist-profile");
+app.use("/cyclist-profile", cyclistProfileRouter);
 
 const cyclistProfileEditionsRouter = require("./cyclist-profile-editions");
 app.use("/cyclist-profile-editions", cyclistProfileEditionsRouter);
@@ -42,7 +46,7 @@ app.get("/osm-data", async (req, res) => {
   }
 });
 
-const fetchInfrastructureData = require("cycling-infra-observatory-fetcher")
+// Add the route to fetch PDC data
 app.get("/pdc-data", async (req, res) => {
   try {
     const constraints = {
@@ -51,8 +55,9 @@ app.get("/pdc-data", async (req, res) => {
     };
 
     // Call the fetchInfrastructureData() function to get the osm_id array
-    const osmIds = await fetchInfrastructureData();
-    console.log(osmIds)
+    // const osmIds = await fetchInfrastructureData();
+    // console.log(osmIds)
+
     // Call the OSMController.getOSMAllRelationsData() method to fetch the OSM data
     const relationsData = await OSMController.getOSMAllRelationsData(
       RELATION_IDS
@@ -66,6 +71,7 @@ app.get("/pdc-data", async (req, res) => {
       areaData,
       relationsData
     );
+
     // Send the retrieved data as a response
     res.json(comparisonResult);
   } catch (error) {
@@ -74,6 +80,7 @@ app.get("/pdc-data", async (req, res) => {
   }
 });
 
+// Add route to fetch data for a specific OSM relation by ID
 app.get("/relation/:relationId", async (req, res) => {
   try {
     const { relationId } = req.params;
@@ -85,6 +92,7 @@ app.get("/relation/:relationId", async (req, res) => {
   }
 });
 
+// Add route to fetch data for all OSM relations
 app.get("/relations", async (req, res) => {
   try {
     const relationData = await OSMController.getAllRelationsData();
@@ -95,6 +103,7 @@ app.get("/relations", async (req, res) => {
   }
 });
 
+// Start the Express app listening on the specified port
 app.listen(port, () => {
   console.log(`API running on port ${port}`);
 });
