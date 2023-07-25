@@ -2,7 +2,7 @@ const osmtogeojson = require("osmtogeojson");
 const axios = require("axios");
 const turf = require("@turf/turf");
 const OSMController = require("./OSMController");
-const { OVERPASS_SERVERS, DEFAULT_BORDER_WIDTH } = require("./constants.js");
+const { OVERPASS_SERVERS } = require("./constants.js");
 const layers = require("./layers.json");
 
 function getTypologyFromGeoJSON(geoJsonProperties) {

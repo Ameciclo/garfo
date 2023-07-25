@@ -9,7 +9,9 @@ const cyclistProfileRouter = require("./cyclist-profile");
 const cyclistProfileEditionsRouter = require("./cyclist-profile-editions");
 const { getRelationsData } = require("./cycling-infra-relations.js");
 const OSMController = require("./OSMController"); // Add this line to require the OSMController module
-const compareRefs = require("./cycling-infra-comparision.js");
+const compareExistingWithProjectedCyclingInfrastruture = require("./cycling-infra-comparision.js");
+const fetchInfrastructureData = require("./cycling-infra-updater");
+const { getWaysData } = require("./cycling-infra-ways");
 
 const port = 3000; // Define the desired port for the API
 
@@ -38,6 +40,17 @@ app.get("/cycling-infra/relations", async (req, res) => {
   }
 });
 
+// Route to use the data from getRelationsData function
+app.get("/cycling-infra/ways", async (req, res) => {
+  try {
+    const waysData = await getWaysData();
+    res.json(waysData);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "An error occurred while fetching data." });
+  }
+});
+
 // Add route to fetch data for a specific OSM relation by ID
 app.get("/cycling-infra/relation/:relationId", async (req, res) => {
   try {
@@ -51,7 +64,7 @@ app.get("/cycling-infra/relation/:relationId", async (req, res) => {
 });
 
 // Add the route to fetch PDC data
-app.get("/cycling-infra/observatory", async (req, res) => {
+app.get("/cycling-infra/update", async (req, res) => {
   try {
     // Call the fetchInfrastructureData() function to get the osm_id array
     const pdcData = await getRelationsData();
@@ -59,24 +72,26 @@ app.get("/cycling-infra/observatory", async (req, res) => {
     const filteredOsmIds = osmIds.filter((osmId) => osmId !== null);
 
     // Call the OSMController.getOSMAllRelationsData() method to fetch the OSM data
-    const relationsData = await OSMController.getOSMAllRelationsData([
-      filteredOsmIds[0],
-    ]);
+    const relationsData = await OSMController.getOSMAllRelationsData(
+      filteredOsmIds
+    );
 
     const constraints = {
-      area: "Recife", // Replace with the name of the city in the Recife metropolitan region
+      area: "Região Metropolitana do Recife", // Replace with the name of the city in the Recife metropolitan region
       // Add any other constraints you might need here
     };
     // Call the OSMController.getOSMAreaData() method to fetch the OSM data
     const areaData = await OSMController.getOSMAreaData(constraints);
 
     // Call the compareRefs() function to compare the data
-    const comparisonResult = await compareExistingWithProjectedCyclingInfrastruture(
-      areaData,
-      relationsData,
-      pdcData
-    );
+    const comparisonResult =
+      await compareExistingWithProjectedCyclingInfrastruture(
+        areaData,
+        relationsData,
+        pdcData
+      );
 
+    await fetchInfrastructureData(comparisonResult);
     // Send the retrieved data as a response
     res.json(comparisonResult);
   } catch (error) {
