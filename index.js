@@ -71,7 +71,7 @@ app.get("/cycling-infra/observatory", async (req, res) => {
     const areaData = await OSMController.getOSMAreaData(constraints);
 
     // Call the compareRefs() function to compare the data
-    const comparisonResult = await compareRefs(
+    const comparisonResult = await compareExistingWithProjectedCyclingInfrastruture(
       areaData,
       relationsData,
       pdcData

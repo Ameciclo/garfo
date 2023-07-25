@@ -5,25 +5,9 @@ const OSMController = require("./OSMController");
 const { OVERPASS_SERVERS, DEFAULT_BORDER_WIDTH } = require("./constants.js");
 const layers = require("./layers.json");
 
-async function addTypologyToGeoJSON(geoJson) {
+function getTypologyFromGeoJSON(geoJsonProperties) {
   const typologyMap = getTypologyMap();
-
-  const geoJsonWithTypology = {
-    ...geoJson,
-    features: geoJson.features.map((feature) => {
-      const filters = getFiltersFromProperties(feature.properties);
-      const typology = typologyMap[JSON.stringify(filters)] || null;
-      return {
-        ...feature,
-        properties: {
-          ...feature.properties,
-          typology,
-        },
-      };
-    }),
-  };
-
-  return geoJsonWithTypology;
+  return getFiltersFromProperties(geoJsonProperties);
 }
 
 function getTypologyMap() {
@@ -31,8 +15,16 @@ function getTypologyMap() {
   layers.forEach((layer) => {
     if (layer.filters) {
       layer.filters.forEach((filter) => {
-        const filterString = JSON.stringify(filter);
-        typologyMap[filterString] = layer.name;
+        let filterString;
+        if (Array.isArray(filter[0])) {
+          filterString = filter[0].join("=");
+        } else {
+          filterString = filter.join("=");
+        }
+        typologyMap[filterString] = {
+          name: layer.name,
+          composed: Array.isArray(filter[0]) ? filter[0].join("=") : false,
+        };
       });
     }
   });
@@ -40,17 +32,41 @@ function getTypologyMap() {
 }
 
 function getFiltersFromProperties(properties) {
-  return Object.entries(properties)
-    .filter(([key, value]) => value === "yes" || value === "designated")
-    .map(([key]) => [key, "yes"]);
+  const typologyMap = getTypologyMap();
+  const filters = Object.entries(properties).map(([key, value]) => {
+    const filterString = `${key}=${value}`;
+    if (typologyMap[filterString]) {
+      const { composed } = typologyMap[filterString];
+      if (composed) {
+        // Check if any property matches the composed filter
+        const matchesComposed = Object.entries(properties).some(
+          ([propKey, propValue]) => composed === `${propKey}=${propValue}`
+        );
+
+        // If there is a match, return the typology name
+        if (matchesComposed) {
+          return typologyMap[filterString].name;
+        }
+      } else {
+        return typologyMap[filterString].name;
+      }
+    }
+  });
+  // If no match was found, return "none"
+  const filteredFilters = filters.filter(Boolean);
+  return filteredFilters.length > 0 ? filteredFilters[0] : "none";
 }
 
-async function compareRefs(areaData, relationsData, pdcData) {
+async function compareExistingWithProjectedCyclingInfrastruture(
+  existing,
+  projected,
+  pdcData
+) {
   try {
     const allElements = [];
 
     // Step 1: Process each element from relationsData
-    for (const relationElement of relationsData.elements) {
+    for (const relationElement of projected.elements) {
       const relation_id = relationElement.id;
       const relationRefs = new Set();
       for (const relationMember of relationElement.members) {
@@ -93,7 +109,7 @@ async function compareRefs(areaData, relationsData, pdcData) {
             );
             // Calculate the total kilometers using turf.length()
             const total_km = turf.length(element);
-
+            const typology = getTypologyFromGeoJSON(element.properties);
             const newElementFormat = {
               relation_id: matchingPdcData ? matchingPdcData.id : null,
               osm_id: parseInt(element.id.replace("way/", "")),
@@ -101,8 +117,10 @@ async function compareRefs(areaData, relationsData, pdcData) {
               geojson: element,
               length: total_km,
               highway: element.properties.highway || "",
+              cycleway_typology: typology || "",
+              has_cycleway: typology != "none" ? true : false,
             };
-            allElements.push(addTypologyToGeoJSON(newElementFormat));
+            allElements.push(newElementFormat);
           }
         }
       }
@@ -110,8 +128,8 @@ async function compareRefs(areaData, relationsData, pdcData) {
     // Step 4: Remove elements from areaData with ids present in relationRefs
     const relationRefs = new Set(allElements.map((element) => element.id));
     const areaDataFiltered = {
-      ...areaData,
-      elements: areaData.elements.filter(
+      ...existing,
+      elements: existing.elements.filter(
         (element) => !relationRefs.has(element.id)
       ),
     };
@@ -132,11 +150,12 @@ async function compareRefs(areaData, relationsData, pdcData) {
           length: total_km,
           highway: element.properties.highway || "",
           has_cycleway: true,
+          cycleway_typology: getTypologyFromGeoJSON(element.properties) || "",
         };
-        allElements.push(addTypologyToGeoJSON(newElementFormat));
+        allElements.push(newElementFormat);
       }
     }
-
+    // console.log(typologyList)
     return allElements;
   } catch (error) {
     console.error("Error fetching data from Overpass API:", error);
@@ -144,4 +163,4 @@ async function compareRefs(areaData, relationsData, pdcData) {
   }
 }
 
-module.exports = compareRefs;
+module.exports = compareExistingWithProjectedCyclingInfrastruture;

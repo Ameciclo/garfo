@@ -68,50 +68,5 @@
             "lineColor": "#E76F51",
             "lineWidth": 4
         }
-    },
-    {
-        "name": "Baixa velocidade",
-        "description": "Vias com limite de velocidade regulamentado de até 30km/h.",
-        "isActive": false,
-        "filters": [
-            ["maxspeed", "30"],
-            ["maxspeed", "20"],
-            [["highway","living_street"],["bicycle","yes"]]
-        ],
-        "style": {
-            "lineColor": "#FF8A00",
-            "lineWidth": 2,
-            "lineStyle": "dashed"
-        }
-    },
-    {
-        "name": "Trilha",
-        "description": "Caminhos geralmente não pavimentados com acesso permitido ou destinado a bicicleta.",
-        "isActive": false,
-        "filters": [
-            [["highway","track"],["bicycle","designated"]],
-            [["highway","track"],["bicycle","yes"]],
-            [["highway","path"],["bicycle","designated"]],
-            [["highway","path"],["bicycle","yes"]]
-        ],
-        "style": {
-            "lineColor": "#996633",
-            "lineWidth": 2,
-            "lineStyle": "dashed"
-        }
-    },
-    {
-        "name": "Proibido",
-        "description": "Vias onde é proibido pedalar em cima da bicicleta, mas você pode desmontar e passar empurrando ela.",
-        "isActive": false,
-        "filters": [
-            ["bicycle", "no"],
-            ["bicycle", "dismount"]
-        ],
-        "style": {
-            "lineColor": "#F5222D",
-            "lineWidth": 2,
-            "lineStyle": "dashed"
-        }
     }
 ]
