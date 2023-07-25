@@ -1,7 +1,7 @@
 // INDEX.JS
 // Import necessary modules and packages
 require("dotenv").config();
-const { RELATION_IDS } = require("constants");
+const { RELATION_IDS } = require("./constants.js");
 const express = require("express");
 const cors = require("cors");
 
@@ -26,6 +26,10 @@ app.use("/cyclist-profile", cyclistProfileRouter);
 const cyclistProfileEditionsRouter = require("./cyclist-profile-editions");
 app.use("/cyclist-profile-editions", cyclistProfileEditionsRouter);
 
+// Import the router for fetching PDC data
+const cyclingInfraRelationsRouter = require("./cycling-infra-relations.js");
+app.use("/cycling-infra-relations", cyclingInfraRelationsRouter); // Use the fetchInfrastructureData router for /pdc-data route
+
 // Add the route to fetch OSM data
 const OSMController = require("./OSMController"); // Add this line to require the OSMController module
 app.get("/osm-data", async (req, res) => {
@@ -46,6 +50,7 @@ app.get("/osm-data", async (req, res) => {
   }
 });
 
+//const fetchInfrastructureData = require('./cycling-infra-observatory-fetcher.js')
 // Add the route to fetch PDC data
 app.get("/pdc-data", async (req, res) => {
   try {
@@ -55,8 +60,8 @@ app.get("/pdc-data", async (req, res) => {
     };
 
     // Call the fetchInfrastructureData() function to get the osm_id array
-    // const osmIds = await fetchInfrastructureData();
-    // console.log(osmIds)
+   // const osmIds = await cyclingInfraRelationsRouter();
+    //console.log(osmIds)
 
     // Call the OSMController.getOSMAllRelationsData() method to fetch the OSM data
     const relationsData = await OSMController.getOSMAllRelationsData(
