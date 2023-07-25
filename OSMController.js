@@ -5,6 +5,8 @@ const layers = require("./layers.json");
 const axios = require("axios");
 const { CancelToken } = axios;
 const osmtogeojson = require("osmtogeojson");
+// Import the turf library
+const turf = require("@turf/turf");
 
 const AREA_ID_OVERRIDES = { teste: 303585 }; // Replace with actual area IDs
 
@@ -455,11 +457,16 @@ class OSMController {
               const matchingPdcData = pdcData.find(
                 (data) => data.osm_id === relation_id
               );
+              // Calculate the total kilometers using turf.length()
+              const total_km = turf.length(element);
+
               const newElementFormat = {
                 relation_id: matchingPdcData ? matchingPdcData.id : null,
                 osm_id: parseInt(element.id.replace("way/", "")),
                 name: element.properties.name || "",
                 geojson: element,
+                length: total_km,
+                highway: element.properties.highway || "",
               };
               allElements.push(newElementFormat);
             }
