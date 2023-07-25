@@ -487,12 +487,17 @@ class OSMController {
       // Step 5: Apply "relation_id" tag with value 257 to all elements in areaDataFiltered
       for (const element of areageojson.features) {
         const id = element.id;
+        // Calculate the total kilometers using turf.length()
+        const total_km = turf.length(element);
         if (id.startsWith("way/")) {
           const newElementFormat = {
             relation_id: 257,
             osm_id: parseInt(element.id.replace("way/", "")),
             name: element.properties.name || "",
             geojson: element,
+            length: total_km,
+            highway: element.properties.highway || "",
+            has_cycleway: true,
           };
           allElements.push(newElementFormat);
         }
