@@ -1,8 +1,5 @@
 /* eslint-disable no-loop-func */
-const {
-  OVERPASS_SERVERS,
-  DEFAULT_BORDER_WIDTH,
-} = require("./constants.js");
+const { OVERPASS_SERVERS, DEFAULT_BORDER_WIDTH } = require("./constants.js");
 const { slugify } = require("./utils.js");
 const layers = require("./layers.json");
 const axios = require("axios");
@@ -412,7 +409,7 @@ class OSMController {
     `;
   }
 
-  static async compareRefs(areaData, relationsData) {
+  static async compareRefs(areaData, relationsData, pdcData) {
     try {
       const allElements = [];
 
@@ -455,8 +452,11 @@ class OSMController {
           for (const element of geojson.features) {
             const id = element.id;
             if (id.startsWith("way/")) {
+              const matchingPdcData = pdcData.find(
+                (data) => data.osm_id === relation_id
+              );
               const newElementFormat = {
-                relation_id: relation_id,
+                relation_id: matchingPdcData ? matchingPdcData.id : null,
                 osm_id: parseInt(element.id.replace("way/", "")),
                 name: element.properties.name || "",
                 geojson: element,
@@ -497,8 +497,6 @@ class OSMController {
       throw error;
     }
   }
-
-  
 }
 
 module.exports = OSMController;

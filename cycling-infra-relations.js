@@ -1,8 +1,5 @@
 // cycling-infra-relations.js
-const express = require("express");
 const { Pool } = require("pg");
-
-const router = express.Router();
 
 const pool = new Pool({
   user: process.env.POSTGRES_USER,
@@ -13,8 +10,8 @@ const pool = new Pool({
   ssl: true,
 });
 
-// Route to list relations that do not have the total_km field filled
-router.get("/", async (req, res) => {
+// Function to fetch relations data from the database
+async function getRelationsData() {
   try {
     const query = `
       SELECT id,
@@ -30,11 +27,11 @@ router.get("/", async (req, res) => {
       FROM cycling_infra.relations
     `;
     const { rows } = await pool.query(query);
-    res.json(rows);
+    return rows;
   } catch (error) {
     console.error("Error fetching data:", error);
-    res.status(500).json({ error: "An error occurred while fetching data." });
+    throw new Error("An error occurred while fetching data.");
   }
-});
+}
 
-module.exports = router;
+module.exports = { getRelationsData };

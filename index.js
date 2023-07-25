@@ -27,8 +27,17 @@ const cyclistProfileEditionsRouter = require("./cyclist-profile-editions");
 app.use("/cyclist-profile-editions", cyclistProfileEditionsRouter);
 
 // Import the router for fetching PDC data
-const cyclingInfraRelationsRouter = require("./cycling-infra-relations.js");
-app.use("/cycling-infra-relations", cyclingInfraRelationsRouter); // Use the fetchInfrastructureData router for /pdc-data route
+const {getRelationsData} = require("./cycling-infra-relations.js");
+// Route to use the data from getRelationsData function
+app.get("/cycling-infra-relations", async (req, res) => {
+  try {
+    const relationsData = await getRelationsData();
+    res.json(relationsData);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "An error occurred while fetching data." });
+  }
+});
 
 // Add the route to fetch OSM data
 const OSMController = require("./OSMController"); // Add this line to require the OSMController module
@@ -50,7 +59,6 @@ app.get("/osm-data", async (req, res) => {
   }
 });
 
-//const fetchInfrastructureData = require('./cycling-infra-observatory-fetcher.js')
 // Add the route to fetch PDC data
 app.get("/pdc-data", async (req, res) => {
   try {
@@ -60,12 +68,13 @@ app.get("/pdc-data", async (req, res) => {
     };
 
     // Call the fetchInfrastructureData() function to get the osm_id array
-   // const osmIds = await cyclingInfraRelationsRouter();
-    //console.log(osmIds)
+    const pdcData = await getRelationsData();
+    const osmIds = pdcData.map((relation) => relation.osm_id);    
+    const filteredOsmIds = osmIds.filter((osmId) => osmId !== null);
 
     // Call the OSMController.getOSMAllRelationsData() method to fetch the OSM data
     const relationsData = await OSMController.getOSMAllRelationsData(
-      RELATION_IDS
+      [filteredOsmIds[0]]
     );
 
     // Call the OSMController.getOSMAreaData() method to fetch the OSM data
@@ -74,7 +83,8 @@ app.get("/pdc-data", async (req, res) => {
     // Call the compareRefs() function to compare the data
     const comparisonResult = await OSMController.compareRefs(
       areaData,
-      relationsData
+      relationsData,
+      pdcData
     );
 
     // Send the retrieved data as a response
