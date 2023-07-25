@@ -2,7 +2,6 @@
 const {
   OVERPASS_SERVERS,
   DEFAULT_BORDER_WIDTH,
-  RELATION_IDS,
 } = require("./constants.js");
 const { slugify } = require("./utils.js");
 const layers = require("./layers.json");
@@ -369,7 +368,7 @@ class OSMController {
     }
   }
 
-  static async getOSMAllRelationsData() {
+  static async getOSMAllRelationsData(RELATION_IDS) {
     try {
       const query = OSMController.getMultipleRelationQuery(RELATION_IDS);
       console.debug("generated query:", query);
@@ -409,39 +408,30 @@ class OSMController {
     return `
       [out:json];
       ${waysQueries};
-      out body;>;out skel qt;
+      out body geom;>;
     `;
-  }
-
-  // Function to find the relation_id for a given ref
-  static findRelationIdForRef(ref, relationsData) {
-    for (const relation of relationsData.elements) {
-      for (const member of relation.members) {
-        if (member.ref === ref) {
-          return relation.id;
-        }
-      }
-    }
-    return null; // If relation_id is not found
   }
 
   static async compareRefs(areaData, relationsData) {
     try {
       const allElements = [];
-  
+
       // Step 1: Process each element from relationsData
       for (const relationElement of relationsData.elements) {
+        const relation_id = relationElement.id;
         const relationRefs = new Set();
         for (const relationMember of relationElement.members) {
           relationRefs.add(relationMember.ref);
         }
-  
+
         // Step 2: Query Overpass Turbo with relationRefs
-        const query = OSMController.getMultipleWaysQuery([Array.from(relationRefs)]);
+        const query = OSMController.getMultipleWaysQuery([
+          Array.from(relationRefs),
+        ]);
         console.debug("generated query:", query);
         const encodedQuery = encodeURI(query);
         let relationsWays = null;
-  
+
         for (let i = 0; i < OVERPASS_SERVERS.length; i++) {
           const endpoint = OVERPASS_SERVERS[i] + "?data=" + encodedQuery;
           console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
@@ -458,38 +448,57 @@ class OSMController {
             console.error(`[SERVER #${i}] Error:`, error);
           }
         }
-  
+
         // Step 3: Add "relation_id" tag to each element in relationsWays
         if (relationsWays) {
-          for (const element of relationsWays.elements) {
-            const relationId = OSMController.findRelationIdForRef(element.id, relationsData);
-            element.tags = { ...element.tags, relation_id: relationId };
+          const geojson = osmtogeojson(relationsWays);
+          for (const element of geojson.features) {
+            const id = element.id;
+            if (id.startsWith("way/")) {
+              const newElementFormat = {
+                relation_id: relation_id,
+                osm_id: parseInt(element.id.replace("way/", "")),
+                name: element.properties.name || "",
+                geojson: element,
+              };
+              allElements.push(newElementFormat);
+            }
           }
-  
-          allElements.push(...relationsWays.elements);
         }
       }
-  
       // Step 4: Remove elements from areaData with ids present in relationRefs
       const relationRefs = new Set(allElements.map((element) => element.id));
       const areaDataFiltered = {
         ...areaData,
-        elements: areaData.elements.filter((element) => !relationRefs.has(element.id)),
+        elements: areaData.elements.filter(
+          (element) => !relationRefs.has(element.id)
+        ),
       };
-  
+
+      const areageojson = osmtogeojson(areaDataFiltered);
+
       // Step 5: Apply "relation_id" tag with value 257 to all elements in areaDataFiltered
-      for (const element of areaDataFiltered.elements) {
-        element.tags = { ...element.tags, relation_id: 257 };
+      for (const element of areageojson.features) {
+        const id = element.id;
+        if (id.startsWith("way/")) {
+          const newElementFormat = {
+            relation_id: 257,
+            osm_id: parseInt(element.id.replace("way/", "")),
+            name: element.properties.name || "",
+            geojson: element,
+          };
+          allElements.push(newElementFormat);
+        }
       }
-  
-      // Step 6: Convert the final result to geoJSON using osmtogeojson
-      const finalGeoJSON = osmtogeojson(allElements.concat(areaDataFiltered.elements));
-      return finalGeoJSON;
+
+      return allElements;
     } catch (error) {
       console.error("Error fetching data from Overpass API:", error);
       throw error;
     }
   }
-}  
+
+  
+}
 
 module.exports = OSMController;

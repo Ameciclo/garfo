@@ -1,5 +1,6 @@
 // INDEX.JS
 require("dotenv").config();
+const {RELATION_IDS} = require("constants")
 const express = require("express");
 const cors = require("cors");
 
@@ -20,6 +21,7 @@ app.use("/cyclist-profile", cyclistProfieRouter);
 
 const cyclistProfileEditionsRouter = require("./cyclist-profile-editions");
 app.use("/cyclist-profile-editions", cyclistProfileEditionsRouter);
+
 // Add the route to fetch OSM data
 const OSMController = require("./OSMController"); // Add this line to require the OSMController module
 app.get("/osm-data", async (req, res) => {
@@ -40,6 +42,7 @@ app.get("/osm-data", async (req, res) => {
   }
 });
 
+const fetchInfrastructureData = require("cycling-infra-observatory-fetcher")
 app.get("/pdc-data", async (req, res) => {
   try {
     const constraints = {
@@ -47,19 +50,24 @@ app.get("/pdc-data", async (req, res) => {
       // Add any other constraints you might need here
     };
 
+    // Call the fetchInfrastructureData() function to get the osm_id array
+    const osmIds = await fetchInfrastructureData();
+    console.log(osmIds)
     // Call the OSMController.getOSMAllRelationsData() method to fetch the OSM data
-    const relationsData = await OSMController.getOSMAllRelationsData();
+    const relationsData = await OSMController.getOSMAllRelationsData(
+      RELATION_IDS
+    );
 
     // Call the OSMController.getOSMAreaData() method to fetch the OSM data
     const areaData = await OSMController.getOSMAreaData(constraints);
 
-    //console.log(JSON.stringify(relationsData))
-
     // Call the compareRefs() function to compare the data
-    const comparisonResult = OSMController.compareRefs(areaData, relationsData);
-
+    const comparisonResult = await OSMController.compareRefs(
+      areaData,
+      relationsData
+    );
     // Send the retrieved data as a response
-    res.json({area: areaData, pdc: relationsData, result: comparisonResult});
+    res.json(comparisonResult);
   } catch (error) {
     console.error("Error fetching OSM data:", error);
     res.status(500).json({ error: "Error fetching OSM data" });

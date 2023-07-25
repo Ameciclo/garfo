@@ -1,3 +1,4 @@
+//cycling-infra-observatory-fetcher.js
 require('dotenv').config();
 const axios = require('axios');
 const { Pool } = require('pg');
@@ -47,7 +48,7 @@ async function fetchInfrastructureData() {
       console.log(`Dados atualizados para a relação ${pdcRef}`);
     }
 
-    console.log('Fetch concluído com sucesso!');
+    ('Fetch concluído com sucesso!');
   } catch (error) {
     console.error('Ocorreu um erro ao buscar e preencher os dados:', error);
   } finally {
