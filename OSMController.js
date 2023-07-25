@@ -14,8 +14,7 @@ const AREA_ID_OVERRIDES = { teste: 303585 }; // Replace with actual area IDs
 
 class OSMController {
   // getQuery() remains the same
-  static getQuery(constraints) {
-    console.log(constraints);
+  static getAreaQuery(constraints) {
     const bbox = constraints.bbox;
     const areaId = constraints.areaId;
     const filteredLayers = layers.filter((l) => l.filters);
@@ -50,6 +49,28 @@ class OSMController {
         out body geom;
     `;
   }
+
+  static getMultipleRelationQuery(relationIds) {
+    const relationQueries = relationIds
+      .map((id) => `relation(${id});`)
+      .join("\n");
+    return `
+      [out:json];
+      (
+      ${relationQueries}
+      );
+      out geom;
+    `;
+  }
+
+  static getRelationQuery(relationId) {
+    return `
+      [out:json][timeout:500];
+      relation(${relationId});
+      out geom;
+    `;
+  }
+
   static getLayers() {
     layers.default.forEach((l) => {
       // Generate an ID based on name
@@ -132,15 +153,14 @@ class OSMController {
     });
   }
 
-  static getData(constraints) {
+  static getAreaData(constraints) {
     return new Promise((resolve, reject) => {
       let geoJson;
       let cancelSource;
 
-      console.log(constraints);
       this.getAreaId(constraints.area)
         .then((areaId) => {
-          const query = OSMController.getQuery({ areaId });
+          const query = OSMController.getAreaQuery({ areaId });
           console.debug("generated query: ", query);
 
           const encodedQuery = encodeURI(query);
@@ -168,9 +188,9 @@ class OSMController {
                     }
                   }
 
-                  console.debug("osm data: ", data);
+                  //console.debug("osm area data: ", data);
                   geoJson = osmtogeojson(data, { flatProperties: true });
-                  console.debug("converted to geoJSON: ", geoJson);
+                  //console.debug("converted to geoJSON: ", geoJson);
 
                   resolve({
                     geoJson: geoJson,
@@ -206,24 +226,6 @@ class OSMController {
           reject();
         });
     });
-  }
-  static getMultipleRelationQuery(relationIds) {
-    const relationQueries = relationIds.map((id) => `relation(${id});`).join('\n');
-    return `
-      [out:json];
-      (
-      ${relationQueries}
-      );
-      out geom;
-    `;
-  }
-  
-  static getRelationQuery(relationId) {
-    return `
-      [out:json][timeout:500];
-      relation(${relationId});
-      out geom;
-    `;
   }
 
   static async getRelationData(relationId) {
@@ -284,6 +286,7 @@ class OSMController {
 
           if (response.status === 200 && response.data.elements.length > 0) {
             console.debug(`[SERVER #${i}] Success!`);
+            //console.debug("osm relations data: ", response.data);
             geoJson = osmtogeojson(response.data);
             break; // Stop iterating servers once we get data
           } else {
@@ -304,7 +307,189 @@ class OSMController {
     }
   }
 
-}
+  static async getOSMAreaData(constraints) {
+    try {
+      const areaId = await this.getAreaId(constraints.area);
+      const query = OSMController.getAreaQuery({ areaId });
+      console.debug("generated query: ", query);
+      const encodedQuery = encodeURI(query);
+      let cancelSource;
+      const requests = [];
+      for (let i = 0; i < OVERPASS_SERVERS.length; i++) {
+        const endpoint = OVERPASS_SERVERS[i] + "?data=" + encodedQuery;
+        console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
 
+        // Create a cancel token for each request
+        cancelSource = CancelToken.source();
+
+        try {
+          const response = await axios.get(endpoint, {
+            cancelToken: cancelSource.token,
+          });
+          const data = response.data;
+
+          if (data.elements.length > 0) {
+            console.debug(`[SERVER #${i}] Success!`);
+            // Cancel all other requests once one succeeds
+            for (let r = 0; r < requests.length; r++) {
+              if (r !== i) {
+                console.debug(`[SERVER #${r}] Aborting`);
+                cancelSource.cancel(`Request #${r} was aborted`);
+              }
+            }
+            //console.debug("osm data: ", data);
+            return data;
+          } else {
+            console.debug(`[SERVER #${i}] Empty result`);
+
+            // Check if I'm the last one
+            let isLastRemainingRequest = true;
+            for (let r = 0; r < requests.length; r++) {
+              if (r !== i) {
+                if (requests[r].status === undefined) {
+                  isLastRemainingRequest = false;
+                }
+              }
+            }
+
+            if (isLastRemainingRequest) {
+              console.debug(
+                `[SERVER #${i}] I was the last one, so probably the result is empty.`
+              );
+              return { geoJson: null };
+            }
+          }
+        } catch (error) {
+          console.error(`[SERVER #${i}] Error:`, error);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  }
+
+  static async getOSMAllRelationsData() {
+    try {
+      const query = OSMController.getMultipleRelationQuery(RELATION_IDS);
+      console.debug("generated query:", query);
+      const encodedQuery = encodeURI(query);
+      let data = null;
+      for (let i = 0; i < OVERPASS_SERVERS.length; i++) {
+        const endpoint = OVERPASS_SERVERS[i] + "?data=" + encodedQuery;
+        console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
+        try {
+          const response = await axios.get(endpoint);
+          if (response.status === 200 && response.data.elements.length > 0) {
+            console.debug(`[SERVER #${i}] Success!`);
+            data = response.data;
+            break; // Stop iterating servers once we get data
+          } else {
+            console.debug(`[SERVER #${i}] Empty result`);
+          }
+        } catch (error) {
+          console.error(`[SERVER #${i}] Error:`, error);
+        }
+      }
+
+      return data;
+    } catch (error) {
+      console.error(
+        `Error fetching data for relation ID ${relationId}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  static getMultipleWaysQuery(waysIds) {
+    const waysQueries = waysIds
+      .map((ids) => `way(id:${[...ids].join(",")})`)
+      .join("\n");
+    return `
+      [out:json];
+      ${waysQueries};
+      out body;>;out skel qt;
+    `;
+  }
+
+  // Function to find the relation_id for a given ref
+  static findRelationIdForRef(ref, relationsData) {
+    for (const relation of relationsData.elements) {
+      for (const member of relation.members) {
+        if (member.ref === ref) {
+          return relation.id;
+        }
+      }
+    }
+    return null; // If relation_id is not found
+  }
+
+  static async compareRefs(areaData, relationsData) {
+    try {
+      const allElements = [];
+  
+      // Step 1: Process each element from relationsData
+      for (const relationElement of relationsData.elements) {
+        const relationRefs = new Set();
+        for (const relationMember of relationElement.members) {
+          relationRefs.add(relationMember.ref);
+        }
+  
+        // Step 2: Query Overpass Turbo with relationRefs
+        const query = OSMController.getMultipleWaysQuery([Array.from(relationRefs)]);
+        console.debug("generated query:", query);
+        const encodedQuery = encodeURI(query);
+        let relationsWays = null;
+  
+        for (let i = 0; i < OVERPASS_SERVERS.length; i++) {
+          const endpoint = OVERPASS_SERVERS[i] + "?data=" + encodedQuery;
+          console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
+          try {
+            const response = await axios.get(endpoint);
+            if (response.status === 200 && response.data.elements.length > 0) {
+              console.debug(`[SERVER #${i}] Success!`);
+              relationsWays = response.data;
+              break; // Stop iterating servers once we get data
+            } else {
+              console.debug(`[SERVER #${i}] Empty result`);
+            }
+          } catch (error) {
+            console.error(`[SERVER #${i}] Error:`, error);
+          }
+        }
+  
+        // Step 3: Add "relation_id" tag to each element in relationsWays
+        if (relationsWays) {
+          for (const element of relationsWays.elements) {
+            const relationId = OSMController.findRelationIdForRef(element.id, relationsData);
+            element.tags = { ...element.tags, relation_id: relationId };
+          }
+  
+          allElements.push(...relationsWays.elements);
+        }
+      }
+  
+      // Step 4: Remove elements from areaData with ids present in relationRefs
+      const relationRefs = new Set(allElements.map((element) => element.id));
+      const areaDataFiltered = {
+        ...areaData,
+        elements: areaData.elements.filter((element) => !relationRefs.has(element.id)),
+      };
+  
+      // Step 5: Apply "relation_id" tag with value 257 to all elements in areaDataFiltered
+      for (const element of areaDataFiltered.elements) {
+        element.tags = { ...element.tags, relation_id: 257 };
+      }
+  
+      // Step 6: Convert the final result to geoJSON using osmtogeojson
+      const finalGeoJSON = osmtogeojson(allElements.concat(areaDataFiltered.elements));
+      return finalGeoJSON;
+    } catch (error) {
+      console.error("Error fetching data from Overpass API:", error);
+      throw error;
+    }
+  }
+}  
 
 module.exports = OSMController;
