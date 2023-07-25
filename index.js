@@ -53,11 +53,6 @@ app.get("/cycling-infra/relation/:relationId", async (req, res) => {
 // Add the route to fetch PDC data
 app.get("/cycling-infra/observatory", async (req, res) => {
   try {
-    const constraints = {
-      area: "Recife", // Replace with the name of the city in the Recife metropolitan region
-      // Add any other constraints you might need here
-    };
-
     // Call the fetchInfrastructureData() function to get the osm_id array
     const pdcData = await getRelationsData();
     const osmIds = pdcData.map((relation) => relation.osm_id);
@@ -68,6 +63,10 @@ app.get("/cycling-infra/observatory", async (req, res) => {
       filteredOsmIds[0],
     ]);
 
+    const constraints = {
+      area: "Recife", // Replace with the name of the city in the Recife metropolitan region
+      // Add any other constraints you might need here
+    };
     // Call the OSMController.getOSMAreaData() method to fetch the OSM data
     const areaData = await OSMController.getOSMAreaData(constraints);
 
