@@ -11,7 +11,7 @@ const pool = new Pool({
   ssl: true,
 });
 
-async function fetchInfrastructureData(comparisonResult) {
+async function updateInfraData(comparisonResult) {
   try {
     // ... (rest of the code)
 
@@ -75,4 +75,4 @@ async function insertWaysData(waysData) {
   }
 }
 
-module.exports = fetchInfrastructureData;
+module.exports = updateInfraData;

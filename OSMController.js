@@ -303,7 +303,7 @@ class OSMController {
     }
   }
 
-  static async getOSMAreaData(constraints) {
+  static async getCycleWaysOSMJsonFromArea(constraints) {
     try {
       const areaId = await this.getAreaId(constraints.area);
       const query = OSMController.getAreaQuery({ areaId });
@@ -365,7 +365,7 @@ class OSMController {
     }
   }
 
-  static async getOSMAllRelationsData(RELATION_IDS) {
+  static async getWaysOSMJsonFromRelationsIds(RELATION_IDS) {
     try {
       const query = OSMController.getMultipleRelationQuery(RELATION_IDS);
       console.debug("generated query:", query);

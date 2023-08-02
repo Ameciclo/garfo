@@ -23,7 +23,8 @@ async function getRelationsData() {
       pdc_km,
       pdc_stretch,
       pdc_cities,
-      osm_id
+      osm_id,
+      notes
       FROM cycling_infra.relations
     `;
     const { rows } = await pool.query(query);

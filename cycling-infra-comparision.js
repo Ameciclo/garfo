@@ -108,6 +108,10 @@ async function compareExistingWithProjectedCyclingInfrastruture(
               (data) => data.osm_id === relation_id
             );
             // Calculate the total kilometers using turf.length()
+            let dual_carriage = false;
+            if (element.properties.dual_carriageway)
+              dual_carriage =
+                element.properties.dual_carriageway == "yes" ? true : false;
             const total_km = turf.length(element);
             const typology = getTypologyFromGeoJSON(element.properties);
             const newElementFormat = {
@@ -119,6 +123,7 @@ async function compareExistingWithProjectedCyclingInfrastruture(
               highway: element.properties.highway || "",
               cycleway_typology: typology || "",
               has_cycleway: typology != "none" ? true : false,
+              dual_carriageway: dual_carriage,
             };
             allElements.push(newElementFormat);
           }
@@ -138,6 +143,10 @@ async function compareExistingWithProjectedCyclingInfrastruture(
 
     // Step 5: Apply "relation_id" tag with value 257 to all elements in areaDataFiltered
     for (const element of areageojson.features) {
+      let dual_carriage = false;
+      if (element.properties.dual_carriageway)
+        dual_carriage =
+          element.properties.dual_carriageway == "yes" ? true : false;
       const id = element.id;
       // Calculate the total kilometers using turf.length()
       const total_km = turf.length(element);
@@ -150,6 +159,7 @@ async function compareExistingWithProjectedCyclingInfrastruture(
           length: total_km,
           highway: element.properties.highway || "",
           has_cycleway: true,
+          dual_carriageway: dual_carriage,
           cycleway_typology: getTypologyFromGeoJSON(element.properties) || "",
         };
         allElements.push(newElementFormat);

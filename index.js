@@ -10,7 +10,7 @@ const cyclistProfileEditionsRouter = require("./cyclist-profile-editions");
 const { getRelationsData } = require("./cycling-infra-relations.js");
 const OSMController = require("./OSMController"); // Add this line to require the OSMController module
 const compareExistingWithProjectedCyclingInfrastruture = require("./cycling-infra-comparision.js");
-const fetchInfrastructureData = require("./cycling-infra-updater");
+const updateInfraData = require("./cycling-infra-updater");
 const { getWaysData } = require("./cycling-infra-ways");
 
 const port = 3000; // Define the desired port for the API
@@ -72,7 +72,7 @@ app.get("/cycling-infra/update", async (req, res) => {
     const filteredOsmIds = osmIds.filter((osmId) => osmId !== null);
 
     // Call the OSMController.getOSMAllRelationsData() method to fetch the OSM data
-    const relationsData = await OSMController.getOSMAllRelationsData(
+    const relationsData = await OSMController.getWaysOSMJsonFromRelationsIds(
       filteredOsmIds
     );
 
@@ -81,7 +81,7 @@ app.get("/cycling-infra/update", async (req, res) => {
       // Add any other constraints you might need here
     };
     // Call the OSMController.getOSMAreaData() method to fetch the OSM data
-    const areaData = await OSMController.getOSMAreaData(constraints);
+    const areaData = await OSMController.getCycleWaysOSMJsonFromArea(constraints);
 
     // Call the compareRefs() function to compare the data
     const comparisonResult =
@@ -91,7 +91,7 @@ app.get("/cycling-infra/update", async (req, res) => {
         pdcData
       );
 
-    await fetchInfrastructureData(comparisonResult);
+    await updateInfraData(comparisonResult);
     // Send the retrieved data as a response
     res.json(comparisonResult);
   } catch (error) {
