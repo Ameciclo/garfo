@@ -6,7 +6,7 @@ const turf = require("@turf/turf");
 const OSMController = require("./OSMController");
 const { OVERPASS_SERVERS } = require("./constants.js");
 const layers = require("./layers.json");
-const { getRelationsData } = require("./cyclist-infra-relations.js");
+const { getRelationsData } = require("./cycling-infra-relations.js");
 
 const router = express.Router();
 

@@ -9,8 +9,7 @@ const osmtogeojson = require("osmtogeojson");
 const AREA_ID_OVERRIDES = { teste: 303585 }; // Replace with actual area IDs
 
 class OSMController {
-  // getQuery() remains the same
-  static getAreaQuery(constraints) {
+  static _getAreaQuery(constraints) {
     const bbox = constraints.bbox;
     const areaId = constraints.areaId;
     const filteredLayers = layers.filter((l) => l.filters);
@@ -46,7 +45,17 @@ class OSMController {
     `;
   }
 
-  static getMultipleRelationQuery(relationIds) {
+  static _getMultipleWaysQuery(waysIds) {
+    const flatIds = waysIds.flat();
+    const waysQueries = flatIds.map((id) => `way(id:${id})`).join(";\n");
+    return `
+      [out:json];
+      (${waysQueries};);
+      out body geom;>;
+    `;
+  } 
+
+  static _getMultipleRelationQuery(relationIds) {
     const relationQueries = relationIds
       .map((id) => `relation(${id});`)
       .join("\n");
@@ -59,7 +68,7 @@ class OSMController {
     `;
   }
 
-  static getRelationQuery(relationId) {
+  static _getRelationQuery(relationId) {
     return `
       [out:json][timeout:500];
       relation(${relationId});
@@ -67,7 +76,7 @@ class OSMController {
     `;
   }
 
-  static getLayers() {
+  static _getLayers() {
     layers.default.forEach((l) => {
       // Generate an ID based on name
       l.id = slugify(l.name);
@@ -93,7 +102,7 @@ class OSMController {
     return layers.default;
   }
 
-  static getAreaId(areaName) {
+  static _getAreaId(areaName) {
     return new Promise((resolve, reject) => {
       const overriden = AREA_ID_OVERRIDES[areaName];
       if (overriden) {
@@ -118,7 +127,7 @@ class OSMController {
                 i < nominatimData.length && osmId === undefined;
                 i++
               ) {
-                console.log("nominatimData[i]", nominatimData[i]);
+                console.debug("nominatimData[i]", nominatimData[i]);
                 if (nominatimData[i].osm_type === "relation") {
                   osmId = nominatimData[i].osm_id;
                 }
@@ -149,14 +158,14 @@ class OSMController {
     });
   }
 
-  static getAreaData(constraints) {
+  static _getAreaData(constraints) {
     return new Promise((resolve, reject) => {
       let geoJson;
       let cancelSource;
 
-      this.getAreaId(constraints.area)
+      OSMController._getAreaId(constraints.area)
         .then((areaId) => {
-          const query = OSMController.getAreaQuery({ areaId });
+          const query = OSMController._getAreaQuery({ areaId });
           console.debug("generated query: ", query);
 
           const encodedQuery = encodeURI(query);
@@ -226,7 +235,7 @@ class OSMController {
 
   static async getWaysFromRelationId(relationId) {
     try {
-      const query = OSMController.getRelationQuery(relationId);
+      const query = OSMController._getRelationQuery(relationId);
       console.debug("generated query:", query);
 
       const encodedQuery = encodeURI(query);
@@ -242,7 +251,9 @@ class OSMController {
           const response = await axios.get(endpoint);
 
           if (response.status === 200 && response.data.elements.length > 0) {
-            console.debug(`[SERVER #${i}] - relation ${relationId} -> Success!`);
+            console.debug(
+              `[SERVER #${i}] - relation ${relationId} -> Success!`
+            );
             geoJson = osmtogeojson(response.data);
             break; // Stop iterating servers once we get data
           } else {
@@ -263,27 +274,47 @@ class OSMController {
     }
   }
 
-  static async getWaysFromMultipleRelationData(RELATION_IDS) {
+  static async getOSMJsonWaysFromWaysIds(waysIds) {
+    // Step 2: Query Overpass Turbo with relationRefs
+    const query = OSMController._getMultipleWaysQuery(waysIds);
+
+    console.debug("generated query:", query);
+    const encodedQuery = encodeURI(query);
+    let relationsWays = null;
+
+    for (let i = 0; i < OVERPASS_SERVERS.length; i++) {
+      const endpoint = OVERPASS_SERVERS[i] + "?data=" + encodedQuery;
+      console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
+      try {
+        const response = await axios.get(endpoint);
+        if (response.status === 200 && response.data.elements.length > 0) {
+          console.debug(`[SERVER #${i}] Success!`);
+          relationsWays = response.data;
+          break; // Stop iterating servers once we get data
+        } else {
+          console.debug(`[SERVER #${i}] Empty result`);
+        }
+      } catch (error) {
+        console.error(`[SERVER #${i}] Error:`, error);
+      }
+    }
+    return relationsWays;
+  }
+
+  static async getRelationJsonFromIds(RELATION_IDS) {
     try {
-      const query = OSMController.getMultipleRelationQuery(RELATION_IDS);
+      const query = OSMController._getMultipleRelationQuery(RELATION_IDS);
       console.debug("generated query:", query);
-
       const encodedQuery = encodeURI(query);
-
-      let geoJson = null;
-
+      let data = null;
       for (let i = 0; i < OVERPASS_SERVERS.length; i++) {
         const endpoint = OVERPASS_SERVERS[i] + "?data=" + encodedQuery;
-
         console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
-
         try {
           const response = await axios.get(endpoint);
-
           if (response.status === 200 && response.data.elements.length > 0) {
             console.debug(`[SERVER #${i}] Success!`);
-            //console.debug("osm relations data: ", response.data);
-            geoJson = osmtogeojson(response.data);
+            data = response.data;
             break; // Stop iterating servers once we get data
           } else {
             console.debug(`[SERVER #${i}] Empty result`);
@@ -293,7 +324,7 @@ class OSMController {
         }
       }
 
-      return geoJson;
+      return data;
     } catch (error) {
       console.error(
         `Error fetching data for relation ID ${relationId}:`,
@@ -305,8 +336,8 @@ class OSMController {
 
   static async getCycleWaysOSMJsonFromArea(constraints) {
     try {
-      const areaId = await this.getAreaId(constraints.area);
-      const query = OSMController.getAreaQuery({ areaId });
+      const areaId = await OSMController._getAreaId(constraints.area);
+      const query = OSMController._getAreaQuery({ areaId });
       console.debug("generated query: ", query);
       const encodedQuery = encodeURI(query);
       let cancelSource;
@@ -364,51 +395,10 @@ class OSMController {
       throw e;
     }
   }
+}
 
-  static async getRelationJsonFromIds(RELATION_IDS) {
-    try {
-      const query = OSMController.getMultipleRelationQuery(RELATION_IDS);
-      console.debug("generated query:", query);
-      const encodedQuery = encodeURI(query);
-      let data = null;
-      for (let i = 0; i < OVERPASS_SERVERS.length; i++) {
-        const endpoint = OVERPASS_SERVERS[i] + "?data=" + encodedQuery;
-        console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
-        try {
-          const response = await axios.get(endpoint);
-          if (response.status === 200 && response.data.elements.length > 0) {
-            console.debug(`[SERVER #${i}] Success!`);
-            data = response.data;
-            break; // Stop iterating servers once we get data
-          } else {
-            console.debug(`[SERVER #${i}] Empty result`);
-          }
-        } catch (error) {
-          console.error(`[SERVER #${i}] Error:`, error);
-        }
-      }
-
-      return data;
-    } catch (error) {
-      console.error(
-        `Error fetching data for relation ID ${relationId}:`,
-        error
-      );
-      throw error;
-    }
-  }
-
-  static getMultipleWaysQuery(waysIds) {
-    const waysQueries = waysIds
-      .map((ids) => `way(id:${[...ids].join(",")})`)
-      .join("\n");
-    return `
-      [out:json];
-      ${waysQueries};
-      out body geom;>;
-    `;
-  }
-
- }
-
-module.exports = OSMController;
+module.exports = {
+  getCycleWaysOSMJsonFromArea: OSMController.getCycleWaysOSMJsonFromArea,
+  getRelationJsonFromIds: OSMController.getRelationJsonFromIds,
+  getOSMJsonWaysFromWaysIds: OSMController.getOSMJsonWaysFromWaysIds
+};

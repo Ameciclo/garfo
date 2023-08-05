@@ -64,31 +64,7 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
       for (const relationMember of relationElement.members) {
         relationRefs.add(relationMember.ref);
       }
-
-      // Step 2: Query Overpass Turbo with relationRefs
-      const query = OSMController.getMultipleWaysQuery([
-        Array.from(relationRefs),
-      ]);
-      console.debug("generated query:", query);
-      const encodedQuery = encodeURI(query);
-      let relationsWays = null;
-
-      for (let i = 0; i < OVERPASS_SERVERS.length; i++) {
-        const endpoint = OVERPASS_SERVERS[i] + "?data=" + encodedQuery;
-        console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
-        try {
-          const response = await axios.get(endpoint);
-          if (response.status === 200 && response.data.elements.length > 0) {
-            console.debug(`[SERVER #${i}] Success!`);
-            relationsWays = response.data;
-            break; // Stop iterating servers once we get data
-          } else {
-            console.debug(`[SERVER #${i}] Empty result`);
-          }
-        } catch (error) {
-          console.error(`[SERVER #${i}] Error:`, error);
-        }
-      }
+ 
       // Step 3: Add "relation_id" tag to each element in relationsWays
       if (relationsWays) {
         const geojson = osmtogeojson(relationsWays);
@@ -157,7 +133,7 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
     // console.log(typologyList)
     // return allElements; */
 
-    return {existing, projected}
+    return { existing, projected };
   } catch (error) {
     console.error("Error fetching data from Overpass API:", error);
     throw error;
@@ -223,7 +199,6 @@ async function insertWaysData(waysData) {
   }
 }
 
-//OK Function to compare existing data and fetch data from Overpass API
 async function comparePDConRMR() {
   // Call the getOSMIdFromRelations() function to get the osm_id array
   const pdcData = await getOSMIdFromRelations();
@@ -236,22 +211,36 @@ async function comparePDConRMR() {
   );
 
   // Map pdcData to include the relevant data for each element in pdcWaysData
-  const pdcDataMapped = pdcWaysData.elements.map(async (element) => {
-    const matchingPdcData = pdcData.find(
-      (data) => data.osm_id ? data.osm_id === element.id : null
+  const pdcDataMappedPromises = pdcWaysData.elements.map(async (element) => {
+    const matchingPdcData = pdcData.find((data) =>
+      data.osm_id ? data.osm_id === element.id : null
     );
-    const ways = await OSMController.getWaysFromRelationId(element.id)
+    const waysIds = element.members
+      .filter((member) => member.type === "way")
+      .map((member) => member.ref);
+
+    const ways = await OSMController.getOSMJsonWaysFromWaysIds(waysIds);
+    const tags = {
+      ...element.tags,
+      matchingPdcData,
+    };
+
     return {
       ...element,
       members: ways.elements,
-      pdcData: matchingPdcData,
+      tags: tags,
     };
   });
+
+  // Resolve all promises using Promise.all
+  const pdcDataMapped = await Promise.all(pdcDataMappedPromises);
 
   // Call the OSMController.getOSMAreaData() method to fetch the OSM data
   const rmrCycleWaysData = await OSMController.getCycleWaysOSMJsonFromArea({
     area: "Região Metropolitana do Recife",
   });
+
+  const fakeRelationOfRemainData = [{ members: rmrCycleWaysData.elements }];
 
   return compareExistingInfrastrutureOnAreaWithProjectOnRelations(
     rmrCycleWaysData,
