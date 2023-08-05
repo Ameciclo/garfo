@@ -242,7 +242,7 @@ class OSMController {
           const response = await axios.get(endpoint);
 
           if (response.status === 200 && response.data.elements.length > 0) {
-            console.debug(`[SERVER #${i}] Success!`);
+            console.debug(`[SERVER #${i}] - relation ${relationId} -> Success!`);
             geoJson = osmtogeojson(response.data);
             break; // Stop iterating servers once we get data
           } else {
@@ -365,7 +365,7 @@ class OSMController {
     }
   }
 
-  static async getWaysOSMJsonFromRelationsIds(RELATION_IDS) {
+  static async getRelationJsonFromIds(RELATION_IDS) {
     try {
       const query = OSMController.getMultipleRelationQuery(RELATION_IDS);
       console.debug("generated query:", query);
