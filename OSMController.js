@@ -224,7 +224,7 @@ class OSMController {
     });
   }
 
-  static async getRelationData(relationId) {
+  static async getWaysFromRelationData(relationId) {
     try {
       const query = OSMController.getRelationQuery(relationId);
       console.debug("generated query:", query);
@@ -263,7 +263,7 @@ class OSMController {
     }
   }
 
-  static async getAllRelationsData(RELATION_IDS) {
+  static async getWaysFromMultipleRelationData(RELATION_IDS) {
     try {
       const query = OSMController.getMultipleRelationQuery(RELATION_IDS);
       console.debug("generated query:", query);

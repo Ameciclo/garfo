@@ -1,4 +1,3 @@
-// INDEX.JS
 // Import necessary modules and packages
 require("dotenv").config();
 const express = require("express");
@@ -9,7 +8,7 @@ const cyclistProfileRouter = require("./cyclist-profile");
 const cyclistProfileEditionsRouter = require("./cyclist-profile-editions");
 const { getRelationsData } = require("./cycling-infra-relations.js");
 const OSMController = require("./OSMController"); // Add this line to require the OSMController module
-const compareExistingWithProjectedCyclingInfrastruture = require("./cycling-infra-comparision.js");
+const comparePDConRMR = require("./cycling-infra-comparision.js");
 const updateInfraData = require("./cycling-infra-updater");
 const { getWaysData } = require("./cycling-infra-ways");
 
@@ -33,20 +32,22 @@ app.use("/cyclist-profile/editions", cyclistProfileEditionsRouter);
 app.get("/cycling-infra/relations", async (req, res) => {
   try {
     const relationsData = await getRelationsData();
+    console.log("GET /cycling-infra/relations: Data fetched successfully");
     res.json(relationsData);
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error("GET /cycling-infra/relations: Error fetching data:", error);
     res.status(500).json({ error: "An error occurred while fetching data." });
   }
 });
 
-// Route to use the data from getRelationsData function
+// Route to use the data from getWaysData function
 app.get("/cycling-infra/ways", async (req, res) => {
   try {
     const waysData = await getWaysData();
+    console.log("GET /cycling-infra/ways: Data fetched successfully");
     res.json(waysData);
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error("GET /cycling-infra/ways: Error fetching data:", error);
     res.status(500).json({ error: "An error occurred while fetching data." });
   }
 });
@@ -55,10 +56,11 @@ app.get("/cycling-infra/ways", async (req, res) => {
 app.get("/cycling-infra/relation/:relationId", async (req, res) => {
   try {
     const { relationId } = req.params;
-    const relationData = await OSMController.getRelationData(relationId);
+    const relationData = await OSMController.getWaysFromRelationData(relationId);
+    console.log(`GET /cycling-infra/relation/${relationId}: Data fetched successfully`);
     res.json(relationData);
   } catch (error) {
-    console.error(error);
+    console.error(`GET /cycling-infra/relation/${relationId}:`, error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -66,36 +68,14 @@ app.get("/cycling-infra/relation/:relationId", async (req, res) => {
 // Add the route to fetch PDC data
 app.get("/cycling-infra/update", async (req, res) => {
   try {
-    // Call the fetchInfrastructureData() function to get the osm_id array
-    const pdcData = await getRelationsData();
-    const osmIds = pdcData.map((relation) => relation.osm_id);
-    const filteredOsmIds = osmIds.filter((osmId) => osmId !== null);
-
-    // Call the OSMController.getOSMAllRelationsData() method to fetch the OSM data
-    const relationsData = await OSMController.getWaysOSMJsonFromRelationsIds(
-      filteredOsmIds
-    );
-
-    const constraints = {
-      area: "Região Metropolitana do Recife", // Replace with the name of the city in the Recife metropolitan region
-      // Add any other constraints you might need here
-    };
-    // Call the OSMController.getOSMAreaData() method to fetch the OSM data
-    const areaData = await OSMController.getCycleWaysOSMJsonFromArea(constraints);
-
-    // Call the compareRefs() function to compare the data
-    const comparisonResult =
-      await compareExistingWithProjectedCyclingInfrastruture(
-        areaData,
-        relationsData,
-        pdcData
-      );
-
-    await updateInfraData(comparisonResult);
+    // Call the comparePDConRMR() function to compare the data
+    const comparisonResult = await comparePDConRMR();
+    console.log("GET /cycling-infra/update: Data comparison completed");
+    //await updateInfraData(comparisonResult);
     // Send the retrieved data as a response
     res.json(comparisonResult);
   } catch (error) {
-    console.error("Error fetching OSM data:", error);
+    console.error("GET /cycling-infra/update: Error fetching OSM data:", error);
     res.status(500).json({ error: "Error fetching OSM data" });
   }
 });
@@ -104,37 +84,3 @@ app.get("/cycling-infra/update", async (req, res) => {
 app.listen(port, () => {
   console.log(`API running on port ${port}`);
 });
-
-// // Add the route to fetch OSM data
-// app.get("/cycling-infra-recife", async (req, res) => {
-//   try {
-//     const constraints = {
-//       area: "Recife", // Replace with the name of the city in the Recife metropolitan region
-//       // Add any other constraints you might need here
-//     };
-
-//     // Call the OSMController.getData() method to fetch the OSM data
-//     const { geoJson } = await OSMController.getAreaData(constraints);
-
-//     // Send the retrieved data as a response
-//     res.json(geoJson);
-//   } catch (error) {
-//     console.error("Error fetching OSM data:", error);
-//     res.status(500).json({ error: "Error fetching OSM data" });
-//   }
-// });
-
-// // Add route to fetch data for all OSM relations
-// app.get("/relations", async (req, res) => {
-//   try {
-//     // Call the fetchInfrastructureData() function to get the osm_id array
-//     const pdcData = await getRelationsData();
-//     const osmIds = pdcData.map((relation) => relation.osm_id);
-//     const filteredOsmIds = osmIds.filter((osmId) => osmId !== null);
-//     const relationData = await OSMController.getAllRelationsData(filteredOsmIds);
-//     res.json(relationData);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// });

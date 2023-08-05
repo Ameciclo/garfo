@@ -4,6 +4,7 @@ const turf = require("@turf/turf");
 const OSMController = require("./OSMController");
 const { OVERPASS_SERVERS } = require("./constants.js");
 const layers = require("./layers.json");
+const { getRelationsData } = require("./cycling-infra-relations.js");
 
 function getTypologyFromGeoJSON(geoJsonProperties) {
   const typologyMap = getTypologyMap();
@@ -57,7 +58,7 @@ function getFiltersFromProperties(properties) {
   return filteredFilters.length > 0 ? filteredFilters[0] : "none";
 }
 
-async function compareExistingWithProjectedCyclingInfrastruture(
+async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
   existing,
   projected,
   pdcData
@@ -172,5 +173,28 @@ async function compareExistingWithProjectedCyclingInfrastruture(
     throw error;
   }
 }
+async function comparePDConRMR() {
+  try {
+    // Call the getRelationsData() function to get the osm_id array
+    const pdcData = await getRelationsData();
+    const osmIds = pdcData.map((relation) => relation.osm_id);
+    const filteredOsmIds = osmIds.filter((osmId) => osmId !== null);
 
-module.exports = compareExistingWithProjectedCyclingInfrastruture;
+    // Call the OSMController.getWaysOSMJsonFromRelationsIds() method to fetch the OSM data
+    const relationsData = await OSMController.getWaysOSMJsonFromRelationsIds(filteredOsmIds);
+
+    const constraints = {
+      area: "Região Metropolitana do Recife", // Replace with the name of the city in the Recife metropolitan region
+      // Add any other constraints you might need here
+    };
+    // Call the OSMController.getOSMAreaData() method to fetch the OSM data
+    const areaData = await OSMController.getCycleWaysOSMJsonFromArea(constraints);
+    return compareExistingInfrastrutureOnAreaWithProjectOnRelations(areaData, relationsData, pdcData);
+  } catch (error) {
+    console.error("Error in comparePDConRMR:", error);
+    throw error; // Re-throw the error to propagate it to the caller or handle it as needed.
+  }
+}
+
+
+module.exports = comparePDConRMR;

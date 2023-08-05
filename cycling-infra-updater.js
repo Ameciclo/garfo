@@ -50,7 +50,7 @@ async function insertWaysData(waysData) {
       const query = `
         INSERT INTO cycling_infra.ways (osm_id, name, length, highway, has_cycleway, cycleway_typology, relation_id, geojson, lastupdated)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        ON CONFLICT (osm_id) DO NOTHING
+        ON CONFLICT (osm_id) DO UPDATE
       `;
       await client.query(query, [
         osmId,
