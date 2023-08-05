@@ -121,6 +121,7 @@ router.get('/:id', async (req, res) => {
         summary,
         counts: formattedCounts,
       };
+      console.log(`GET /cycling-counts/editions/${id}: Data fetched successfully`);
 
       res.json(data);
     } finally {

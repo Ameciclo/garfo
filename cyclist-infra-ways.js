@@ -1,4 +1,5 @@
-// cycling-infra-relations.js
+// cyclist-infra-relations.js
+const express = require("express");
 const { Pool } = require("pg");
 
 const pool = new Pool({
@@ -8,6 +9,20 @@ const pool = new Pool({
   password: process.env.POSTGRES_PASSWORD,
   port: process.env.POSTGRES_PORT,
   ssl: true,
+});
+
+const router = express.Router();
+
+// Route to use the data from getRelationsData function
+router.get("/", async (req, res) => {
+  try {
+    const waysData = await getWaysData();
+    console.log("GET /cyclist-infra/ways: Data fetched successfully");
+    res.json(waysData);
+  } catch (error) {
+    console.error("GET /cyclist-infra/ways: Error fetching data:", error);
+    res.status(500).json({ error: "An error occurred while fetching data." });
+  }
 });
 
 // Function to fetch relations data from the database
@@ -23,7 +38,7 @@ async function getWaysData() {
       relation_id,
       geojson,
       lastupdated
-      FROM cycling_infra.ways
+      FROM cyclist_infra.ways
     `;
     const { rows } = await pool.query(query);
     return rows;
@@ -33,4 +48,4 @@ async function getWaysData() {
   }
 }
 
-module.exports = { getWaysData };
+module.exports = router;

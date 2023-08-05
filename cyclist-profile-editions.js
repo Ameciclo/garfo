@@ -156,6 +156,8 @@ router.get('/:editionId', async (req, res) => {
       const categoryCount = await getCategoryCount(editionId, type, filterConditions);
       categoriesCount[type] = categoryCount;
     }
+    
+    console.log(`GET /cycling-profile/editions/${editionId}: Data fetched successfully`);
 
     res.json({ editionId, categoriesCount });
   } catch (error) {

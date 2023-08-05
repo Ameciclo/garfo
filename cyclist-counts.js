@@ -122,6 +122,8 @@ router.get('/', async (req, res) => {
         summary: summary,
         counts: formattedCounts,
       };
+      
+      console.log("GET /cycling-infra/cyclist-counts: Data fetched successfully");
 
       res.status(200).json(data); // Retorna os dados como resposta da requisição HTTP
     } finally {

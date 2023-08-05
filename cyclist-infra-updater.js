@@ -1,4 +1,4 @@
-// cycling-infra-updater.js
+// cyclist-infra-updater.js
 require("dotenv").config();
 const { Pool } = require("pg");
 
@@ -15,10 +15,10 @@ async function updateInfraData(comparisonResult) {
   try {
     // ... (rest of the code)
 
-    // Call the compareExistingWithProjectedCyclingInfrastruture function
-    //const comparisonResult = await compareExistingWithProjectedCyclingInfrastruture(existing, projected, pdcData);
+    // Call the compareExistingWithProjectedcyclistInfrastruture function
+    //const comparisonResult = await compareExistingWithProjectedcyclistInfrastruture(existing, projected, pdcData);
 
-    // Insert the data from comparisonResult into the cycling_infra.ways table
+    // Insert the data from comparisonResult into the cyclist_infra.ways table
     await insertWaysData(comparisonResult);
 
     console.log("Fetch concluído com sucesso!");
@@ -48,7 +48,7 @@ async function insertWaysData(waysData) {
       const lastUpdated = new Date(); // Adicione a data atual como lastUpdated
 
       const query = `
-        INSERT INTO cycling_infra.ways (osm_id, name, length, highway, has_cycleway, cycleway_typology, relation_id, geojson, lastupdated)
+        INSERT INTO cyclist_infra.ways (osm_id, name, length, highway, has_cycleway, cycleway_typology, relation_id, geojson, lastupdated)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         ON CONFLICT (osm_id) DO UPDATE
       `;

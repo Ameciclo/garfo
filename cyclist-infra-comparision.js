@@ -1,10 +1,30 @@
+const express = require("express");
+
 const osmtogeojson = require("osmtogeojson");
 const axios = require("axios");
 const turf = require("@turf/turf");
 const OSMController = require("./OSMController");
 const { OVERPASS_SERVERS } = require("./constants.js");
 const layers = require("./layers.json");
-const { getRelationsData } = require("./cycling-infra-relations.js");
+const { getRelationsData } = require("./cyclist-infra-relations.js");
+
+const router = express.Router();
+
+// Route to fetch PDC data
+router.get("/", async (req, res) => {
+  try {
+    // Call the comparePDConRMR() function to compare the data
+    const comparisonResult = await comparePDConRMR();
+    console.log("GET /cycling-infra/update: Data comparison completed");
+    //await updateInfraData(comparisonResult);
+    // Send the retrieved data as a response
+    res.json(comparisonResult);
+  } catch (error) {
+    console.error("GET /cycling-infra/update: Error fetching OSM data:", error);
+    res.status(500).json({ error: "Error fetching OSM data" });
+  }
+});
+
 
 function getTypologyFromGeoJSON(geoJsonProperties) {
   const typologyMap = getTypologyMap();
@@ -195,6 +215,4 @@ async function comparePDConRMR() {
     throw error; // Re-throw the error to propagate it to the caller or handle it as needed.
   }
 }
-
-
-module.exports = comparePDConRMR;
+module.exports = router;

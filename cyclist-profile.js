@@ -111,6 +111,7 @@ router.get('/', async (req, res) => {
           };
         })
       );
+      console.log("GET /cycling-profile/: Data fetched successfully");
 
       res.json({ editions, categories });
     } finally {
