@@ -39,8 +39,6 @@ app.get("/api-routes", (req, res) => {
   res.send(routesListHtml);
 });
 
-const path = require('path');
-app.use(express.static(path.join(__dirname)));
 // Start the Express app listening on the specified port
 app.listen(port, () => {
   console.log(`API running on port ${port}`);
