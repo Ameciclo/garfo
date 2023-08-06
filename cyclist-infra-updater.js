@@ -80,7 +80,7 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
   projected
 ) {
   try {
-    const lastUpdated = new Date();
+    const lastupdated = new Date();
     const allCycleWays = [];
     const projectedAndExisting = projected;
     const firstExisting = existing[0];
@@ -118,7 +118,7 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
                 cycleway_typology: typology || "",
                 relation_id: element.pdc.id || 0,
                 geojson: geojson,
-                lastUpdated: lastUpdated,
+                lastUpdated: lastupdated,
                 city_id: city_id,
                 dual_carriageway: dual_carriageway,
                 pdc_typology: element.pdc.pdc_typology,
