@@ -5,7 +5,7 @@ const osmtogeojson = require("osmtogeojson");
 const turf = require("@turf/turf");
 const OSMController = require("./OSMController");
 const layers = require("./layers.json");
-const rmrCities = require("./RMR_cities.json");
+const rmrCities = require("./PE_cities.json");
 
 require("dotenv").config();
 
@@ -57,6 +57,22 @@ async function getOSMIdFromRelations() {
   }
 }
 
+async function getCities() {
+  try {
+    const query = `
+      SELECT id,
+      name,
+      state
+      FROM public.cities
+  `;
+    const { rows } = await pool.query(query);
+    return rows;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw new Error("An error occurred while fetching data.");
+  }
+}
+
 // Function to compare existing infrastructure on the area with project on relations
 async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
   existing,
@@ -73,43 +89,46 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
       ...firstExisting,
       members: existingNotProjected,
     });
-    for (const element of projectedAndExisting) {
-      for (const member of element.members) {
-        const geojson = osmtogeojson({ elements: [member] });
-        const city_id = getCityByPoint(
-          rmrCities,
-          member.geometry[0].lat,
-          member.geometry[0].lon
-        );
-        let dual_carriageway = false;
-        if (member.tags.dual_carriageway)
-          dual_carriageway =
-            member.tags.dual_carriageway == "yes" ? true : false;
-        const total_km = turf.length(geojson);
-        const typology = getTypologyFromProperties(member.tags);
-        if (member.type === "way") {
-          const newElementFormat = {
-            osm_id: member.id,
-            name: member.tags.name || "",
-            length: dual_carriageway ? total_km/2 : total_km,
-            highway: member.tags.highway || "",
-            has_cycleway: typology != "none" ? true : false,
-            cycleway_typology: typology || "",
-            relation_id: element.pdc.id || 0,
-            geojson: geojson,
-            lastUpdated: new Date(),
-            city_id: city_id,
-            dual_carriageway: dual_carriageway,
-            pdc_typology: element.pdc.pdc_typology
-          };
-          allCycleWays.push(newElementFormat);
-        }
-      }
-    }
-    return {
-      original: projectedAndExisting,
-      allCycleWays: allCycleWays,
-    };
+    const cities = await getCities();
+    const cityPromises = projectedAndExisting.map((element) => {
+      return Promise.all(
+        element.members.map((member) => {
+          const geojson = osmtogeojson({ elements: [member] });
+          return getCityByPoint(
+            cities,
+            rmrCities,
+            member.geometry[0].lat,
+            member.geometry[0].lon
+          ).then((city_id) => {
+            let dual_carriageway = false;
+            if (member.tags.dual_carriageway)
+              dual_carriageway =
+                member.tags.dual_carriageway == "yes" ? true : false;
+            const total_km = turf.length(geojson);
+            const typology = getTypologyFromProperties(member.tags);
+            if (member.type === "way") {
+              const newElementFormat = {
+                osm_id: member.id,
+                name: member.tags.name || "",
+                length: dual_carriageway ? total_km / 2 : total_km,
+                highway: member.tags.highway || "",
+                has_cycleway: typology != "none" ? true : false,
+                cycleway_typology: typology || "",
+                relation_id: element.pdc.id || 0,
+                geojson: geojson,
+                lastUpdated: new Date(),
+                city_id: city_id,
+                dual_carriageway: dual_carriageway,
+                pdc_typology: element.pdc.pdc_typology,
+              };
+              allCycleWays.push(newElementFormat);
+            }
+          });
+        })
+      );
+    });
+    await Promise.all(cityPromises);
+    return allCycleWays;
   } catch (error) {
     console.error("Error fetching data from Overpass API:", error);
     throw error;
@@ -145,7 +164,6 @@ async function insertWaysData(waysData) {
       const cyclewayTypology = wayData.cycleway_typology;
       const relationId = wayData.relation_id;
       const geojson = wayData.geojson;
-      const lastUpdated = new Date(); // Adicione a data atual como lastUpdated
 
       const query = `
         INSERT INTO cyclist_infra.ways (osm_id, name, length, highway, has_cycleway, cycleway_typology, relation_id, geojson, lastupdated)
@@ -230,8 +248,20 @@ async function comparePDConRMR() {
   );
 }
 
-function getCityByPoint(map, lat, lon) {
-  return 29;
+async function getCityByPoint(cities, citiesJson, lat, lon) {
+  const point = turf.point([lon, lat]);
+
+  let cityName = null;
+
+  for (const polygon of citiesJson.features) {
+    if (turf.booleanPointInPolygon(point, polygon)) {
+      cityName = polygon.properties.name;
+      break;
+    }
+  }
+  const city = cities.find((c) => c.name === cityName);
+  const city_id = city ? city.id : null;
+  return city_id;
 }
 // Function to get typology map from layers
 function getTypologyMap() {

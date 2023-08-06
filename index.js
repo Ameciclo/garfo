@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
 
+const citiesRouter = require("./cities");
 const cyclistCountsRouter = require("./cyclist-counts");
 const cyclistCountsEditionsRouter = require("./cyclist-counts-editions");
 const cyclistProfileRouter = require("./cyclist-profile");
@@ -22,6 +23,7 @@ const app = express();
 app.use(cors());
 
 // ROUTES
+app.use("/cities", citiesRouter);
 app.use("/cyclist-counts", cyclistCountsRouter);
 app.use("/cyclist-counts/edition", cyclistCountsEditionsRouter);
 app.use("/cyclist-profile", cyclistProfileRouter);
@@ -37,6 +39,8 @@ app.get("/api-routes", (req, res) => {
   res.send(routesListHtml);
 });
 
+const path = require('path');
+app.use(express.static(path.join(__dirname)));
 // Start the Express app listening on the specified port
 app.listen(port, () => {
   console.log(`API running on port ${port}`);
