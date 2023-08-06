@@ -2,10 +2,8 @@
 const express = require("express");
 const { Pool } = require("pg");
 const osmtogeojson = require("osmtogeojson");
-const axios = require("axios");
 const turf = require("@turf/turf");
 const OSMController = require("./OSMController");
-const { OVERPASS_SERVERS } = require("./constants.js");
 const layers = require("./layers.json");
 const rmrCities = require("./RMR_cities.json");
 
@@ -102,6 +100,7 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
             lastUpdated: new Date(),
             city_id: city_id,
             dual_carriageway: dual_carriageway,
+            pdc_typology: element.pdc.pdc_typology
           };
           allCycleWays.push(newElementFormat);
         }
