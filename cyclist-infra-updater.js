@@ -20,12 +20,13 @@ const pool = new Pool({
 
 const router = express.Router();
 
-//OK Route to use the data from comparePDConRMR function
+// Route to use the data from comparePDConRMR function
 router.get("/", async (req, res) => {
   try {
-    const comparadeData = await comparePDConRMR();
+    const comparedData = await comparePDConRMR();
+    insertWaysData(comparedData);
     console.log("GET /cyclist-infra/update: UPDATE successfully");
-    res.json(comparadeData);
+    res.json(comparedData);
   } catch (error) {
     console.error("GET /cyclist-infra/relations: Error fetching data:", error);
     res.status(500).json({ error: "An error occurred while fetching data." });
@@ -79,6 +80,7 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
   projected
 ) {
   try {
+    const lastUpdated = new Date();
     const allCycleWays = [];
     const projectedAndExisting = projected;
     const firstExisting = existing[0];
@@ -116,7 +118,7 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
                 cycleway_typology: typology || "",
                 relation_id: element.pdc.id || 0,
                 geojson: geojson,
-                lastUpdated: new Date(),
+                lastUpdated: lastUpdated,
                 city_id: city_id,
                 dual_carriageway: dual_carriageway,
                 pdc_typology: element.pdc.pdc_typology,
@@ -127,6 +129,7 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
         })
       );
     });
+    //await deleteAllDataFromWaysTable();
     await Promise.all(cityPromises);
     return allCycleWays;
   } catch (error) {
@@ -135,64 +138,7 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
   }
 }
 
-// Function to update infrastructure data
-async function updateInfraData(comparisonResult) {
-  try {
-    // Insert the data from comparisonResult into the cyclist_infra.ways table
-    await insertWaysData(comparisonResult);
-
-    console.log("Fetch concluído com sucesso!");
-  } catch (error) {
-    console.error("Ocorreu um erro ao buscar e preencher os dados:", error);
-  } finally {
-    pool.end(); // Encerre a conexão do pool com o banco de dados
-  }
-}
-// Function to insert the data of ways into the database
-async function insertWaysData(waysData) {
-  const client = await pool.connect();
-
-  try {
-    await client.query("BEGIN");
-
-    for (const wayData of waysData) {
-      const osmId = wayData.osm_id;
-      const name = wayData.name;
-      const length = wayData.length;
-      const highway = wayData.highway;
-      const hasCycleway = wayData.has_cycleway;
-      const cyclewayTypology = wayData.cycleway_typology;
-      const relationId = wayData.relation_id;
-      const geojson = wayData.geojson;
-
-      const query = `
-        INSERT INTO cyclist_infra.ways (osm_id, name, length, highway, has_cycleway, cycleway_typology, relation_id, geojson, lastupdated)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        ON CONFLICT (osm_id) DO UPDATE
-      `;
-      await client.query(query, [
-        osmId,
-        name,
-        length,
-        highway,
-        hasCycleway,
-        cyclewayTypology,
-        relationId,
-        geojson,
-        lastUpdated, // Adicione lastUpdated na inserção
-      ]);
-      console.debug(`inserted or updated ${wayData.osm_id} - ${wayData.name}`);
-    }
-
-    await client.query("COMMIT");
-  } catch (error) {
-    await client.query("ROLLBACK");
-    throw error;
-  } finally {
-    client.release();
-  }
-}
-
+// function that compares PDC with the existent cycle in RMR
 async function comparePDConRMR() {
   // Call the getOSMIdFromRelations() function to get the osm_id array
   const pdcData = await getOSMIdFromRelations();
@@ -310,6 +256,89 @@ function getTypologyFromProperties(properties) {
   // If no match was found, return "none"
   const filteredFilters = filters.filter(Boolean);
   return filteredFilters.length > 0 ? filteredFilters[0] : "none";
+}
+
+async function deleteAllDataFromWaysTable() {
+  try {
+    const query = `DELETE FROM cyclist_infra.ways`;
+    await pool.query(query);
+    console.log("Deleted all data from cyclist_infra.ways table");
+  } catch (error) {
+    console.error("Error deleting data from cyclist_infra.ways table:", error);
+    throw error;
+  }
+}
+
+// Function to insert Ways data
+async function insertWaysData(waysData) {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    for (const wayData of waysData) {
+      const {
+        osm_id,
+        name,
+        length,
+        highway,
+        has_cycleway,
+        cycleway_typology,
+        relation_id,
+        geojson,
+        lastupdated,
+        city_id,
+        dual_carriageway,
+        pdc_typology,
+      } = { ...wayData };
+
+      const query = `
+        INSERT INTO cyclist_infra.ways (
+          osm_id,
+          name,
+          length,
+          highway,
+          has_cycleway,
+          cycleway_typology,
+          relation_id,
+          geojson,
+          lastupdated,
+          city_id,
+          dual_carriageway,
+          pdc_typology
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        ON CONFLICT (osm_id) DO NOTHING
+      `;
+      try {
+        await client.query(query, [
+          osm_id,
+          name,
+          length,
+          highway,
+          has_cycleway,
+          cycleway_typology,
+          relation_id,
+          geojson,
+          lastupdated,
+          city_id,
+          dual_carriageway,
+          pdc_typology,
+        ]);
+        console.debug(`Inserted or updated ${wayData.osm_id} - ${wayData.name}`);
+      } catch (error) {
+        console.error(`Error inserting or updating ${wayData.osm_id} - ${wayData.name}:`, error);
+        throw error;
+      }
+    }
+
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 module.exports = router;
