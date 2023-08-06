@@ -7,7 +7,7 @@ const turf = require("@turf/turf");
 const OSMController = require("./OSMController");
 const { OVERPASS_SERVERS } = require("./constants.js");
 const layers = require("./layers.json");
-const rmrCities = require("./RMR_cities.json")
+const rmrCities = require("./RMR_cities.json");
 
 require("dotenv").config();
 
@@ -67,29 +67,37 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
   try {
     const allCycleWays = [];
     const projectedAndExisting = projected;
-    const existingNotProjected = existing[0].members.filter(
+    const firstExisting = existing[0];
+    const existingNotProjected = firstExisting.members.filter(
       (m) => !projected.some((p) => p.members.some((pm) => pm.id === m.id))
     );
-    projectedAndExisting.push({ ...existing, members: existingNotProjected });
+    projectedAndExisting.push({
+      ...firstExisting,
+      members: existingNotProjected,
+    });
     for (const element of projectedAndExisting) {
       for (const member of element.members) {
-        const geojson = osmtogeojson(member);
-        const total_km = turf.length(geojson);
-        const typology = getTypologyFromProperties(geojson.properties);
-        const city_id = getCityByPoint(rmrCities, member.geometry[0].lat, member.geometry[0].lon)
+        const geojson = osmtogeojson({ elements: [member] });
+        const city_id = getCityByPoint(
+          rmrCities,
+          member.geometry[0].lat,
+          member.geometry[0].lon
+        );
         let dual_carriageway = false;
         if (member.tags.dual_carriageway)
-        dual_carriageway =
+          dual_carriageway =
             member.tags.dual_carriageway == "yes" ? true : false;
-        if (type === "way") {
+        const total_km = turf.length(geojson);
+        const typology = getTypologyFromProperties(member.tags);
+        if (member.type === "way") {
           const newElementFormat = {
             osm_id: member.id,
-            name:  member.tags.name || "",
-            length: total_km,
+            name: member.tags.name || "",
+            length: dual_carriageway ? total_km/2 : total_km,
             highway: member.tags.highway || "",
             has_cycleway: typology != "none" ? true : false,
             cycleway_typology: typology || "",
-            relation_id: tags.matchingPdcData.id,
+            relation_id: element.pdc.id || 0,
             geojson: geojson,
             lastUpdated: new Date(),
             city_id: city_id,
@@ -100,6 +108,7 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
       }
     }
     return {
+      original: projectedAndExisting,
       allCycleWays: allCycleWays,
     };
   } catch (error) {
@@ -188,15 +197,11 @@ async function comparePDConRMR() {
       .map((member) => member.ref);
 
     const ways = await OSMController.getOSMJsonWaysFromWaysIds(waysIds);
-    const tags = {
-      ...element.tags,
-      matchingPdcData,
-    };
 
     return {
       ...element,
       members: ways.elements,
-      tags: tags,
+      pdc: matchingPdcData,
     };
   });
 
@@ -215,8 +220,8 @@ async function comparePDConRMR() {
       members: rmrCycleWaysData.elements,
       tags: {
         name: "",
-        matchingPdcData: { id: 0, osm_id: null, pdc_typology: "none" },
       },
+      pdc: pdcData.filter((p) => p.id === 0)[0],
     },
   ];
 
@@ -227,7 +232,7 @@ async function comparePDConRMR() {
 }
 
 function getCityByPoint(map, lat, lon) {
-  return 29
+  return 29;
 }
 // Function to get typology map from layers
 function getTypologyMap() {
