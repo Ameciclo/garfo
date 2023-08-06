@@ -13,7 +13,6 @@ const pool = new Pool({
 
 const router = express.Router();
 
-// Route to use the data from getRelationsData function
 router.get("/", async (req, res) => {
   try {
     const waysData = await getWaysData();
