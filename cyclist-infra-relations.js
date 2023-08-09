@@ -34,7 +34,6 @@ async function getRelationsData() {
       pdc_ref,
       pdc_notes,
       pdc_typology,
-      total_km,
       pdc_km,
       pdc_stretch,
       pdc_cities,
