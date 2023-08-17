@@ -24,7 +24,9 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const comparedData = await comparePDConRMR();
-    insertWaysData(comparedData);
+    await deleteAllDataFromWaysTable();
+    console.log("DADOS apagados com sucesso");
+    await insertWaysData(comparedData);
     console.log("GET /cyclist-infra/update: UPDATE successfully");
     res.json(comparedData);
   } catch (error) {
@@ -128,7 +130,6 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
         })
       );
     });
-    //await deleteAllDataFromWaysTable();
     await Promise.all(cityPromises);
     return allCycleWays;
   } catch (error) {
