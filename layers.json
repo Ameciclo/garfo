@@ -1,0 +1,72 @@
+[
+    {
+        "name": "Ciclovia",
+        "description": "Vias exclusivas para bicicletas separadas fisicamente por meio fio, muretas ou outros tipos de segregação fixa.",
+        "filters": [
+            ["highway", "cycleway"],
+            ["cycleway", "track"],
+            ["cycleway:left", "track"], 
+            ["cycleway:right", "track"],
+            ["cycleway", "opposite_track"],
+            ["cycleway:left", "opposite_track"],
+            ["cycleway:right", "opposite_track"]
+        ],
+        "style": {
+            "lineColor": "#059669",
+            "lineWidth": 8
+        }
+    },
+    {
+        "name": "Ciclofaixa",
+        "description": "Vias exclusivas para bicicletas porém sem segregação física, apenas demarcada por faixa pintada no chão ou outra sinalização",
+        "filters": [
+            ["cycleway", "lane"],
+            ["cycleway:left", "lane"],
+            ["cycleway:right", "lane"],
+            ["cycleway:both", "lane"],
+            ["cycleway", "opposite_lane"],
+            ["cycleway:right", "opposite_lane"],
+            ["cycleway:left", "opposite_lane"]
+        ],
+        "style": {
+            "lineColor": "#A1C181",
+            "lineWidth": 6
+        }
+    },
+    {
+        "name": "Ciclorrota",
+        "description": "Vias compartilhadas com veículos motorizados com sinalização especial indica a preferência das bicicletas.",
+        "filters": [
+            ["cycleway", "buffered_lane"],
+            ["cycleway:left", "buffered_lane"],
+            ["cycleway:right", "buffered_lane"],
+            ["cycleway", "shared_lane"],
+            ["cycleway:left", "shared_lane"],
+            ["cycleway:right", "shared_lane"],
+            ["cycleway", "share_busway"],
+            ["cycleway:left", "share_busway"],
+            ["cycleway:right", "share_busway"],
+            ["cycleway", "opposite_share_busway"]
+        ],
+        "style": {
+            "lineColor": "#E9C46A",
+            "lineWidth": 4
+        }
+    },
+    {
+        "name": "Calçada compartilhada",
+        "description": "Calçadas com sinalização para circulação compartilhada de bicicletas em que pedestres possuem a prioridade.",
+        "filters": [
+            [["highway","footway"],["bicycle","designated"]],
+            [["highway","pedestrian"],["bicycle","designated"]],
+            [["highway","pedestrian"],["bicycle","yes"]],
+            ["cycleway", "sidepath"],
+            ["cycleway:left", "sidepath"],
+            ["cycleway:right", "sidepath"]
+        ],
+        "style": {
+            "lineColor": "#E76F51",
+            "lineWidth": 4
+        }
+    }
+]
