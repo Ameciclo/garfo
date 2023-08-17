@@ -24,7 +24,6 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: "An error occurred while fetching data." });
   }
 });
-
 // Function to fetch relations data from the database
 async function getRelationsData() {
   try {
