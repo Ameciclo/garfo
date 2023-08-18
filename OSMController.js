@@ -398,6 +398,7 @@ class OSMController {
 }
 
 module.exports = {
+  getWaysFromRelationId: OSMController.getWaysFromRelationId,
   getCycleWaysOSMJsonFromArea: OSMController.getCycleWaysOSMJsonFromArea,
   getRelationJsonFromIds: OSMController.getRelationJsonFromIds,
   getOSMJsonWaysFromWaysIds: OSMController.getOSMJsonWaysFromWaysIds

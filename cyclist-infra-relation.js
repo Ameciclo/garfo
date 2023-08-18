@@ -12,7 +12,7 @@ router.get("/:relationId", async (req, res) => {
     console.log(`GET /cyclist-infra/relation/${relationId}: Data fetched successfully`);
     res.json(relationData);
   } catch (error) {
-    console.error(`GET /cyclist-infra/relation/${relationId}:`, error);
+    console.error(`GET /cyclist-infra/relation/`, error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
