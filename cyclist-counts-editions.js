@@ -1,135 +1,167 @@
-// cyclist-counts-editions.js
-const { Pool } = require('pg'); // Importa a biblioteca pg para lidar com o PostgreSQL
-const express = require('express');
+const { Pool } = require("pg");
+const express = require("express");
 const router = express.Router();
 
-// Configure as informações de conexão com o banco de dados
 const pool = new Pool({
-  user: process.env.POSTGRES_USER, // Nome de usuário do banco de dados
-  host: process.env.POSTGRES_HOST, // Endereço do host do banco de dados
-  database: process.env.POSTGRES_DATABASE, // Nome do banco de dados
-  password: process.env.POSTGRES_PASSWORD, // Senha do banco de dados
-  port: process.env.POSTGRES_PORT, // Porta para se conectar ao banco de dados
-  ssl: true // Define o uso de SSL para conexão segura (isso depende das configurações do servidor PostgreSQL)
+  user: process.env.POSTGRES_USER,
+  host: process.env.POSTGRES_HOST,
+  database: process.env.POSTGRES_DATABASE,
+  password: process.env.POSTGRES_PASSWORD,
+  port: process.env.POSTGRES_PORT,
+  ssl: true,
 });
 
-// Rota GET para "cyclist-counts-editions"
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id: req_id } = req.params;
 
-    const summaryQuery = `
-      SELECT
-        e.id,
-        e.name,
-        CAST((SELECT SUM(dc.count) FROM cyclist_count.direction_counts dc JOIN cyclist_count.session s ON dc.session_id = s.id WHERE s.edition_id = e.id) AS INTEGER) AS total_cyclists,
-        e.date,
-        c.point AS coordinates
-      FROM
-        cyclist_count.edition e
-      JOIN
-        public.coordinates c ON e.coordinates_id = c.id
-      WHERE
-        e.id = ${id}
-    `;
+    if (!req_id) {
+      return res.status(400).json({ error: "Missing ID parameter" });
+    }
 
-    const characteristicsQuery = `
-      SELECT cc.edition_id,
-        CAST(SUM(CASE WHEN ch.type = 'cargo' THEN cc.count ELSE 0 END) AS INTEGER) AS total_cargo,
-        CAST(SUM(CASE WHEN ch.type = 'helmet' THEN cc.count ELSE 0 END) AS INTEGER) AS total_helmet,
-        CAST(SUM(CASE WHEN ch.type = 'juveniles' THEN cc.count ELSE 0 END) AS INTEGER) AS total_juveniles,
-        CAST(SUM(CASE WHEN ch.type = 'motor' THEN cc.count ELSE 0 END) AS INTEGER) AS total_motor,
-        CAST(SUM(CASE WHEN ch.type = 'ride' THEN cc.count ELSE 0 END) AS INTEGER) AS total_ride,
-        CAST(SUM(CASE WHEN ch.type = 'service' THEN cc.count ELSE 0 END) AS INTEGER) AS total_service,
-        CAST(SUM(CASE WHEN ch.type = 'shared_bike' THEN cc.count ELSE 0 END) AS INTEGER) AS total_shared_bike,
-        CAST(SUM(CASE WHEN ch.type = 'sidewalk' THEN cc.count ELSE 0 END) AS INTEGER) AS total_sidewalk,
-        CAST(SUM(CASE WHEN ch.type = 'women' THEN cc.count ELSE 0 END) AS INTEGER) AS total_women,
-        CAST(SUM(CASE WHEN ch.type = 'wrong_way' THEN cc.count ELSE 0 END) AS INTEGER) AS total_wrong_way
-      FROM
-        cyclist_count.characteristics_count cc
-      JOIN
-        cyclist_count.characteristics ch ON cc.characteristics_id = ch.id
-      WHERE
-        cc.edition_id = ${id}
-      GROUP BY
-        cc.edition_id
-    `;
+    const editionQuery = `SELECT
+                          e.id,
+                          e.name,
+                          CAST((SELECT SUM(dc.count) FROM cyclist_count.direction_counts dc JOIN cyclist_count.session s ON dc.session_id = s.id WHERE s.edition_id = e.id) AS INTEGER) AS total_cyclists,
+                          e.date,
+                          CAST(SUM(CASE WHEN ch.type = 'cargo' THEN cc.count ELSE 0 END) AS INTEGER) AS total_cargo,
+                          CAST(SUM(CASE WHEN ch.type = 'helmet' THEN cc.count ELSE 0 END) AS INTEGER) AS total_helmet,
+                          CAST(SUM(CASE WHEN ch.type = 'juveniles' THEN cc.count ELSE 0 END) AS INTEGER) AS total_juveniles,
+                          CAST(SUM(CASE WHEN ch.type = 'motor' THEN cc.count ELSE 0 END) AS INTEGER) AS total_motor,
+                          CAST(SUM(CASE WHEN ch.type = 'ride' THEN cc.count ELSE 0 END) AS INTEGER) AS total_ride,
+                          CAST(SUM(CASE WHEN ch.type = 'service' THEN cc.count ELSE 0 END) AS INTEGER) AS total_service,
+                          CAST(SUM(CASE WHEN ch.type = 'shared_bike' THEN cc.count ELSE 0 END) AS INTEGER) AS total_shared_bike,
+                          CAST(SUM(CASE WHEN ch.type = 'sidewalk' THEN cc.count ELSE 0 END) AS INTEGER) AS total_sidewalk,
+                          CAST(SUM(CASE WHEN ch.type = 'women' THEN cc.count ELSE 0 END) AS INTEGER) AS total_women,
+                          CAST(SUM(CASE WHEN ch.type = 'wrong_way' THEN cc.count ELSE 0 END) AS INTEGER) AS total_wrong_way
+                        FROM
+                          cyclist_count.edition e
+                        LEFT JOIN
+                          cyclist_count.characteristics_count cc ON e.id = cc.edition_id
+                        LEFT JOIN
+                          cyclist_count.characteristics ch ON cc.characteristics_id = ch.id
+                        WHERE
+                          e.id = $1
+                        GROUP BY
+                          e.id, e.name, e.date
+                      `;
 
-    const client = await pool.connect(); // Conecta ao banco de dados
-
+    const client = await pool.connect();
     console.log(`conectado à ${process.env.POSTGRES_DATABASE}`);
 
     try {
-      // Executa as consultas no banco de dados
-      const { rows: characteristicsData } = await client.query(characteristicsQuery);
-      const { rows: summaryData } = await client.query(summaryQuery);
+      const { rows: editionData } = await client.query(editionQuery, [req_id]);
 
-      if (summaryData.length === 0) {
-        return res.status(404).json({ error: 'Edition not found' });
+      if (editionData.length === 0) {
+        return res.status(404).json({ error: "Edition not found" });
       }
 
-      const total = summaryData[0].total_cyclists;
-      const last_count = summaryData[0].date;
-      const number_counts = summaryData.length;
-      const different_counts_points = 1; // Neste endpoint, sempre será 1 ponto de contagem
-      const max_total_of_count = total;
-      const where_max_count = summaryData[0];
+      let { id, name, date, ...summary } = editionData[0];
 
-      const formattedCounts = summaryData.map(count => {
-        const countCharacteristics = characteristicsData[0];
+      const coordinatesQuery = `SELECT c.point, c."type", c."name"
+                              FROM public.coordinates c
+                              JOIN cyclist_count.edition e ON e.coordinates_id = c.id
+                              WHERE e.id = $1;
+                            `;
+      const { rows: coordinates } = await client.query(coordinatesQuery, [
+        req_id,
+      ]);
 
-        const slugName = count.name
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/[^\w\s]/gi, '')
-          .replace(/\s+/g, '-')
-          .toLowerCase();
+      const sessionsQuery = `SELECT s.start_time, s.end_time, s.id
+                              FROM cyclist_count."session" s
+                              WHERE s.edition_id = $1;
+                            `;
+      const { rows: sessionsData } = await client.query(sessionsQuery, [
+        req_id,
+      ]);
 
-        const slugDate = new Date(count.date).toISOString().slice(0, 10);
-        const slug = `${count.id}-${slugDate}-${slugName}`;
+      const sessions = {};
+      let maxCount = 0;
+      let max_hour = null;
+      let directions = {};
 
-        return {
-          ...count,
-          ...countCharacteristics,
-          slug,
+      for (const session of sessionsData) {
+        const sessionId = session.id;
+        const characteristicsQuery = `SELECT cc.characteristics_id, cc.count, ch."name"
+                                      FROM cyclist_count.characteristics_count cc
+                                      JOIN cyclist_count.characteristics ch ON cc.characteristics_id = ch.id
+                                      WHERE cc.session_id = $1;
+                                    `;
+        const characteristicsData = await client.query(characteristicsQuery, [
+          sessionId,
+        ]);
+
+        const characteristics = {};
+        for (const characteristic of characteristicsData.rows) {
+          characteristics[characteristic.name] = characteristic.count;
+        }
+
+        // Query para obter os dados quantitativos da sessão
+        const quantitativeQuery = `SELECT dc.origin_cardinal, dc.destin_cardinal, dc.count, dc.origin, dc.destin
+                                    FROM cyclist_count.direction_counts dc
+                                    WHERE dc.session_id = $1;
+                                  `;
+        const quantitativeData = await client.query(quantitativeQuery, [
+          sessionId,
+        ]);
+
+        let total_cyclists = 0;
+        const quantitative = {};
+        for (const d of quantitativeData.rows) {
+          const key = `${d.origin_cardinal}_${d.destin_cardinal}`;
+          quantitative[key] = d.count;
+          total_cyclists += d.count;
+          directions[key] = {
+            origin: d.origin,
+            destin: d.destin,
+            origin_cardinal: d.origin_cardinal,
+            destin_cardinal: d.destin_cardinal,
+          };
+        }
+        if (total_cyclists > maxCount) {
+          maxCount = total_cyclists;
+          max_hour = total_cyclists;
+        }
+        sessions[sessionId] = {
+          start_time: session.start_time,
+          end_time: session.end_time,
+          total_cyclists,
+          characteristics,
+          quantitative,
         };
-      });
+      }
 
-      const characteristicsSums = {};
-      formattedCounts.forEach(count => {
-        Object.keys(count).forEach(key => {
-          if (key.startsWith('total_')) {
-            if (!characteristicsSums[key]) {
-              characteristicsSums[key] = 0;
-            }
-            characteristicsSums[key] += parseInt(count[key]);
-          }
-        });
-      });
+      const slugName = name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^\w\s]/gi, "")
+        .replace(/\s+/g, "-")
+        .toLowerCase();
 
-      const summary = {
-        total,
-        last_count,
-        number_counts,
-        different_counts_points,
-        max_total_of_count,
-        where_max_count,
-        ...characteristicsSums,
-      };
+      const slugDate = new Date(date).toISOString().slice(0, 10);
+      const slug = `${req_id}-${slugDate}-${slugName}`;
+
+      summary = { max_hour, ...summary };
 
       const data = {
+        id: parseInt(req_id),
+        slug,
+        name,
+        date,
         summary,
-        counts: formattedCounts,
+        coordinates,
+        sessions,
+        directions,
       };
-      console.log(`GET /cycling-counts/editions/${id}: Data fetched successfully`);
 
+      console.log(`GET /your-route/${req_id}: Data fetched successfully`);
       res.json(data);
     } finally {
-      client.release(); // Libera o cliente de conexão do banco de dados
+      client.release();
     }
   } catch (error) {
-    console.error('Error executing SQL queries:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error executing SQL queries:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
