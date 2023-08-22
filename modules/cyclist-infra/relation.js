@@ -1,6 +1,6 @@
 // Import necessary modules and packages
 const express = require("express");
-const OSMController = require("./OSMController");
+const OSMController = require("../../OSMController");
 
 const router = express.Router();
 

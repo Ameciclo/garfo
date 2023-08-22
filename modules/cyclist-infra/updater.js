@@ -3,9 +3,9 @@ const express = require("express");
 const { Pool } = require("pg");
 const osmtogeojson = require("osmtogeojson");
 const turf = require("@turf/turf");
-const OSMController = require("./OSMController");
-const layers = require("./layers.json");
-const rmrCities = require("./PE_cities.json");
+const OSMController = require("../../OSMController");
+const layers = require("../../layers.json");
+const rmrCities = require("../../PE_cities.json");
 
 require("dotenv").config();
 
