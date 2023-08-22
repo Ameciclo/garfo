@@ -1,4 +1,4 @@
-// cyclist-infra-updater.js
+// cyclist-infra/updater.js
 const express = require("express");
 const { Pool } = require("pg");
 const osmtogeojson = require("osmtogeojson");

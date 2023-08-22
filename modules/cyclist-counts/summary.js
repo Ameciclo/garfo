@@ -1,4 +1,4 @@
-// cyclist-count.js
+// cyclist-count/summary.js
 const { Pool } = require('pg'); // Importa a biblioteca pg para lidar com o PostgreSQL
 const express = require('express');
 const router = express.Router(); // Cria um roteador para definir as rotas
