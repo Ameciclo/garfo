@@ -40,7 +40,7 @@ app.use("/cyclist-infra/update", cyclistInfraUpdateRouter);
 
 // Rota para servir a página de listagem de rotas
 app.get("/api-routes", (req, res) => {
-  const routesListHtml = fs.readFileSync("routes-list.html", "utf8");
+  const routesListHtml = fs.readFileSync("api-routes.html", "utf8");
   res.send(routesListHtml);
 });
 
