@@ -5,12 +5,15 @@ const cors = require("cors");
 const fs = require("fs");
 
 const citiesRouter = require("./modules/cities/cities");
-const cyclistCountsRouter = require("./cyclist-counts");
+
+const cyclistCountsRouter = require("./modules/cyclist-counts/summary");
 const cyclistCountsEditionsRouter = require("./modules/cyclist-counts/editions");
+
 const cyclistProfileRouter = require("./modules/cyclist-profile/summary");
 const cyclistProfileEditionsRouter = require("./modules/cyclist-profile/editions");
-const cyclistInfraRelationsByCityRouter = require("./cyclist-infra-relations-by-city.js");
-const cyclistInfraRelationsRouter = require("./cyclist-infra-relations");
+
+const cyclistInfraRelationsByCityRouter = require("./modules/cyclist-infra/relations-by-city.js");
+const cyclistInfraRelationsRouter = require("./modules/cyclist-infra/relations");
 const cyclistInfraRelationRouter = require("./modules/cyclist-infra/relation");
 const cyclistInfraWaysRouter = require("./modules/cyclist-infra/ways");
 const cyclistInfraUpdateRouter = require("./modules/cyclist-infra/updater");
