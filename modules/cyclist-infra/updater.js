@@ -1,11 +1,12 @@
-// cyclist-infra-updater.js
+// cyclist-infra/updater.js
 const express = require("express");
 const { Pool } = require("pg");
 const osmtogeojson = require("osmtogeojson");
 const turf = require("@turf/turf");
-const OSMController = require("./OSMController");
-const layers = require("./layers.json");
-const rmrCities = require("./PE_cities.json");
+
+const OSMController = require("../../commons/osm-controller");
+const layers = require("../../commons/layers.json");
+const rmrCities = require("../../commons/pe-cities.json");
 
 require("dotenv").config();
 

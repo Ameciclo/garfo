@@ -1,10 +1,11 @@
 /* eslint-disable no-loop-func */
+const osmtogeojson = require("osmtogeojson");
+const axios = require("axios");
+const { CancelToken } = axios;
+
 const { OVERPASS_SERVERS, DEFAULT_BORDER_WIDTH } = require("./constants.js");
 const { slugify } = require("./utils.js");
 const layers = require("./layers.json");
-const axios = require("axios");
-const { CancelToken } = axios;
-const osmtogeojson = require("osmtogeojson");
 
 const AREA_ID_OVERRIDES = { teste: 303585 }; // Replace with actual area IDs
 
@@ -398,6 +399,7 @@ class OSMController {
 }
 
 module.exports = {
+  getWaysFromRelationId: OSMController.getWaysFromRelationId,
   getCycleWaysOSMJsonFromArea: OSMController.getCycleWaysOSMJsonFromArea,
   getRelationJsonFromIds: OSMController.getRelationJsonFromIds,
   getOSMJsonWaysFromWaysIds: OSMController.getOSMJsonWaysFromWaysIds

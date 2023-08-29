@@ -1,7 +1,7 @@
-// cyclist-counts-editions.js
+// cyclist-count/summary.js
 const { Pool } = require('pg'); // Importa a biblioteca pg para lidar com o PostgreSQL
 const express = require('express');
-const router = express.Router();
+const router = express.Router(); // Cria um roteador para definir as rotas
 
 // Configure as informações de conexão com o banco de dados
 const pool = new Pool({
@@ -13,11 +13,10 @@ const pool = new Pool({
   ssl: true // Define o uso de SSL para conexão segura (isso depende das configurações do servidor PostgreSQL)
 });
 
-// Rota GET para "cyclist-counts-editions"
-router.get('/:id', async (req, res) => {
+// Rota GET para "cyclist-count"
+router.get('/', async (req, res) => {
   try {
-    const { id } = req.params;
-
+    // Consulta SQL para obter informações sobre as contagens de ciclistas e suas características
     const summaryQuery = `
       SELECT
         e.id,
@@ -29,10 +28,10 @@ router.get('/:id', async (req, res) => {
         cyclist_count.edition e
       JOIN
         public.coordinates c ON e.coordinates_id = c.id
-      WHERE
-        e.id = ${id}
+      ORDER BY e.id ASC
     `;
 
+    // Consulta SQL para obter informações sobre as características das contagens de ciclistas
     const characteristicsQuery = `
       SELECT cc.edition_id,
         CAST(SUM(CASE WHEN ch.type = 'cargo' THEN cc.count ELSE 0 END) AS INTEGER) AS total_cargo,
@@ -49,8 +48,6 @@ router.get('/:id', async (req, res) => {
         cyclist_count.characteristics_count cc
       JOIN
         cyclist_count.characteristics ch ON cc.characteristics_id = ch.id
-      WHERE
-        cc.edition_id = ${id}
       GROUP BY
         cc.edition_id
     `;
@@ -61,22 +58,23 @@ router.get('/:id', async (req, res) => {
 
     try {
       // Executa as consultas no banco de dados
-      const { rows: characteristicsData } = await client.query(characteristicsQuery);
-      const { rows: summaryData } = await client.query(summaryQuery);
+      const summaryResult = await client.query(summaryQuery);
+      const characteristicsResult = await client.query(characteristicsQuery);
 
-      if (summaryData.length === 0) {
-        return res.status(404).json({ error: 'Edition not found' });
-      }
+      const summaryData = summaryResult.rows; // Dados obtidos da consulta de resumo
+      const characteristicsData = characteristicsResult.rows; // Dados obtidos da consulta de características
 
-      const total = summaryData[0].total_cyclists;
+      // Calcula algumas estatísticas com base nos dados das contagens de ciclistas
+      const total = summaryData.reduce((acc, row) => acc + parseInt(row.total_cyclists), 0);
       const last_count = summaryData[0].date;
       const number_counts = summaryData.length;
-      const different_counts_points = 1; // Neste endpoint, sempre será 1 ponto de contagem
-      const max_total_of_count = total;
-      const where_max_count = summaryData[0];
+      const different_counts_points = new Set(summaryData.map((row) => row.name)).size;
+      const max_total_of_count = Math.max(...summaryData.map((row) => parseInt(row.total_cyclists)));
+      const where_max_count = summaryData.find((row) => parseInt(row.total_cyclists) === max_total_of_count);
 
-      const formattedCounts = summaryData.map(count => {
-        const countCharacteristics = characteristicsData[0];
+      // Formata os dados das contagens de ciclistas para adicionar um slug e suas características
+      const formattedCounts = summaryData.map((count) => {
+        const countCharacteristics = characteristicsData.find((char) => char.edition_id === count.id);
 
         const slugName = count.name
           .normalize('NFD')
@@ -95,9 +93,10 @@ router.get('/:id', async (req, res) => {
         };
       });
 
+      // Calcula as somas das características de todas as contagens
       const characteristicsSums = {};
-      formattedCounts.forEach(count => {
-        Object.keys(count).forEach(key => {
+      formattedCounts.forEach((count) => {
+        Object.keys(count).forEach((key) => {
           if (key.startsWith('total_')) {
             if (!characteristicsSums[key]) {
               characteristicsSums[key] = 0;
@@ -107,6 +106,7 @@ router.get('/:id', async (req, res) => {
         });
       });
 
+      // Cria um objeto com as informações de resumo e os dados das contagens formatadas
       const summary = {
         total,
         last_count,
@@ -117,20 +117,22 @@ router.get('/:id', async (req, res) => {
         ...characteristicsSums,
       };
 
+      // Cria um objeto final contendo o resumo e os dados das contagens formatadas
       const data = {
-        summary,
+        summary: summary,
         counts: formattedCounts,
       };
-      console.log(`GET /cycling-counts/editions/${id}: Data fetched successfully`);
+      
+      console.log("GET /cycling-infra/cyclist-counts: Data fetched successfully");
 
-      res.json(data);
+      res.status(200).json(data); // Retorna os dados como resposta da requisição HTTP
     } finally {
       client.release(); // Libera o cliente de conexão do banco de dados
     }
   } catch (error) {
     console.error('Error executing SQL queries:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Internal Server Error' }); // Em caso de erro, retorna uma resposta de erro do servidor
   }
 });
 
-module.exports = router;
+module.exports = router; // Exporta o roteador para ser utilizado em outras partes da aplicação

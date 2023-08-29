@@ -1,4 +1,4 @@
-// cyclist-infra-relations.js
+// cyclist-infra/relations-by-city.js
 const express = require("express");
 const { Pool } = require("pg");
 

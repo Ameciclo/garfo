@@ -4,16 +4,19 @@ const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
 
-const citiesRouter = require("./cities");
-const cyclistCountsRouter = require("./cyclist-counts");
-const cyclistCountsEditionsRouter = require("./cyclist-counts-editions");
-const cyclistProfileRouter = require("./cyclist-profile");
-const cyclistProfileEditionsRouter = require("./cyclist-profile-editions");
-const cyclistInfraRelationsByCityRouter = require("./cyclist-infra-relations-by-city.js");
-const cyclistInfraRelationsRouter = require("./cyclist-infra-relations");
-const cyclistInfraRelationRouter = require("./cyclist-infra-relation");
-const cyclistInfraWaysRouter = require("./cyclist-infra-ways");
-const cyclistInfraUpdateRouter = require("./cyclist-infra-updater");
+const citiesRouter = require("./modules/cities/cities");
+
+const cyclistCountsRouter = require("./modules/cyclist-counts/summary");
+const cyclistCountsEditionsRouter = require("./modules/cyclist-counts/editions");
+
+const cyclistProfileRouter = require("./modules/cyclist-profile/summary");
+const cyclistProfileEditionsRouter = require("./modules/cyclist-profile/editions");
+
+const cyclistInfraRelationsByCityRouter = require("./modules/cyclist-infra/relations-by-city.js");
+const cyclistInfraRelationsRouter = require("./modules/cyclist-infra/relations");
+const cyclistInfraRelationRouter = require("./modules/cyclist-infra/relation");
+const cyclistInfraWaysRouter = require("./modules/cyclist-infra/ways");
+const cyclistInfraUpdateRouter = require("./modules/cyclist-infra/updater");
 
 const port = 3000; // Define the desired port for the API
 
@@ -37,7 +40,7 @@ app.use("/cyclist-infra/update", cyclistInfraUpdateRouter);
 
 // Rota para servir a página de listagem de rotas
 app.get("/api-routes", (req, res) => {
-  const routesListHtml = fs.readFileSync("routes-list.html", "utf8");
+  const routesListHtml = fs.readFileSync("api-routes.html", "utf8");
   res.send(routesListHtml);
 });
 
