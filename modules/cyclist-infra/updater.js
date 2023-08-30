@@ -24,12 +24,14 @@ const router = express.Router();
 // Route to use the data from comparePDConRMR function
 router.get("/", async (req, res) => {
   try {
-    const comparedData = await comparePDConRMR();
-    await deleteAllDataFromWaysTable();
-    console.log("DADOS apagados com sucesso");
-    await insertWaysData(comparedData);
-    console.log("GET /cyclist-infra/update: UPDATE successfully");
-    res.json(comparedData);
+    //const comparedData = await comparePDConRMR();
+    console.log(req)
+    // await deleteAllDataFromWaysTable();
+    // console.log("DADOS apagados com sucesso");
+    // await insertWaysData(comparedData);
+    // console.log("GET /cyclist-infra/update: UPDATE successfully");
+    // res.json(comparedData);
+    res.json("comparedData");
   } catch (error) {
     console.error("GET /cyclist-infra/relations: Error fetching data:", error);
     res.status(500).json({ error: "An error occurred while fetching data." });

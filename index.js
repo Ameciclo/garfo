@@ -3,7 +3,9 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
-
+const bodyParser = require('body-parser');
+const jwt = require('jsonwebtoken');
+const authMiddleware = require('./middleware/authMiddleware');
 const citiesRouter = require("./modules/cities/cities");
 
 const cyclistCountsRouter = require("./modules/cyclist-counts/summary");
@@ -36,7 +38,32 @@ app.use("/cyclist-infra/relations", cyclistInfraRelationsRouter);
 app.use("/cyclist-infra/relationsByCity", cyclistInfraRelationsByCityRouter);
 app.use("/cyclist-infra/relation", cyclistInfraRelationRouter);
 app.use("/cyclist-infra/ways", cyclistInfraWaysRouter);
-app.use("/cyclist-infra/update", cyclistInfraUpdateRouter);
+
+
+// Usuários simulados (para simplificação, você usaria um banco de dados real)
+const temporaryUsersList = [
+  { id: 1, username: process.env.UPDATE_USER, password: process.env.UPDATE_PASSWORD },
+];
+
+const secretKey = process.env.SECRET_KEY;
+
+app.use(bodyParser.json());
+
+// Endpoint de autenticação (gera um token JWT)
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  // Verifica se as credenciais são válidas (simulação)
+  const user = temporaryUsersList.find(u => u.username === username && u.password === password);
+  if (!user) {
+    return res.status(401).json({ message: 'Credenciais inválidas.' });
+  }
+
+  // Credenciais válidas, gera um token JWT
+  const token = jwt.sign({ user: user.id }, secretKey, { expiresIn: '1h' });
+  res.json({ token });
+});
+
+app.use("/cyclist-infra/update", authMiddleware, cyclistInfraUpdateRouter);
 
 // Rota para servir a página de listagem de rotas
 app.get("/api-routes", (req, res) => {
