@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Atualizar banco de dados de infraestrutura cicloviária</title>
+  </head>
+  <body>
+    <h1>Atualizar banco de dados de infraestrutura cicloviária</h1>
+    <form id="login-form" action="/login" method="POST">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required /><br />
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required /><br />
+      <button type="submit">Login</button>
+    </form>
+    <p id="message"></p>
+    <script>
+      // Função para fazer a solicitação autenticada ao endpoint protegido
+      async function fetchDataWithToken(url, token) {
+        // const token = localStorage.getItem("jwtToken");
+        if (!token) {
+          console.error("Token não encontrado.");
+          return;
+        }
+        try {
+          const response = await fetch(url, {
+            method: "GET",
+            headers: {
+              Authorization: token,
+            },
+          });
+          if (response.ok) {
+            const responseData = await response.json();
+            console.log("Dados recebidos:", responseData);
+          } else {
+            console.error("Erro ao fazer a solicitação:", response.statusText);
+          }
+        } catch (error) {
+          console.error("Erro na solicitação:", error);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const loginForm = document.getElementById("login-form");
+        const messageElement = document.getElementById("message");
+        loginForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = new FormData(loginForm);
+          const response = await fetch("/login", {
+            method: "POST",
+            body: JSON.stringify(Object.fromEntries(formData)),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          const data = await response.json();
+          if (response.ok) {
+            // Sucesso: exibe a mensagem e redireciona para o endpoint protegido
+            messageElement.textContent = "Login bem-sucedido!";
+            // Extrai o token da resposta JSON
+            const token = data.token;
+            // Armazene o token no armazenamento local (ou cookies) para uso posterior
+            // localStorage.setItem("jwtToken", token);
+            // Redireciona para o endpoint protegido
+            fetchDataWithToken("/cyclist-infra/update", token);
+          } else {
+            // Erro: exibe a mensagem de erro
+            messageElement.textContent = data.message;
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

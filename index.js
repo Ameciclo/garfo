@@ -45,7 +45,7 @@ const temporaryUsersList = [
   { id: 1, username: process.env.UPDATE_USER, password: process.env.UPDATE_PASSWORD },
 ];
 
-const secretKey = process.env.SECRET_KEY;
+const secretKey = process.env.UPDATE_SECRET;
 
 app.use(bodyParser.json());
 
@@ -64,6 +64,13 @@ app.post('/login', (req, res) => {
 });
 
 app.use("/cyclist-infra/update", authMiddleware, cyclistInfraUpdateRouter);
+
+// Rota para servir a página de login
+app.get("/login-page", (req, res) => {
+  const routesListHtml = fs.readFileSync("login.html", "utf8");
+  res.send(routesListHtml);
+});
+
 
 // Rota para servir a página de listagem de rotas
 app.get("/api-routes", (req, res) => {

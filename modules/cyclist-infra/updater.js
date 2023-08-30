@@ -3,6 +3,7 @@ const express = require("express");
 const { Pool } = require("pg");
 const osmtogeojson = require("osmtogeojson");
 const turf = require("@turf/turf");
+const authMiddleware = require('../../middleware/authMiddleware');
 
 const OSMController = require("../../commons/osm-controller");
 const layers = require("../../commons/layers.json");
@@ -22,16 +23,15 @@ const pool = new Pool({
 const router = express.Router();
 
 // Route to use the data from comparePDConRMR function
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
-    //const comparedData = await comparePDConRMR();
-    console.log(req)
-    // await deleteAllDataFromWaysTable();
-    // console.log("DADOS apagados com sucesso");
-    // await insertWaysData(comparedData);
-    // console.log("GET /cyclist-infra/update: UPDATE successfully");
-    // res.json(comparedData);
-    res.json("comparedData");
+    console.log('updater')
+    const comparedData = await comparePDConRMR();
+    await deleteAllDataFromWaysTable();
+    console.log("DADOS apagados com sucesso");
+    await insertWaysData(compsaredData);
+    console.log("GET /cyclist-infra/update: UPDATE successfully");
+    res.json(comparedData);
   } catch (error) {
     console.error("GET /cyclist-infra/relations: Error fetching data:", error);
     res.status(500).json({ error: "An error occurred while fetching data." });
