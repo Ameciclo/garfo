@@ -100,6 +100,8 @@ const rates_tree = [
             calculate_average, ["on_way_vertical_signs", "start_vertical_signs", "end_vertical_signs", "cross_vertical_signs", "stoplight", "additional_signs"], ],
                 ["1.1.2.1", "on_way_vertical_signs", "Sinalização vertical regulamentadora", "Quantidade de placas de sinalização horizontal regulamentadora R-34.", 
                 calculate_interpolated_values, [1000 * length, 50 * on_way_vertical_signs_count, [150, 50]]],
+                ["1.1.2.2",  "start_and_end_vertical_signs", "Sinalização de início e fim da estrutura.", "Presença ou ausência da sinalização de início e fim da estrutura, quando necessária.", 
+                calculate_average, ["start_vertical_signs","end_vertical_signs"], ],
                 ["1.1.2.2",  "start_vertical_signs", "Sinalização de início.", "Presença ou ausência da sinalização de início da estrutura, quando necessária.", 
                 calculate_inverted_binnary_rate, [start_indication == "não"], start_indication == "continua de outra estrutura", ],
                 ["1.1.2.3",  "end_vertical_signs", "Sinalização de fim.", "Presença ou ausência da sinalização de fim da estrutura, quando necessária.", 

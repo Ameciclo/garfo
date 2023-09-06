@@ -41,16 +41,10 @@ function get_average(arr) {
 }
 
 ////////
-function interpolation(x, x1, x2, y1, y2) {
-  let a = (y1 - y2) / (x1 - x2);
-  let b = (x1 * y2 - x2 * y1) / (x1 - x2);
-  let y = a * x + b;
-  if (y > y2) {
-    y = y2;
-  } else if (y < y1) {
-    y = y1;
-  }
-  return y;
+function interpolation(x, x0, x1, y0, y1) {
+  let a = (y1 - y0) / (x1 - x0);
+  let b = (x0 * y1 - x0 * y0) / (x1 - x0) + y0;
+  return a * x + b;
 }
 
 const reverseConversion = {};
@@ -58,7 +52,6 @@ for (const key in conversion) {
   const value = conversion[key];
   reverseConversion[value] = key;
 }
-
 
 module.exports = {
   reverseConversion,

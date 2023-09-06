@@ -13,11 +13,11 @@ const {
 const {
   average_rate,
   no_evaluated_rate,
-  binnary_rate,
-  inverted_binnary_rate,
-  evaluation_pattern_rate,
+  binary_rate,
+  pattern_rate,
   interpolated_rate,
-  proportion_rate,
+  proportional_rate,
+  binary_rate,
 } = require("./rates-functions");
 
 function getTitlesAndDescriptions(tree) {
@@ -164,19 +164,21 @@ function rates(parameters) {
       id: "1.1.1.1",
       title: "Concepção do projeto",
       description: "Escolhas de localização, tipologia e direção da estrutura",
-      rate_function: evaluation_pattern_rate,
-      parameter_list: [
-        project_conception_rates_pattern,
-        `${flow_direction.split(" ")[0]} > ${traffic_flow} > ${localization}`,
-      ],
+      rate_function: pattern_rate,
+      parameter_list: {
+        pattern: project_conception_rates_pattern,
+        description: `${
+          flow_direction.split(" ")[0]
+        } > ${traffic_flow} > ${localization}`,
+      },
     },
     project_risks: {
       id: "1.1.1.2",
       title: "Situações de riscos da estrutura",
       description:
         "Riscos de colisão com veículo motorizado que fatores estruturais colocam ciclistas.",
-      rate_function: inverted_binnary_rate,
-      parameter_list: [all_risks_situations_count],
+      rate_function: binary_rate,
+      parameter_list: { count: all_risks_situations_count, inverted: true },
     },
     segregation: {
       id: "1.1.1.3",
@@ -191,8 +193,11 @@ function rates(parameters) {
       title: "Tipo de segregador",
       description:
         "Qual foi o elemento físico escolhido para segregar a estrutura",
-      rate_function: evaluation_pattern_rate,
-      parameter_list: [segregator_type_rate_pattern, segregator_type],
+      rate_function: pattern_rate,
+      parameter_list: {
+        pattern: segregator_type_rate_pattern,
+        description: segregator_type,
+      },
     },
     buffer_size: {
       id: "1.1.1.3.2",
@@ -200,12 +205,12 @@ function rates(parameters) {
       description:
         "Largura da faixa que segrega a estrutura do fluxo motorizado.",
       rate_function: interpolated_rate,
-      parameter_list: [
-        1,
-        buffer_width,
-        [0.3, 1],
-        typology.toLowerCase() != "ciclorrota",
-      ],
+      parameter_list: {
+        x: buffer_width,
+        x0: 0.3,
+        x1: 1,
+        skip: typology.toLowerCase() == "ciclorrota",
+      },
     },
     vertical_signs: {
       id: "1.1.2",
@@ -226,56 +231,68 @@ function rates(parameters) {
       id: "1.1.2.1",
       title: "Sinalização vertical regulamentadora",
       description:
-        "Quantidade de placas de sinalização horizontal regulamentadora R-34.",
+        "Quantidade de placas de sinalização vertical regulamentadora R-34.",
       rate_function: interpolated_rate,
-      parameter_list: [
-        1000 * length,
-        50 * on_way_vertical_signs_count,
-        [150, 50],
-      ],
+      parameter_list: {
+        x: on_way_vertical_signs_count / length,
+        x0: 1 / 0.3,
+        x1: 1 / 0.1,
+      },
+    },
+    start_and_end_vertical_signs: {
+      id: "1.1.2.2",
+      title: "Sinalização de início e fim.",
+      description:
+        "Presença ou ausência da sinalização de início da estrutura, quando necessária.",
+      rate_function: average_rate,
+      parameter_list: ["start_vertical_signs", "end_vertical_signs"],
     },
     start_vertical_signs: {
-      id: "1.1.2.2",
+      id: "1.1.2.2.1",
       title: "Sinalização de início.",
       description:
         "Presença ou ausência da sinalização de início da estrutura, quando necessária.",
-      rate_function: inverted_binnary_rate,
-      parameter_list: [
-        start_indication == "não",
-        start_indication == "continua de outra estrutura",
-      ],
+      rate_function: binary_rate,
+      parameter_list: {
+        count: start_indication == "não",
+        skip: start_indication == "continua de outra estrutura",
+        inverted: true,
+      },
     },
     end_vertical_signs: {
-      id: "1.1.2.3",
+      id: "1.1.2.2.1",
       title: "Sinalização de fim.",
       description:
         "Presença ou ausência da sinalização de fim da estrutura, quando necessária.",
-      rate_function: inverted_binnary_rate,
-      parameter_list: [
-        end_indication !== "não",
-        end_indication == "continua de outra estrutura",
-      ],
+      rate_function: binary_rate,
+      parameter_list: {
+        count: end_indication !== "não",
+        skip: end_indication == "continua de outra estrutura",
+        inverted: true,
+      },
     },
     cross_vertical_signs: {
-      id: "1.1.2.4",
+      id: "1.1.2.3",
       title: "Sinalização vertical nas travessias",
       description:
         "Relação entre a presença de sinalização vertical nas travessias e o total de travessias.",
-      rate_function: proportion_rate,
-      parameter_list: [
-        crosses_with_vertical_sign_count,
-        crosses_with_vertical_sign_count + crosses_without_vertical_sign_count,
-      ],
+      rate_function: proportional_rate,
+      parameter_list: {
+        count: crosses_with_vertical_sign_count,
+        total:
+          crosses_with_vertical_sign_count +
+          crosses_without_vertical_sign_count,
+      },
     },
     stoplight: {
-      id: "1.1.2.5",
+      id: "1.1.2.4",
       title: "Sinalização luminosa",
       description: "Semáforos exclusivos para ciclistas.",
       rate_function: no_evaluated_rate,
       parameter_list: [cycle_stoplight_count, total_stoplight_count],
-    }, // rate_function: count_proportion
+    },
     additional_signs: {
-      id: "1.1.2.6",
+      id: "1.1.2.5",
       title: "Sinalização complementar",
       description: "Todas as sinalizações complementares e informativas.",
       rate_function: no_evaluated_rate,
@@ -299,46 +316,54 @@ function rates(parameters) {
       title: "Padrão de Sinalização Horizontal",
       description:
         "Padrão escolhido na pintura para a área de circulação da estrutura.",
-      rate_function: evaluation_pattern_rate,
-      parameter_list: [
-        horiontal_pattern_rates_pattern,
-        horizontal_pattern_evaluation,
-      ],
+      rate_function: pattern_rate,
+      parameter_list: {
+        pattern: horiontal_pattern_rates_pattern,
+        description: horizontal_pattern_evaluation,
+      },
     },
-    picto_signs: {
+    picto_and_arrows_signs: {
       id: "1.1.3.2",
       title: "Pictogramas",
       description: "Quantidade de pictogramas por metro da estrutura.",
+      rate_function: average_rate,
+      parameter_list: ["picto_signs", "arrow_signs"],
+    },
+    picto_signs: {
+      id: "1.1.3.2.1",
+      title: "Pictogramas",
+      description: "Quantidade de pictogramas por metro da estrutura.",
       rate_function: interpolated_rate,
-      parameter_list: [
-        1000 * length,
-        30 * (good_conditions_picto_signs + bad_conditions_picto_signs),
-        [90, 30],
-      ],
+      parameter_list: {
+        x: (good_conditions_picto_signs + bad_conditions_picto_signs) / length,
+        x0: 1 / 0.09,
+        x1: 1 / 0.03,
+      },
     },
     arrow_signs: {
-      id: "1.1.3.3",
+      id: "1.1.3.2.2",
       title: "Setas",
       description: "Quantidade de setas por metro da estrutura.",
       rate_function: interpolated_rate,
-      parameter_list: [
-        1000 * length,
-        30 * (good_conditions_arrow_signs + bad_conditions_arrow_signs),
-        [90, 30],
-      ],
+      parameter_list: {
+        x: (good_conditions_arrow_signs + bad_conditions_arrow_signs) / length,
+        x0: 1 / 0.09,
+        x1: 1 / 0.03,
+      },
     },
     cross_horizontal_signs: {
-      id: "1.1.3.4",
+      id: "1.1.3.3",
       title: "Sinalização horizontal nos cruzamentos",
       description:
         "Qualidade de manutenção e presença da sinalização horizontal nos cruzamentos.",
-      rate_function: proportion_rate,
-      parameter_list: [
-        good_conditions_crossing_signs + bad_conditions_crossing_signs,
-        good_conditions_crossing_signs +
+      rate_function: proportional_rate,
+      parameter_list: {
+        count: good_conditions_crossing_signs + bad_conditions_crossing_signs,
+        total:
+          good_conditions_crossing_signs +
           bad_conditions_crossing_signs +
           no_visible_crossing_signs,
-      ],
+      },
     },
     comfort: {
       id: "1.1.4",
@@ -359,61 +384,78 @@ function rates(parameters) {
       title: "Acesso da estrutura",
       description: "Facilidade de acessar e sair da estrutura cicloviária",
       rate_function: interpolated_rate,
-      parameter_list: [
-        all_access_count,
-        way_with_access + ways_without_access,
-        access_evaluation == "Segregadores NÃO DIFICULTAM o acesso"
-          ? [10, 10]
-          : [0, 1],
-        access_evaluation == "N/A",
-      ],
+      parameter_list: {
+        x:
+          all_access_count != 0
+            ? (way_with_access + ways_without_access) / all_access_count
+            : -1,
+        x0:
+          access_evaluation == "Segregadores NÃO DIFICULTAM o acesso" ? 10 : 0,
+        x1:
+          access_evaluation == "Segregadores NÃO DIFICULTAM o acesso" ? 10 : 1,
+        y0: all_access_count != 0 ? 0 : -1,
+        y1: all_access_count != 0 ? 10 : -1,
+        skip: access_evaluation == "N/A",
+      },
     },
     pavement: {
       id: "1.1.4.2",
       title: "Tipo de pavimento",
       description: "Tipo do material usado no piso da estrutura",
-      rate_function: evaluation_pattern_rate,
-      parameter_list: [pavement_type_rate_pattern, pavement_type],
+      rate_function: pattern_rate,
+      parameter_list: {
+        pattern: pavement_type_rate_pattern,
+        description: pavement_type,
+      },
     },
     sinuosity: {
       id: "1.1.4.3",
       title: "Sinuosidade",
       description: "Estrutura tem curvas desnecessárias no trajeto",
-      rate_function: evaluation_pattern_rate,
-      parameter_list: [sinuosity_rates_pattern, sinuosity_evaluation],
+      rate_function: pattern_rate,
+      parameter_list: {
+        pattern: sinuosity_rates_pattern,
+        description: sinuosity_evaluation,
+      },
     },
     width_evaluation: {
       id: "1.1.4.4",
       title: "Largura transitável",
       description: "Largura transitável da estrutura cicloviária",
       rate_function: interpolated_rate,
-      parameter_list: [
-        1,
-        ridable_width,
-        flow_direction.startsWith("unidirecional")
-          ? ridable_width <= 1.5
-            ? [1.2, 1.5, 0, 8]
-            : [1.5, 2.5, 8, 10]
-          : ridable_width <= 2.5
-          ? [2.2, 2.5, 0, 8]
-          : [2.5, 3.5, 8, 10],
-        typology.toLowerCase() != "ciclorrota",
-      ],
+      parameter_list: {
+        x: ridable_width,
+        x0:
+          1.2 +
+          flow_direction.startsWith("bidirecional") +
+          0.3 *
+            (ridable_width > 1.5 + flow_direction.startsWith("bidirecional")),
+        x1:
+          1.5 +
+          flow_direction.startsWith("bidirecional") +
+          (ridable_width > 1.5 + flow_direction.startsWith("bidirecional")),
+        y0:
+          8 * (ridable_width > 1.5 + flow_direction.startsWith("bidirecional")),
+        y1:
+          8 +
+          2 * (ridable_width > 1.5 + flow_direction.startsWith("bidirecional")),
+        skip: typology.toLowerCase() == "ciclorrota",
+      },
     },
     levels: {
       id: "1.1.4.5",
       title: "Desníveis",
       description: "Existência de desníveis na estrutura",
-      rate_function: inverted_binnary_rate,
-      parameter_list: [unevenness_obstacles !== 0],
+      rate_function: binary_rate,
+      parameter_list: { count: unevenness_obstacles !== 0, inverted: true },
     },
 
     two_way: {
       id: "1.1.4.6",
       title: "Bidirecionalidade",
       description: "Fluxo da estrutura.",
-      rate_function: binnary_rate,
-      parameter_list: [flow_direction.startsWith("bidirecional")],
+      rate_function: binary_rate,
+      parameter_list: { count: flow_direction.startsWith("bidirecional") },
     }, // !!
     safety: {
       id: "1.2",
@@ -439,12 +481,12 @@ function rates(parameters) {
       title: "Controle eletrônico",
       description: "Presença de controle eletrônico de velocidade",
       rate_function: interpolated_rate,
-      parameter_list: [
-        1000 * length,
-        500 * electronic_speed_control_count,
-        [1000, 500],
-        speed_limit > 30,
-      ],
+      parameter_list: {
+        x: electronic_speed_control_count / length,
+        x0: 1,
+        x1: 1 / 0.5,
+        skip: speed_limit <= 30,
+      },
     },
     level_control: {
       id: "1.2.1.2",
@@ -456,7 +498,7 @@ function rates(parameters) {
         "lane_width",
         "other_controls",
         "vertical_speed_sign",
-        horizontal_speed_sign,
+        "horizontal_speed_sign",
       ],
     },
     square_size: {
@@ -464,47 +506,62 @@ function rates(parameters) {
       title: "Tamanho de quadra",
       description: "Tamanho médio da quadra",
       rate_function: interpolated_rate,
-      parameter_list: [length, mean_square_size, [300, 100]],
+      parameter_list: { x: mean_square_size, x0: 300, x1: 100 },
     },
     lane_width: {
       id: "1.2.1.2.2",
       title: "Largura de faixa",
       description: "Largura média das faixas de rolamento",
       rate_function: interpolated_rate,
-      parameter_list: [mean_lane_width, 1, [3.5, 2.5]],
+      parameter_list: { x: mean_lane_width, x0: 3.5, x1: 2.5 },
     },
     other_controls: {
       id: "1.2.1.2.3",
       title: "Outros controles de velocidade",
       description: "Outros elementos de controle de velocidade possíveis.",
-      rate_function: binnary_rate,
-      parameter_list: [other_control_elements_count !== 0],
+      rate_function: binary_rate,
+      parameter_list: { count: other_control_elements_count !== 0 },
+    },
+    speed_signs: {
+      id: "1.2.1.2.4.1",
+      title: "Sinalizaçao de velocidade",
+      description: "Quantidade de sinalização R-19 disponível na via.",
+      rate_function: interpolated_rate,
+      parameter_list: ["vertical_speed_sign", "horizontal_speed_sign"],
     },
     vertical_speed_sign: {
-      id: "1.2.1.2.4",
+      id: "1.2.1.2.4.1.1",
       title: "Placas de velocidade",
-      description: "Quantidade de sinalização R-19  disponível na via.",
+      description: "Quantidade de sinalização R-19 disponível na via.",
       rate_function: interpolated_rate,
-      parameter_list: [length, vertical_speed_signs_count, [1, 0.1]],
+      parameter_list: {
+        x: vertical_speed_signs_count / length,
+        x0: 1,
+        x1: 0.1,
+      },
     },
     horizontal_speed_sign: {
-      id: "1.2.1.2.5",
+      id: "1.2.1.2.4.1.2",
       title: "Velocidade pintada no chão",
       description: "Quantidade de sinalização pintada no chão da via.",
       rate_function: interpolated_rate,
-      parameter_list: [length, horizontal_speed_sign_count, [1, 0.1]],
+      parameter_list: {
+        x: horizontal_speed_sign_count / length,
+        x0: 1,
+        x1: 0.1,
+      },
     },
     unlevel_control: {
       id: "1.2.1.3",
       title: "Controles em desnível",
       description: "Controles de velocidade em desnível.",
       rate_function: interpolated_rate,
-      parameter_list: [
-        1000 * length,
-        200 * total_unlevel_controls,
-        [600, 200],
-        speed_limit <= 30,
-      ],
+      parameter_list: {
+        x: total_unlevel_controls / length,
+        x0: 600,
+        x1: 200,
+        skip: speed_limit <= 30,
+      },
     },
     on_way_conflicts: {
       id: "1.2.2",
@@ -524,8 +581,8 @@ function rates(parameters) {
       id: "1.2.2.1",
       title: "Riscos ao longo da estrutura",
       description: "Condições de riscos ao longo da estrutura",
-      rate_function: inverted_binnary_rate,
-      parameter_list: [on_way_risks_situations_count],
+      rate_function: binary_rate,
+      parameter_list: { count: on_way_risks_situations_count, inverted: true },
     },
     cyclists_conflicts: {
       id: "1.2.2.2",
@@ -561,8 +618,10 @@ function rates(parameters) {
       id: "1.2.3.1",
       title: "Riscos nos cruzamentos",
       description: "Situações de risco nos cruzamentos.",
-      rate_function: inverted_binnary_rate,
-      parameter_list: [crossing_risks_situations_count],
+      rate_function: binary_rate,
+      parameter_list: {
+        count: crossing_risks_situations_count,
+      },
     },
     maintenance_and_urbanity: {
       id: "1.3",
@@ -587,11 +646,11 @@ function rates(parameters) {
       id: "1.3.1.1",
       title: "Situação do piso",
       description: "Qualidade de conservação do piso",
-      rate_function: evaluation_pattern_rate,
-      parameter_list: [
-        pavement_condition_rate_pattern,
-        pavement_condition_evaluation,
-      ],
+      rate_function: pattern_rate,
+      parameter_list: {
+        pattern: pavement_condition_rate_pattern,
+        description: pavement_condition_evaluation,
+      },
     },
     horizontal_sign_conditions: {
       id: "1.3.1.2",
@@ -610,56 +669,62 @@ function rates(parameters) {
       title: "Condição da pintura interna",
       description:
         "Condição de manutenção da sinalização horizontal interna da estrutura.",
-      rate_function: evaluation_pattern_rate,
-      parameter_list: [
-        painting_condition_rate_pattern,
-        painting_condition_evaluation,
-      ],
+      rate_function: pattern_rate,
+      parameter_list: {
+        pattern: painting_condition_rate_pattern,
+        description: painting_condition_evaluation,
+      },
     },
     picto_conditions: {
       id: "1.3.1.2.2",
       title: "Condição dos pictogramas",
       description: "Condição de conservação dos pictogramas.",
       rate_function: interpolated_rate,
-      parameter_list: [
-        1000 * length,
-        30 * (good_conditions_picto_signs, 0.5 * bad_conditions_picto_signs),
-        [90, 30],
-      ],
+      parameter_list: {
+        x:
+          (good_conditions_picto_signs, 0.5 * bad_conditions_picto_signs) /
+          length,
+        x0: 90,
+        x1: 30,
+      },
     },
     arrow_conditions: {
       id: "1.3.1.2.3",
       title: "Condição das setas",
       description: "Condição de conservação das setas de sinalização",
       rate_function: interpolated_rate,
-      parameter_list: [
-        1000 * length,
-        30 * (good_conditions_arrow_signs, 0.5 * bad_conditions_arrow_signs),
-        [90, 30],
-      ],
+      parameter_list: {
+        x:
+          (good_conditions_arrow_signs, 0.5 * bad_conditions_arrow_signs) /
+          length,
+        x0: 90,
+        x1: 30,
+      },
     },
     horizontal_cross_conditions: {
       id: "1.3.1.2.4",
       title: "Condição da sinalização horizontal no cruzamento",
       description: "Condição de conservação da sinalização dos cruzamentos.",
-      rate_function: proportion_rate,
-      parameter_list: [
-        good_conditions_crossing_signs + 0.5 * bad_conditions_crossing_signs,
-        good_conditions_crossing_signs +
+      rate_function: proportional_rate,
+      parameter_list: {
+        count:
+          good_conditions_crossing_signs + 0.5 * bad_conditions_crossing_signs,
+        total:
+          good_conditions_crossing_signs +
           bad_conditions_crossing_signs +
           no_visible_crossing_signs,
-      ],
+      },
     },
     protection_conditions: {
       id: "1.3.1.3",
       title: "Situação da proteção",
       description:
         "Facilidade de invasão de veículos motorizados à estrutura sem transpor elementos segregatórios.",
-      rate_function: evaluation_pattern_rate,
-      parameter_list: [
-        protection_conditions_rate_pattern,
-        protection_conditions_evaluation,
-      ],
+      rate_function: pattern_rate,
+      parameter_list: {
+        pattern: protection_conditions_rate_pattern,
+        description: protection_conditions_evaluation,
+      },
     },
     urbanity: {
       id: "1.3.2",
@@ -674,33 +739,38 @@ function rates(parameters) {
       title: "Obstáculos",
       description: "Quantidade de obstáculos ao longo da estrutura",
       rate_function: interpolated_rate,
-      parameter_list: [
-        length,
-        all_obstacles_count,
-        all_obstacles_count >= length ? [0, 0] : [20, 0],
-      ],
+      parameter_list: {
+        x: all_obstacles_count / length,
+        x0: all_obstacles_count >= length ? 0 : 20,
+        x1: 0,
+      },
     },
     shading: {
       id: "1.3.2.2",
       title: "Sombreamento",
       description: "Presença arbórea ao longo da estrutura",
-      rate_function: evaluation_pattern_rate,
-      parameter_list: [shading_rate_pattern, shading_evaluation],
+      rate_function: pattern_rate,
+      parameter_list: {
+        pattern: shading_rate_pattern,
+        description: shading_evaluation,
+      },
     },
     lighting: {
       id: "1.3.2.3",
       title: "Iluminação",
       description: "Qualidade da iluminação da via e da estrutura.",
       rate_function: interpolated_rate,
-      parameter_list: [
-        length,
-        dedicated_ligthing +
-          (0.9 *
-            (same_side_ligthing +
-              (road_width > 1.6 * 12 ? 1 : 0.7) * other_side_ligthing)) /
-            (road_width <= 12 ? 1 : 2),
-        [2823, 706],
-      ],
+      parameter_list: {
+        x:
+          (dedicated_ligthing +
+            (0.9 *
+              (same_side_ligthing +
+                (road_width > 1.6 * 12 ? 1 : 0.7) * other_side_ligthing)) /
+              (road_width <= 12 ? 1 : 2)) /
+          length,
+        x0: 2823,
+        x1: 706,
+      },
     },
   };
 
