@@ -1,58 +1,27 @@
 const express = require("express");
-const data = require("./rates-tree.js");
+const {
+  getTitlesAndDescriptions,
+  buildTitleTree,
+  getRates,
+} = require("./rates/rates-calculations");
+const get_forms_data = require("./form/forms-data");
 const app = express();
 const PORT = 3000;
 
-function sortByLengthAndNumeric(a, b) {
-  if (a[0].length < b[0].length) {
-    return 1;
-  } else if (a[0].length > b[0].length) {
-    return -1;
-  } else {
-    return a[0].localeCompare(b[0], undefined, { numeric: true });
-  }
-}
+app.get("/rates_descriptions", (req, res) => {
+  res.send(getTitlesAndDescriptions(get_forms_data()[0]));
+});
 
-const orderedData = data.sort(sortByLengthAndNumeric);
+app.get("/rates_tree", (req, res) => {
+  res.send(buildTitleTree(get_forms_data()[0]));
+});
 
-function getChildren(nodeId) {
-  return orderedData.filter(
-    (item) =>
-      item[0].startsWith(nodeId + ".") &&
-      item[0].split(".").length === nodeId.split(".").length + 1
-  );
-}
+app.get("/rates", (req, res) => {
+  res.send(getRates(get_forms_data()));
+});
 
-function calculateValue(nodeId) {
-  let node = orderedData.find((item) => item[0] === nodeId);
-  console.log("node ", node);
-  if (!node) {
-    return 0;
-  }
-  let children = getChildren(nodeId);
-  console.log("children", children)
-
-  if (children.length === 0) {
-    const fun = node[4]
-    return node[5];
-  } else {
-    let sum = children.reduce(
-      (acc, childNode) => acc + calculateValue(childNode[0]),
-      0
-    );
-    return sum / children.length;
-  }
-}
-
-let result = {};
-result["ideciclo"] = calculateValue(orderedData.find((item) => item[0] == "1")[0]);
-
-// orderedData.forEach((node) => {
-//   result[node[1]] = calculateValue(node[0]);
-// });
-
-app.get("/value", (req, res) => {
-  res.send(`Valor da raiz: ${JSON.stringify(result)}`);
+app.get("/forms", (req, res) => {
+  res.send(get_forms_data());
 });
 
 app.listen(PORT, () => {

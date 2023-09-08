@@ -1,18 +1,9 @@
 const pavement_type_rate_pattern = {
-  "Não há, estrutura sobre a calçada": 10,
-  "Canteiros, Prismas ou blocos de concreto, Sinalização com pintura": 10,
-  "Canteiros, Balizadores": 10,
-  Canteiros: 10,
-  "Guias, Sinalização com pintura": 8,
-  Guias: 8,
-  "Prismas ou blocos de concreto, Sinalização com pintura": 6,
-  "Prismas ou blocos de concreto": 6,
-  "Sinalização com pintura, Tachas ou tachões, Balizadores": 4,
-  "Sinalização com pintura, Tachas ou tachões": 4,
-  "Tachas ou tachões": 4,
-  "Sinalização com pintura": 2,
-  "Sinalização com pintura, Não há": 2,
-  "Não há": 0,
+  Concreto: 10,
+  Asfalto: 7.5,
+  "Tijolo intertravado": 5,
+  "Paralelepípedo rejuntado com cimento": 2.5,
+  "Terra/Barro": 0,
   Ciclorrota: -1,
 };
 
@@ -34,19 +25,13 @@ const painting_condition_rate_pattern = {
 };
 
 const segregator_type_rate_pattern = {
-  "Não há, estrutura sobre a calçada": 10,
-  "Canteiros, Prismas ou blocos de concreto, Sinalização com pintura": 10,
-  "Canteiros, Balizadores": 10,
   Canteiros: 10,
-  "Guias, Sinalização com pintura": 8,
+  Mureta: 8,
   Guias: 8,
-  "Prismas ou blocos de concreto, Sinalização com pintura": 6,
-  "Prismas ou blocos de concreto": 6,
-  "Sinalização com pintura, Tachas ou tachões, Balizadores": 4,
-  "Sinalização com pintura, Tachas ou tachões": 4,
+  "Prismas ou blocos de concreto": 7,
+  Balizadores: 5,
   "Tachas ou tachões": 4,
   "Sinalização com pintura": 2,
-  "Sinalização com pintura, Não há": 2,
   "Não há": 0,
   Ciclorrota: -1,
 };

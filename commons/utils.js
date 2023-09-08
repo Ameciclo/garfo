@@ -43,18 +43,21 @@ function get_average(arr) {
 ////////
 function interpolation(x, x0, x1, y0, y1) {
   let a = (y1 - y0) / (x1 - x0);
-  let b = (x0 * y1 - x0 * y0) / (x1 - x0) + y0;
+  let b = y0 - a * x0;
   return a * x + b;
 }
 
-const reverseConversion = {};
-for (const key in conversion) {
-  const value = conversion[key];
-  reverseConversion[value] = key;
+function key_value_inversion(obj) {
+  const reverseConversion = {};
+  for (const key in obj) {
+    const value = obj[key];
+    reverseConversion[value] = key;
+  }
+  return reverseConversion;
 }
 
 module.exports = {
-  reverseConversion,
+  key_value_inversion,
   get_average,
   interpolation,
   downloadObjectAsJson,
