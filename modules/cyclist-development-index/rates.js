@@ -2,7 +2,7 @@ const express = require("express");
 const {
   getTitlesAndDescriptions,
   buildTitleTree,
-  getRates,
+  getFormRates,
 } = require("./rates/rates-calculations");
 const get_forms_data = require("./form/forms-data");
 const app = express();
@@ -17,7 +17,7 @@ app.get("/rates_tree", (req, res) => {
 });
 
 app.get("/rates", (req, res) => {
-  res.send(getRates(get_forms_data()));
+  res.send(getFormRates(get_forms_data()));
 });
 
 app.get("/forms", (req, res) => {

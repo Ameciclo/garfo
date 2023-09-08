@@ -142,7 +142,7 @@ function calculateBranchValues(tree, leafValues) {
   return branchValues;
 }
 
-function getRates(parameters) {
+function getFormRates(parameters) {
   const tree = get_rates_tree(parameters);
 
   // Calcula os valores das folhas
@@ -157,8 +157,20 @@ function getRates(parameters) {
   return calculatedValues;
 }
 
+function getSegmentsRates(all_forms) {
+
+  const all_rates = {};
+  for (const form in all_forms) {
+    all_rates[form] = getFormRates(all_forms[form]);
+  }
+  return all_rates;
+
+}
+
+
 module.exports = {
   getTitlesAndDescriptions,
-  getRates,
+  getFormRates,
+  getSegmentsRates,
   buildTitleTree,
 };
