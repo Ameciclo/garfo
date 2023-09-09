@@ -1,9 +1,12 @@
 const express = require("express");
 const {
+  calculateSegmentedRates,
+  calculateGroupedRates,
+} = require("./rates/rates-calculations");
+const {
   getTitlesAndDescriptions,
   buildTitleTree,
-  getFormRates,
-} = require("./rates/rates-calculations");
+} = require("./rates/rates-headers");
 const get_forms_data = require("./form/forms-data");
 const app = express();
 const PORT = 3000;
@@ -16,8 +19,12 @@ app.get("/rates_tree", (req, res) => {
   res.send(buildTitleTree(get_forms_data()[0]));
 });
 
+app.get("/rates-segments", (req, res) => {
+  res.send(calculateSegmentedRates(get_forms_data()));
+});
+
 app.get("/rates", (req, res) => {
-  res.send(getFormRates(get_forms_data()));
+  res.send(calculateGroupedRates(get_forms_data()));
 });
 
 app.get("/forms", (req, res) => {

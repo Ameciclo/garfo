@@ -1,102 +1,5 @@
 const get_rates_tree = require("./rates-tree");
-
-function convertObjectToTitleArray(object) {
-  const titleArray = [];
-
-  for (const id in object) {
-    if (object.hasOwnProperty(id)) {
-      const title = object[id];
-      titleArray.push({ key: id, ...title });
-    }
-  }
-
-  return titleArray;
-}
-
-function formatTitleTree(tree, idCount = {}) {
-  let formatted = "";
-
-  function generateId(id, count) {
-    return `${id}.${count}`;
-  }
-
-  function traverse(node, id) {
-    let count = idCount[id] || 1;
-    idCount[id] = count;
-
-    for (const key in node) {
-      if (node.hasOwnProperty(key)) {
-        const childId = generateId(id, count);
-        const nodeItem = node[key];
-        if (nodeItem.title) {
-          formatted += `${childId}: ${nodeItem.title}\n`;
-          count++;
-        }
-
-        if (Object.keys(nodeItem).length > 1) {
-          traverse(nodeItem, childId);
-        }
-      }
-    }
-  }
-
-  traverse(tree, 0);
-  return formatted;
-}
-
-function buildTitleTree(parameters) {
-  const idsAndTitles = convertObjectToTitleArray(get_rates_tree(parameters));
-  const titleTree = {};
-
-  idsAndTitles.forEach((item) => {
-    const parts = item.id.split(".");
-    let currentNode = titleTree;
-
-    parts.forEach((part, index) => {
-      if (!currentNode[part]) {
-        currentNode[part] = {};
-      }
-
-      currentNode = currentNode[part];
-
-      if (index === parts.length - 1) {
-        // Último nó, adicione o título
-        currentNode.title = item.title;
-        if (item.parameters_leaf) currentNode.leafs = item.id;
-        if (item.parameters_branch)
-          currentNode.leafs = "" + item.parameters_branch;
-      }
-    });
-  });
-
-  console.log(formatTitleTree(titleTree));
-  return titleTree;
-}
-
-function getTitlesAndDescriptions(parameters) {
-  const tree = get_rates_tree(parameters);
-  const titlesAndDescriptions = {};
-
-  function traverse(node) {
-    for (const key in node) {
-      if (typeof node[key] === "object" && node[key] !== null) {
-        if (node[key].title && node[key].description) {
-          titlesAndDescriptions[key] = {
-            id: node[key].id,
-            title: node[key].title,
-            description: node[key].description,
-            rate_function: JSON.stringify(node[key].rate_function),
-            parameter_list: JSON.stringify(node[key].parameter_list),
-          };
-        }
-        traverse(node[key]);
-      }
-    }
-  }
-
-  traverse(tree);
-  return titlesAndDescriptions;
-}
+const fs = require("fs");
 
 function calculateLeafValues(tree) {
   const calculatedValues = {};
@@ -105,6 +8,10 @@ function calculateLeafValues(tree) {
     const node = tree[key];
     if (node.parameters_leaf) {
       calculatedValues[key] = node.rate_function(node.parameters_leaf);
+      // const logEntry = `${key}: ${calculatedValues[key]}: ${JSON.stringify(
+      //   node.parameters_leaf
+      // )},\n`;
+      // fs.appendFileSync("log.json", logEntry);
     }
   }
 
@@ -144,33 +51,75 @@ function calculateBranchValues(tree, leafValues) {
 
 function getFormRates(parameters) {
   const tree = get_rates_tree(parameters);
-
   // Calcula os valores das folhas
   const leafValues = calculateLeafValues(tree);
-
   // Calcula os valores dos galhos usando os valores das folhas
   const branchValues = calculateBranchValues(tree, leafValues);
-
   // Combine os valores das folhas e galhos em um único objeto
   const calculatedValues = { ...leafValues, ...branchValues };
-
   return calculatedValues;
 }
 
-function getSegmentsRates(all_forms) {
-
+function calculateSegmentedRates(all_forms) {
   const all_rates = {};
   for (const form in all_forms) {
-    all_rates[form] = getFormRates(all_forms[form]);
+    const rates = getFormRates(all_forms[form]);
+    const geo_id = all_forms[form].geo_id;
+    const length = all_forms[form].seg_length;
+    all_rates[form] = {
+      form_id: all_forms[form].form_id,
+      geo_id: geo_id,
+      length: length,
+      rates: rates,
+      form: all_forms[form],
+    };
   }
   return all_rates;
-
 }
 
+function calculateGroupedRates(all_forms) {
+  const segment_rates = calculateSegmentedRates(all_forms);
+
+  const grouped_rates_acc = {};
+  for (const form of all_forms) {
+    const { geo_id, length, rates, form_id } = { ...segment_rates[form] };
+    if (!grouped_rates_acc[geo_id]) {
+      grouped_rates_acc[geo_id] = {
+        total_length: 0,
+        rates: {},
+        forms_id: [],
+      };
+    }
+    const group = grouped_rates_acc[geo_id];
+    group.forms_id.push(form_id);
+    group.total_length += length;
+    for (const rate in rates) {
+      const value = rates[rate];
+      if (!group.rates[rate]) {
+        group.rates[rate] = 0;
+      }
+      group.rates[rate] += value * length;
+    }
+  }
+
+  const grouped_rates = {};
+  for (group in grouped_rates_acc) {
+    const { total_length, rates } = grouped_rates_acc[group];
+    const group_rates = {};
+    for (const rate in rates) group_rates[rate] = rates[rate] / total_length;
+    grouped_rates[group] = {
+      geo_id: group,
+      length: total_length,
+      forms_id: forms_id,
+      form: "all_forms[form].form",
+      rates: group_rates,
+    };
+  }
+
+  return grouped_rates;
+}
 
 module.exports = {
-  getTitlesAndDescriptions,
-  getFormRates,
-  getSegmentsRates,
-  buildTitleTree,
+  calculateSegmentedRates,
+  calculateGroupedRates,
 };

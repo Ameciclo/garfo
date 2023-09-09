@@ -1,6 +1,8 @@
 const all_forms = require("./ssa_forms.json");
-const forms_conversion = require("./forms-conversion");
+const get_forms_conversion = require("./forms-conversion");
 const { key_value_inversion } = require("../../../commons/utils");
+
+const forms_conversion = get_forms_conversion("salvador", 2023);
 
 function get_conversion(combinedConversion, item_key) {
   const return_value = {};
@@ -29,11 +31,19 @@ function get_converted_form(form, edition = "salvador2023") {
     const value = converted[key];
     switch (conversionKey) {
       case "int":
-        const new_value_int = parseInt("" + value);
-        converted[key] = new_value_int || 0;
+        const new_value_int = parseInt(value == "" ? "0" : value);
+        converted[key] = new_value_int;
+        // console.log(
+        //   key,
+        //   "->",
+        //   value,
+        //   "->",
+        //   new_value_int,
+        //   new_value_int == "NaN" ? true : false
+        // );
         break;
       case "float":
-        const new_value_float = parseFloat("" + value);
+        const new_value_float = parseFloat(value.replace(",", "."));
         converted[key] = new_value_float || 0;
         break;
       default:
@@ -108,7 +118,5 @@ function get_forms_data() {
   });
   return forms_data;
 }
-
-
 
 module.exports = get_forms_data;
