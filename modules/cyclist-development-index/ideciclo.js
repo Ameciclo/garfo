@@ -3,17 +3,22 @@ const {
   calculateSegmentedRates,
   calculateGroupedRates,
 } = require("./rates/rates-calculations");
+const get_cities_reviews = require("./infra/city-reviews");
 const {
   getTitlesAndDescriptions,
   buildTitleTree,
 } = require("./rates/rates-headers");
+const { get_structures } = require("./infra/city-structure");
 const get_forms_data = require("./form/forms-data");
 const app = express();
 const PORT = 3000;
 
+app.get("/review/", (req, res) => {
+  res.send(get_cities_reviews());
+});
 
-app.get("/city", (req, res) => {
-  res.send(getTitlesAndDescriptions(get_forms_data()[0]));
+app.get("/review/structures", (req, res) => {
+  res.send(get_structures());
 });
 
 app.get("/rates/descriptions", (req, res) => {

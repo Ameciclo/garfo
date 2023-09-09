@@ -1,10 +1,6 @@
 const cities_basics = require("./cities-basics.json");
-const {
-  get_weights,
-  get_city_name,
-  group_by,
-  get_road_network,
-} = require("./utils");
+const { groupStructuresByRoadType } = require("./city-structure");
+const { get_weights, get_city_name, get_road_network } = require("./utils");
 
 // Função para retornar os ideciclos
 function get_cities_reviews() {
@@ -18,7 +14,6 @@ function get_cities_reviews() {
       name: city.name,
       state: city.state,
       population: city.population,
-      ideciclo_original: city.ideciclo_original,
       reviews: reviews,
     };
   });
@@ -38,7 +33,7 @@ function get_city_review(city_id, year) {
       network_review.road * weights.road +
       network_review.street * weights.street +
       network_review.local * weights.local,
-    ideciclo_intermediario: network_review,
+    networks_reviews: network_review,
     city_network: city_network,
   };
 }
@@ -58,8 +53,7 @@ function get_city_network(city_id, year) {
 
 // Função para obter a contagem de estruturas cicloviárias por tipo
 function get_cycle_structures(city_id, year) {
-  const grouped_reviews = get_structures_grouped_by_highway(city_id, year);
-
+  const grouped_reviews = groupStructuresByRoadType();
   return {
     road: grouped_reviews.road.length,
     street: grouped_reviews.street.length,
@@ -69,19 +63,19 @@ function get_cycle_structures(city_id, year) {
 
 // Função para obter o comprimento da rede cicloviária de uma cidade para um determinado ano
 function get_cycling_network_length(city_id, year) {
-  const grouped_reviews = get_structures_grouped_by_highway(city_id, year);
+  const grouped_reviews = groupStructuresByRoadType();
 
   return {
     road: grouped_reviews.road.reduce(
-      (acc, cur) => acc + cur.reviews.length,
+      (acc, cur) => acc + cur.seg_length,
       0
     ),
     street: grouped_reviews.street.reduce(
-      (acc, cur) => acc + cur.reviews.length,
+      (acc, cur) => acc + cur.seg_length,
       0
     ),
     local: grouped_reviews.local.reduce(
-      (acc, cur) => acc + cur.reviews.length,
+      (acc, cur) => acc + cur.seg_length,
       0
     ),
   };
@@ -89,7 +83,7 @@ function get_cycling_network_length(city_id, year) {
 
 // Função para obter a avaliação da rede cicloviária de uma cidade para um determinado ano
 function get_cycle_network_rating(city_id, year) {
-  const grouped_reviews = get_structures_grouped_by_highway(city_id, year);
+  const grouped_reviews = groupStructuresByRoadType();
   const rating = {
     road: calculateAverageRating(grouped_reviews.road),
     street: calculateAverageRating(grouped_reviews.street),
@@ -109,13 +103,11 @@ function calculateAverageRating(reviews) {
   if (!reviews || reviews.length === 0) {
     return 0;
   }
-
   const totalRating = reviews.reduce(
-    (acc, cur) => acc + cur.reviews.length * cur.reviews.rates.average,
+    (acc, cur) => acc + cur.seg_length * cur.rates.average,
     0
   );
-  const totalLength = reviews.reduce((acc, cur) => acc + cur.reviews.length, 0);
-
+  const totalLength = reviews.reduce((acc, cur) => acc + cur.seg_length, 0);
   return totalRating / totalLength || 0;
 }
 
@@ -134,36 +126,6 @@ function get_newtwork_review(network) {
   return {
     road: road,
     street: street,
-    local: local,
-  };
-}
-
-// Função para obter estruturas agrupadas por tipo de via
-function get_structures_grouped_by_highway(city_id, year) {
-  const structures = getFileAsJson("IDECICLO - structures - public.json");
-  const city_structures = structures.filter((s) => s.city_id === city_id);
-  let selected_structures = [];
-
-  city_structures.forEach((cs) => {
-    let struct = cs;
-    let reviews = cs.reviews.filter((r) => r.year === year);
-
-    if (reviews.length > 0) {
-      struct.reviews = reviews[0];
-      selected_structures.push(struct);
-    }
-  });
-
-  const grouped_structures = group_by(selected_structures, "highway");
-  let trunk = grouped_structures.trunk || [];
-  let primary = grouped_structures.primary || [];
-  let secondary = grouped_structures.secondary || [];
-  let tertiary = grouped_structures.tertiary || [];
-  let local = grouped_structures.local || [];
-
-  return {
-    road: trunk.concat(primary),
-    street: secondary.concat(tertiary),
     local: local,
   };
 }

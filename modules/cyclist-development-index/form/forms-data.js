@@ -33,14 +33,6 @@ function get_converted_form(form, edition = "salvador2023") {
       case "int":
         const new_value_int = parseInt(value == "" ? "0" : value);
         converted[key] = new_value_int;
-        // console.log(
-        //   key,
-        //   "->",
-        //   value,
-        //   "->",
-        //   new_value_int,
-        //   new_value_int == "NaN" ? true : false
-        // );
         break;
       case "float":
         const new_value_float = parseFloat(value.replace(",", "."));
@@ -98,15 +90,15 @@ function get_converted_form(form, edition = "salvador2023") {
       ? (converted["road_width"] - bike_infra_width - parking_width) /
           converted["contiguos_lanes"] -
         1
-      : -1;
+      : null;
   (converted["mean_lane_width"] = lane_width > 2),
-    5 && lane_width < 5 ? lane_width : -1;
+    5 && lane_width < 5 ? lane_width : null;
   const crosses =
     converted["good_conditions_crossing_signs"] +
     converted["bad_conditions_crossing_signs"] +
     converted["no_visible_crossing_signs"];
   converted["mean_square_size"] =
-    crosses > 2 ? converted["seg_length"] / (crosses - 1) : -1;
+    crosses > 2 ? converted["seg_length"] / (crosses - 1) : null;
   return converted;
 }
 

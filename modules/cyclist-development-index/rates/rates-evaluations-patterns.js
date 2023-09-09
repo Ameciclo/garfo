@@ -4,7 +4,7 @@ const pavement_type_rate_pattern = {
   "Tijolo intertravado": 5,
   "Paralelepípedo rejuntado com cimento": 2.5,
   "Terra/Barro": 0,
-  Ciclorrota: -1,
+  Ciclorrota: null,
 };
 
 const pavement_condition_rate_pattern = {
@@ -33,7 +33,7 @@ const segregator_type_rate_pattern = {
   "Tachas ou tachões": 4,
   "Sinalização com pintura": 2,
   "Não há": 0,
-  Ciclorrota: -1,
+  Ciclorrota: null,
 };
 
 const protection_conditions_rate_pattern = {
@@ -42,7 +42,7 @@ const protection_conditions_rate_pattern = {
   "Poucos trechos SEM segregadores dificultando invasão": 6.6,
   "Poucos trechos COM segregadores dificultando invasão": 3.3,
   "NENHUM ou QUASE NENHUM segregador dificultando invasão": 0,
-  Ciclorrota: -1,
+  Ciclorrota: null,
 };
 
 const shading_rate_pattern = {
@@ -59,7 +59,7 @@ const horiontal_pattern_rates_pattern = {
   "Pintada de vermelho com interrupções": 6.7,
   "Apenas faixas vermelhas nas bordas, com travessias pintadas nos cruzamentos": 3.3,
   "Apenas faixas vermelhas nas bordas.": 0,
-  Ciclorrota: -1,
+  Ciclorrota: null,
 };
 
 const sinuosity_rates_pattern = {
@@ -78,8 +78,8 @@ let project_conception_rates_pattern = {
       "No canteiro central": 5,
       "Sobre a calçada": 2.5,
       "No bordo direito da via de mão única": 0,
-      Ciclorrota: -1,
-      "Em um dos bordos de via de mão dupla": -1,
+      Ciclorrota: null,
+      "Em um dos bordos de via de mão dupla": null,
     },
     "Mão dupla": {
       "Isoladas (em área verde)": 10,
@@ -87,9 +87,9 @@ let project_conception_rates_pattern = {
       "Na via, junto ao canteiro central/canal": 5,
       "No canteiro central": 5,
       "Em um dos bordos de via de mão dupla": 0,
-      "No bordo direito da via de mão única": -1,
-      "No bordo esquerdo da via de mão única": -1,
-      Ciclorrota: -1,
+      "No bordo direito da via de mão única": null,
+      "No bordo esquerdo da via de mão única": null,
+      Ciclorrota: null,
     },
   },
   unidirecional: {
@@ -100,8 +100,8 @@ let project_conception_rates_pattern = {
       "Na via, junto ao canteiro central/canal": 5,
       "No canteiro central": 5,
       "Sobre a calçada": 2.5,
-      Ciclorrota: -1,
-      "Em um dos bordos de via de mão dupla": -1,
+      Ciclorrota: null,
+      "Em um dos bordos de via de mão dupla": null,
     },
     "Mão dupla": {
       "Isoladas (em área verde)": 10,
@@ -109,9 +109,9 @@ let project_conception_rates_pattern = {
       "Na via, junto ao canteiro central/canal": 5,
       "No canteiro central": 5,
       "Sobre a calçada": 2.5,
-      "No bordo direito da via de mão única": -1,
-      "No bordo esquerdo da via de mão única": -1,
-      Ciclorrota: -1,
+      "No bordo direito da via de mão única": null,
+      "No bordo esquerdo da via de mão única": null,
+      Ciclorrota: null,
     },
   },
 };

@@ -1,126 +1,105 @@
-const segments = require("./city-segments.json")
+const segments = require("./city-segments.json");
+const structures_rates = require("./city-structures.json");
+const geojson = require("./ideciclo_ssa.json");
+const { get_road_types } = require("./utils");
 
-// Função para salvar informações das estruturas em formato JSON
-function save_structures() {
-  let structures = [];
-  const groupedCitySegments = groupSegmentsByCity(segments);
+// Função para agrupar as estruturas por tipo de estrada
+function groupStructuresByRoadType() {
+  const structures = get_structures();
+  const roadTypes = get_road_types();
+  const groupedStructures = {};
 
-  // Itera sobre cada cidade e obtém suas estruturas
-  Object.keys(groupedCitySegments).forEach((city_id) => {
-    const citySegments = groupedCitySegments[city_id];
-    const cityStructures = getStructures(citySegments, parseInt(city_id));
-    structures = structures.concat(cityStructures);
-  });
-
-  // Salva as informações das estruturas em formato JSON
-  saveAsJSON(structures, "structures", "public");
+  for (const roadType in roadTypes) {
+    const highwayTypes = roadTypes[roadType].highway_types;
+    groupedStructures[roadType] = structures.filter((structure) =>
+      highwayTypes.includes(structure.highway)
+    );
+  }
+  return groupedStructures;
 }
 
-// Função para obter as estruturas das cidades
-function getStructures(segments, city_id) {
-  const rates = getFileAsJson("IDECICLO - rates - public.json");
-  let structures = [];
+function get_structures() {
+  // Crie um objeto para mapear as estruturas por geo_id
+  const structuresMap = {};
+  // Mapeie as entradas em structures_rates
+  Object.keys(structures_rates).forEach((geo_id) => {
+    const ratesEntry = structures_rates[geo_id];
 
-  // Agrupa os segmentos por rua
-  const streets = groupSegmentsByProperty(segments, "street");
+    // Encontre a entrada correspondente no geojson com base no geo_id
+    const geojsonFeatures = geojson.features.filter(
+      (feature) => feature.properties.geo_id == geo_id
+    );
 
-  // Itera sobre as ruas
-  Object.keys(streets).forEach((s) => {
-    const street = streets[s];
+    if (geojsonFeatures.length > 0) {
+      // Se houver correspondências no geojson, crie uma nova estrutura para cada uma
+      geojsonFeatures.forEach((geojsonFeature) => {
+        const structure = {
+          ...ratesEntry,
+          geo_id: geo_id,
+          length: geojsonFeature.properties.seg_length,
+          highway: geojsonFeature.properties.highway,
+          typology: geojsonFeature.properties.typology,
+          maxspeed: geojsonFeature.properties.maxspeed,
+        };
 
-    // Agrupa os segmentos por rodovia
-    const highways = groupSegmentsByProperty(street, "highway");
+        if (!structuresMap[geo_id]) {
+          structuresMap[geo_id] = [];
+        }
 
-    // Itera sobre as rodovias
-    Object.keys(highways).forEach((h) => {
-      const highway = highways[h];
-
-      // Agrupa os segmentos por tipologia
-      const struct_type = groupSegmentsByProperty(highway, "typology");
-
-      // Itera sobre as tipologias
-      Object.keys(struct_type).forEach((st) => {
-        const str_type = struct_type[st];
-        let reviews = [];
-
-        // Agrupa os segmentos revisados por ano
-        const reviewed_year = groupSegmentsByProperty(str_type, "year");
-
-        // Itera sobre os anos revisados
-        Object.keys(reviewed_year).forEach((y) => {
-          const st_year = reviewed_year[y];
-          let segments = [];
-          let seg_rates = [];
-
-          // Itera sobre os segmentos revisados no ano
-          st_year.forEach((t) => {
-            const r = rates.find((rate) => rate.id === t.form_id);
-            segments.push({
-              id: t.id,
-              form_id: t.form_id,
-              geo_id: t.geo_id,
-              rates: r,
-              length: t.length,
-            });
-            seg_rates.push(r);
-          });
-
-          // Calcula o comprimento total dos segmentos
-          const totalLength = segments.reduce(
-            (acc, cur) => acc + cur.length,
-            0
-          );
-
-          let r_average = {
-            id: string_to_slug(
-              "" +
-                get_city_name(city_id) +
-                "-" +
-                s +
-                "-" +
-                h +
-                "-" +
-                st +
-                "-" +
-                y
-            ),
-          };
-
-          // Calcula a média das taxas para cada categoria
-          Object.keys(seg_rates[0]).forEach((rate) => {
-            if (rate !== "id") {
-              r_average[rate] =
-                segments.reduce((acc, cur) => {
-                  if (cur.rates[rate] >= 0) {
-                    return acc + cur.rates[rate] * cur.length;
-                  }
-                }, 0) / totalLength;
-            }
-          });
-
-          // Cria a revisão para o ano
-          reviews.push({
-            city_id: city_id,
-            year: parseInt(y),
-            rates: r_average,
-            length: totalLength,
-            segments: segments,
-          });
-        });
-
-        // Cria a estrutura
-        structures.push({
-          id: string_to_slug("" + get_city_name(city_id) + "-" + s + "-" + st),
-          city_id: city_id,
-          route: str_type[0].route,
-          street: s,
-          highway: h,
-          tipologia: st,
-          typology: st,
-          reviews: reviews,
-        });
+        structuresMap[geo_id].push(structure);
       });
-    });
+    }
   });
+  // Para cada geo_id, calcule a soma dos seg_length e mantenha o maior valor de maxspeed
+  const structures = Object.keys(structuresMap).map((geo_id) => {
+    const seg_info = segments.find((s) => s.geo_id == geo_id);
+
+    const structuresList = structuresMap[geo_id];
+
+    // Calcule a soma dos seg_length
+    const segLengthSum = structuresList.reduce(
+      (total, structure) => total + structure.length,
+      0
+    );
+
+    const allHighways = [];
+    structuresList.forEach((structure) => allHighways.push(structure.highway));
+    // Conte os diferentes tipos de highways em allHighways
+    const highwayCounts = {};
+    allHighways.forEach((highway) => {
+      if (!highwayCounts[highway]) {
+        highwayCounts[highway] = 0;
+      }
+      highwayCounts[highway]++;
+    });
+
+    // Encontre o tipo de highway que mais aparece
+    let mostCommonHighway = "";
+    let mostCommonCount = 0;
+
+    for (const highway in highwayCounts) {
+      if (highwayCounts[highway] > mostCommonCount) {
+        mostCommonHighway = highway;
+        mostCommonCount = highwayCounts[highway];
+      }
+    }
+
+    // Encontre o maior valor de maxspeed
+    const maxspeed = Math.max(
+      ...structuresList.map((structure) => structure.maxspeed)
+    );
+
+    // Retorne a estrutura agrupada
+    return {
+      ...seg_info,
+      ...structuresList[0], // Use a primeira estrutura como base, já que as informações são idênticas
+      seg_length: segLengthSum,
+      maxspeed: maxspeed,
+      highway: mostCommonHighway,
+    };
+  });
+
   return structures;
 }
+
+module.exports = { get_structures, groupStructuresByRoadType };

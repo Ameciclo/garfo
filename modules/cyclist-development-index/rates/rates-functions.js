@@ -4,17 +4,17 @@ function average_rate(arr) {
   let sum = 0;
   let count = 0;
   arr.forEach((f) => {
-    if (f != -1) {
+    if (f != null) {
       sum += f;
       count++;
     }
   });
-  if (count > 0 && sum > -1) return sum / count;
-  else return -1;
+  if (count > 0 && sum > null) return sum / count;
+  else return null;
 }
 
 function no_evaluated_rate(arr) {
-  return -1;
+  return null;
 }
 
 function binary_rate({ count, skip = false, inverted = false }) {
@@ -22,7 +22,7 @@ function binary_rate({ count, skip = false, inverted = false }) {
     if (count > 0) return inverted ? 0 : 10;
     return inverted ? 10 : 0;
   }
-  return -1;
+  return null;
 }
 
 function pattern_rate({
@@ -37,23 +37,23 @@ function pattern_rate({
       (desc) => !combined_skip.includes(desc)
     );
     const pattern_descriptions = descriptionsToCheck.map(
-      (desc) => pattern[desc] || -1
+      (desc) => pattern[desc] || null
     );
     return average_rate(pattern_descriptions);
   } else if (separator) {
     const all_descriptions = description.split(separator).map((f) => f.trim());
     const pattern_descriptions = all_descriptions.map(
-      (desc) => pattern[desc] || -1
+      (desc) => pattern[desc] || null
     );
     return average_rate(pattern_descriptions);
   } else {
-    return pattern[description] || -1;
+    return pattern[description] || null;
   }
 }
 
 ////////
 function interpolated_rate({ x, x0, x1, y0 = 0, y1 = 10, skip = false }) {
-  if (skip) return -1;
+  if (skip) return null;
   let y = interpolation(x, x0, x1, y0, y1);
   if (y > 10) {
     y = 10;
@@ -65,7 +65,7 @@ function interpolated_rate({ x, x0, x1, y0 = 0, y1 = 10, skip = false }) {
 
 function proportional_rate({ count, total, skip = false }) {
   if (total != 0 && !skip) return (count / total) * 10;
-  return -1;
+  return null;
 }
 
 module.exports = {

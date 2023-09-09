@@ -11,15 +11,15 @@ function get_weights() {
 
 function get_road_types() {
   return {
-    road: { types: ["motorway", "trunk", "primary"], speed: 60 },
-    street: { types: ["secondary", "tertiary"], speed: 40 },
-    local: { types: ["local"], speed: 30 },
+    road: { highway_types: ["motorway", "trunk", "primary"], speed: 60 },
+    street: { highway_types: ["secondary", "tertiary"], speed: 40 },
+    local: { highway_types: ["residential"], speed: 30 },
   };
 }
 
 function get_road_network(city_id, year) {
   const n = cities_network.filter(
-    (n) => n.city === get_city_name(city_id) && r.year === year
+    (n) => n.city === get_city_name(city_id) && n.year === year
   )[0];
   return {
     id: city_id,

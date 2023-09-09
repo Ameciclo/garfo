@@ -108,9 +108,10 @@ function calculateGroupedRates(all_forms) {
         groupedRatesAccumulated[group].rates[rate] /
         groupedRatesAccumulated[group].total_length;
     }
+
     groupedRatesAverages[group] = {
-      rates: groupRatesAvg,
       ...groupedRatesAccumulated[group],
+      rates: groupRatesAvg,
     };
   }
 

@@ -5,7 +5,8 @@
     "route": "Ondina",
     "street": "Ondina",
     "typology": "ciclovia",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "50"
   },
   {
     "id_form": "2",
@@ -13,7 +14,8 @@
     "route": "Rio Vermelho - R. da Paciência",
     "street": "Rio Vermelho - R. da Paciência",
     "typology": "ciclovia",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "40"
   },
   {
     "id_form": "3",
@@ -21,7 +23,8 @@
     "route": "Ondina",
     "street": "Oceânica - Ondina / Rio Vermelho",
     "typology": "ciclofaixa",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "60"
   },
   {
     "id_form": "4",
@@ -29,7 +32,8 @@
     "route": "Av. Manoel Dias da Silva",
     "street": "Manoel Dias da Silva (Pituba - Amaralina",
     "typology": "ciclofaixa",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "60"
   },
   {
     "id_form": "5",
@@ -37,7 +41,8 @@
     "route": "BRT",
     "street": "BRT",
     "typology": "ciclovia",
-    "district": "#N/A"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "60"
   },
   {
     "id_form": "6",
@@ -45,7 +50,8 @@
     "route": "CAB",
     "street": "CAB - 4ª Avenida Centro Administrativo da Bahia",
     "typology": "ciclofaixa",
-    "district": "Miolo"
+    "district": "Miolo",
+    "maxspeed": "60"
   },
   {
     "id_form": "7",
@@ -53,7 +59,8 @@
     "route": "CAB",
     "street": "CAB - 5ª Avenida Centro Administrativo da Bahia",
     "typology": "ciclofaixa",
-    "district": "Miolo"
+    "district": "Miolo",
+    "maxspeed": "60"
   },
   {
     "id_form": "8",
@@ -61,7 +68,8 @@
     "route": "CAB",
     "street": "CAB - 4ª Avenida Centro Administrativo da Bahia",
     "typology": "ciclofaixa",
-    "district": "Miolo"
+    "district": "Miolo",
+    "maxspeed": "60"
   },
   {
     "id_form": "9",
@@ -69,7 +77,8 @@
     "route": "CAB",
     "street": "CAB - 3ª Avenida Centro Administrativo da Bahia",
     "typology": "ciclofaixa",
-    "district": "Miolo"
+    "district": "Miolo",
+    "maxspeed": "60"
   },
   {
     "id_form": "10",
@@ -77,7 +86,8 @@
     "route": "CAB",
     "street": "CAB - 3ª Avenida Centro Administrativo da Bahia",
     "typology": "ciclofaixa",
-    "district": "Miolo"
+    "district": "Miolo",
+    "maxspeed": "60"
   },
   {
     "id_form": "11",
@@ -85,7 +95,8 @@
     "route": "CAB",
     "street": "CAB 5ª Avenida Centro Administrativo da Bahia",
     "typology": "ciclofaixa",
-    "district": "Miolo"
+    "district": "Miolo",
+    "maxspeed": "60"
   },
   {
     "id_form": "12",
@@ -93,7 +104,8 @@
     "route": "Av. Engenheiro Oscar Pontes",
     "street": "Via: Rua Eng. Oscar Pontes (Trecho 1)",
     "typology": "ciclofaixa",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "60"
   },
   {
     "id_form": "13",
@@ -101,7 +113,8 @@
     "route": "Av. Engenheiro Oscar Pontes",
     "street": "Av. Engenheiro Oscar Pontes (Trecho 3)",
     "typology": "ciclofaixa",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "60"
   },
   {
     "id_form": "14",
@@ -109,7 +122,8 @@
     "route": "Av. Engenheiro Oscar Pontes",
     "street": "Av. Engenheiro Oscar Pontes (Trecho 2)",
     "typology": "ciclofaixa",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "60"
   },
   {
     "id_form": "15",
@@ -117,7 +131,8 @@
     "route": "Av. Jequitaia",
     "street": "Avenida Jequitaia (Trecho 4)",
     "typology": "ciclofaixa",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "60"
   },
   {
     "id_form": "16",
@@ -125,7 +140,8 @@
     "route": "Av. Afrânio Peixoto - Suburbana (Lobato)",
     "street": "Avenida Afrânio Peixoto (Trecho 3 - Lobato) - VOLTA",
     "typology": "ciclovia",
-    "district": "#N/A"
+    "district": "Subúrbio",
+    "maxspeed": "60"
   },
   {
     "id_form": "17",
@@ -133,7 +149,8 @@
     "route": "Av. Afrânio Peixoto - Suburbana (Lobato)",
     "street": "Avenida Afrânio Peixoto (Trecho 3 - Lobato) - IDA",
     "typology": "ciclovia",
-    "district": "#N/A"
+    "district": "Subúrbio",
+    "maxspeed": "60"
   },
   {
     "id_form": "18",
@@ -141,7 +158,8 @@
     "route": "Av. Afrânio Peixoto - Suburbana (Lobato)",
     "street": "Av. Afrânio Peixoto (T4 - Viaduto dos Motoristas) - IDA",
     "typology": "ciclovia",
-    "district": "#N/A"
+    "district": "Subúrbio",
+    "maxspeed": "60"
   },
   {
     "id_form": "19",
@@ -149,7 +167,8 @@
     "route": "Av. Afrânio Peixoto - Suburbana (Lobato)",
     "street": "Av. Afrânio Peixoto (T4 - Viaduto dos Motoristas) - VOLTA",
     "typology": "ciclovia",
-    "district": "#N/A"
+    "district": "Subúrbio",
+    "maxspeed": "60"
   },
   {
     "id_form": "20",
@@ -157,7 +176,8 @@
     "route": "Av. Afrânio Peixoto - Suburbana (Periperi)",
     "street": "Av. Afrânio Peixoto - Praia Grande (IDA)",
     "typology": "ciclovia",
-    "district": "Subúrbio"
+    "district": "Subúrbio",
+    "maxspeed": "60"
   },
   {
     "id_form": "21",
@@ -165,7 +185,8 @@
     "route": "Av. Afrânio Peixoto - Suburbana (Periperi)",
     "street": "Av. Afrânio Peixoto (Paripe) - VOLTA",
     "typology": "ciclovia",
-    "district": "Subúrbio"
+    "district": "Subúrbio",
+    "maxspeed": "60"
   },
   {
     "id_form": "22",
@@ -173,7 +194,8 @@
     "route": "Av. Afrânio Peixoto - Suburbana (Periperi)",
     "street": "Av. Afrânio Peixoto (Periperi) - IDA",
     "typology": "ciclovia",
-    "district": "Subúrbio"
+    "district": "Subúrbio",
+    "maxspeed": "60"
   },
   {
     "id_form": "23",
@@ -181,7 +203,8 @@
     "route": "Av. Afrânio Peixoto - Suburbana (Periperi)",
     "street": "Av. Afrânio Peixoto (Periperi) - VOLTA",
     "typology": "ciclovia",
-    "district": "Subúrbio"
+    "district": "Subúrbio",
+    "maxspeed": "60"
   },
   {
     "id_form": "24",
@@ -189,7 +212,8 @@
     "route": "Av. Luis Eduardo Magalhães",
     "street": "Av. Luis Eduardo Magalhães",
     "typology": "ciclofaixa",
-    "district": "#N/A"
+    "district": "Miolo",
+    "maxspeed": "70"
   },
   {
     "id_form": "25",
@@ -197,7 +221,8 @@
     "route": "Av. Luis Eduardo Magalhães",
     "street": "Av. Luis Eduardo Magalhães",
     "typology": "ciclofaixa",
-    "district": "#N/A"
+    "district": "Miolo",
+    "maxspeed": "70"
   },
   {
     "id_form": "26",
@@ -205,7 +230,8 @@
     "route": "Av. Luis Eduardo Magalhães",
     "street": "Av. Luis Eduardo Magalhães",
     "typology": "ciclofaixa",
-    "district": "#N/A"
+    "district": "Miolo",
+    "maxspeed": "70"
   },
   {
     "id_form": "27",
@@ -213,7 +239,8 @@
     "route": "Av. Luis Eduardo Magalhães",
     "street": "Av. Luis Eduardo Magalhães",
     "typology": "ciclofaixa",
-    "district": "#N/A"
+    "district": "Miolo",
+    "maxspeed": "70"
   },
   {
     "id_form": "28",
@@ -221,7 +248,8 @@
     "route": "Av. Luis Eduardo Magalhães",
     "street": "Av. Luis Eduardo Magalhães",
     "typology": "ciclofaixa",
-    "district": "#N/A"
+    "district": "Miolo",
+    "maxspeed": "70"
   },
   {
     "id_form": "29",
@@ -229,7 +257,8 @@
     "route": "Av. Luis Eduardo Magalhães",
     "street": "Av. Luis Eduardo Magalhães",
     "typology": "ciclofaixa",
-    "district": "#N/A"
+    "district": "Miolo",
+    "maxspeed": "70"
   },
   {
     "id_form": "30",
@@ -237,7 +266,8 @@
     "route": "Av. Dorival Caymmi",
     "street": "Av. Dorival Caymmi",
     "typology": "ciclofaixa",
-    "district": "Orla Atlântica"
+    "district": "Orla Atlântica",
+    "maxspeed": "50"
   },
   {
     "id_form": "31",
@@ -245,7 +275,8 @@
     "route": "Av. Dorival Caymmi",
     "street": "Av. Dorival Caymmi",
     "typology": "ciclofaixa",
-    "district": "Orla Atlântica"
+    "district": "Orla Atlântica",
+    "maxspeed": "50"
   },
   {
     "id_form": "32",
@@ -253,7 +284,8 @@
     "route": "Av. Dorival Caymmi",
     "street": "Av. Dorival Caymmi",
     "typology": "ciclofaixa",
-    "district": "Orla Atlântica"
+    "district": "Orla Atlântica",
+    "maxspeed": "50"
   },
   {
     "id_form": "33",
@@ -261,7 +293,8 @@
     "route": "Av. Dorival Caymmi",
     "street": "Av. Dorival Caymmi",
     "typology": "ciclofaixa",
-    "district": "Orla Atlântica"
+    "district": "Orla Atlântica",
+    "maxspeed": "50"
   },
   {
     "id_form": "34",
@@ -269,7 +302,8 @@
     "route": "Av. Dorival Caymmi",
     "street": "Av. Dorival Caymmi",
     "typology": "ciclofaixa",
-    "district": "Orla Atlântica"
+    "district": "Orla Atlântica",
+    "maxspeed": "50"
   },
   {
     "id_form": "35",
@@ -277,7 +311,8 @@
     "route": "Av. Dorival Caymmi",
     "street": "Av. Dorival Caymmi",
     "typology": "ciclofaixa",
-    "district": "Orla Atlântica"
+    "district": "Orla Atlântica",
+    "maxspeed": "50"
   },
   {
     "id_form": "36",
@@ -285,7 +320,8 @@
     "route": "R. Carlos Gomes",
     "street": "Av. Carlos Gomes (trecho 1)",
     "typology": "ciclofaixa",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "40"
   },
   {
     "id_form": "37",
@@ -293,7 +329,8 @@
     "route": "R. Carlos Gomes",
     "street": "Av. Carlos Gomes (trecho 2)",
     "typology": "ciclofaixa",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "40"
   },
   {
     "id_form": "38",
@@ -301,7 +338,8 @@
     "route": "R. Thomaz Gonzaga",
     "street": "Rua Thomaz Gonzaga",
     "typology": "ciclofaixa",
-    "district": "Miolo"
+    "district": "Miolo",
+    "maxspeed": "50"
   },
   {
     "id_form": "39",
@@ -309,7 +347,8 @@
     "route": "Alameda Horto Bela Vista",
     "street": "Alameda Horto Bela Vista",
     "typology": "calçada compartilhada",
-    "district": "Miolo"
+    "district": "Miolo",
+    "maxspeed": "30"
   },
   {
     "id_form": "40",
@@ -317,7 +356,8 @@
     "route": "Av. Anita Garibaldi",
     "street": "Av.  Anita Garibaldi",
     "typology": "ciclofaixa",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "70"
   },
   {
     "id_form": "41",
@@ -325,7 +365,8 @@
     "route": "Av. Anita Garibaldi",
     "street": "Av. Anita Garibaldi",
     "typology": "ciclofaixa",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "70"
   },
   {
     "id_form": "42",
@@ -333,7 +374,8 @@
     "route": "Av. Anita Garibaldi",
     "street": "Av. Anita Garibaldi",
     "typology": "ciclofaixa",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "70"
   },
   {
     "id_form": "43",
@@ -341,7 +383,8 @@
     "route": "Av. Anita Garibaldi",
     "street": "Av. Anita Garibaldi",
     "typology": "ciclovia",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "70"
   },
   {
     "id_form": "44",
@@ -349,7 +392,8 @@
     "route": "Av. Anita Garibaldi",
     "street": "aV. Anita Garibaldi",
     "typology": "ciclofaixa",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "70"
   },
   {
     "id_form": "45",
@@ -357,7 +401,8 @@
     "route": "Av. Anita Garibaldi",
     "street": "Av. Anita Garibaldi",
     "typology": "ciclofaixa",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "70"
   },
   {
     "id_form": "46",
@@ -365,7 +410,8 @@
     "route": "Av. Anita Garibaldi",
     "street": "Av. Anita Garibaldi",
     "typology": "ciclofaixa",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "70"
   },
   {
     "id_form": "47",
@@ -373,6 +419,7 @@
     "route": "Av. Anita Garibaldi",
     "street": "Av. Anita Garibaldi",
     "typology": "ciclofaixa",
-    "district": "Área Urbana Consolidada"
+    "district": "Área Urbana Consolidada",
+    "maxspeed": "50"
   }
 ]
