@@ -1,5 +1,5 @@
 const get_rates_tree = require("./rates-tree");
-const fs = require("fs");
+// const fs = require("fs");
 
 function calculateLeafValues(tree) {
   const calculatedValues = {};
@@ -8,9 +8,7 @@ function calculateLeafValues(tree) {
     const node = tree[key];
     if (node.parameters_leaf) {
       calculatedValues[key] = node.rate_function(node.parameters_leaf);
-      // const logEntry = `${key}: ${calculatedValues[key]}: ${JSON.stringify(
-      //   node.parameters_leaf
-      // )},\n`;
+      // const logEntry = `${calculatedValues[key]}: ${JSON.stringify(node)},\n`;
       // fs.appendFileSync("log.json", logEntry);
     }
   }
@@ -42,6 +40,7 @@ function calculateBranchValues(tree, leafValues) {
       leafValues,
       nodeId
     );
+
     if (calculatedValue !== undefined) {
       branchValues[nodeId] = calculatedValue;
     }
@@ -50,6 +49,8 @@ function calculateBranchValues(tree, leafValues) {
 }
 
 function getFormRates(parameters) {
+  // const logEntry = `${parameters.section_name},\n`;
+  // fs.appendFileSync("log.json", logEntry);
   const tree = get_rates_tree(parameters);
   // Calcula os valores das folhas
   const leafValues = calculateLeafValues(tree);
@@ -64,59 +65,56 @@ function calculateSegmentedRates(all_forms) {
   const all_rates = {};
   for (const form in all_forms) {
     const rates = getFormRates(all_forms[form]);
-    const geo_id = all_forms[form].geo_id;
-    const length = all_forms[form].seg_length;
+    const { form_id, geo_id, seg_length } = { ...all_forms[form] };
     all_rates[form] = {
-      form_id: all_forms[form].form_id,
+      form_id: form_id,
       geo_id: geo_id,
-      length: length,
+      seg_length: seg_length,
       rates: rates,
-      form: all_forms[form],
+      //      form: all_forms[form],
     };
   }
   return all_rates;
 }
 
 function calculateGroupedRates(all_forms) {
-  const segment_rates = calculateSegmentedRates(all_forms);
+  const segmentRates = calculateSegmentedRates(all_forms);
 
-  const grouped_rates_acc = {};
-  for (const form of all_forms) {
-    const { geo_id, length, rates, form_id } = { ...segment_rates[form] };
-    if (!grouped_rates_acc[geo_id]) {
-      grouped_rates_acc[geo_id] = {
+  const groupedRatesAccumulated = {};
+  for (const form in all_forms) {
+    const { geo_id, seg_length, rates, form_id } = { ...segmentRates[form] };
+    if (!groupedRatesAccumulated[geo_id]) {
+      groupedRatesAccumulated[geo_id] = {
         total_length: 0,
         rates: {},
-        forms_id: [],
+        form_ids: [],
       };
     }
-    const group = grouped_rates_acc[geo_id];
-    group.forms_id.push(form_id);
-    group.total_length += length;
+    groupedRatesAccumulated[geo_id].form_ids.push(form_id);
+    groupedRatesAccumulated[geo_id].total_length += seg_length;
     for (const rate in rates) {
       const value = rates[rate];
-      if (!group.rates[rate]) {
-        group.rates[rate] = 0;
+      if (!groupedRatesAccumulated[geo_id].rates[rate]) {
+        groupedRatesAccumulated[geo_id].rates[rate] = 0;
       }
-      group.rates[rate] += value * length;
+      groupedRatesAccumulated[geo_id].rates[rate] += value * seg_length;
     }
   }
-
-  const grouped_rates = {};
-  for (group in grouped_rates_acc) {
-    const { total_length, rates } = grouped_rates_acc[group];
-    const group_rates = {};
-    for (const rate in rates) group_rates[rate] = rates[rate] / total_length;
-    grouped_rates[group] = {
-      geo_id: group,
-      length: total_length,
-      forms_id: forms_id,
-      form: "all_forms[form].form",
-      rates: group_rates,
+  const groupedRatesAverages = {};
+  for (const group in groupedRatesAccumulated) {
+    const groupRatesAvg = {};
+    for (const rate in groupedRatesAccumulated[group].rates) {
+      groupRatesAvg[rate] =
+        groupedRatesAccumulated[group].rates[rate] /
+        groupedRatesAccumulated[group].total_length;
+    }
+    groupedRatesAverages[group] = {
+      rates: groupRatesAvg,
+      ...groupedRatesAccumulated[group],
     };
   }
 
-  return grouped_rates;
+  return groupedRatesAverages;
 }
 
 module.exports = {

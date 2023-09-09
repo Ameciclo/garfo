@@ -1,9 +1,10 @@
+const cities_basics = require('./cities-basics.json');
+
 // Função para salvar informações de cidades em formato JSON
-function save_cities_as_json() {
+function get_cities_reviews() {
     let cities_reviews = [];
-    const cities = get_cities_basics();
-  
-    cities.forEach(city => {
+
+    cities_basics.forEach(city => {
       let reviews = [];
       const years = city.reviewed_at;
   
@@ -154,3 +155,4 @@ function save_cities_as_json() {
     };
   }
   
+  module.exports = get_cities_reviews

@@ -11,15 +11,20 @@ const get_forms_data = require("./form/forms-data");
 const app = express();
 const PORT = 3000;
 
-app.get("/rates_descriptions", (req, res) => {
+
+app.get("/city", (req, res) => {
   res.send(getTitlesAndDescriptions(get_forms_data()[0]));
 });
 
-app.get("/rates_tree", (req, res) => {
+app.get("/rates/descriptions", (req, res) => {
+  res.send(getTitlesAndDescriptions(get_forms_data()[0]));
+});
+
+app.get("/rates/tree", (req, res) => {
   res.send(buildTitleTree(get_forms_data()[0]));
 });
 
-app.get("/rates-segments", (req, res) => {
+app.get("/rates/segments", (req, res) => {
   res.send(calculateSegmentedRates(get_forms_data()));
 });
 

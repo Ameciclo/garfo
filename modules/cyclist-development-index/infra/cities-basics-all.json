@@ -1,0 +1,290 @@
+[
+  {
+    "name": "Recife",
+    "id": 1,
+    "state": "PE",
+    "reviewed_at": [2021, 2018, 2016],
+    "population": 1633697,
+    "ideciclo_original": [0.161, 0.079, 0.059]
+  },
+  {
+    "name": "Cabo de Santo Agostinho",
+    "id": 2,
+    "state": "PE",
+    "reviewed_at": [2018],
+    "population": 204653,
+    "ideciclo_original": []
+  },
+  {
+    "name": "Ipojuca",
+    "id": 3,
+    "state": "PE",
+    "reviewed_at": [2018],
+    "population": 94533,
+    "ideciclo_original": []
+  },
+  {
+    "name": "Jaboatão dos Guararapes",
+    "id": 4,
+    "state": "PE",
+    "reviewed_at": [2018],
+    "population": 695956,
+    "ideciclo_original": []
+  },
+  {
+    "name": "Olinda",
+    "id": 5,
+    "state": "PE",
+    "reviewed_at": [2018],
+    "population": 390771,
+    "ideciclo_original": [0.131]
+  },
+  {
+    "name": "Paulista",
+    "id": 6,
+    "state": "PE",
+    "reviewed_at": [2018],
+    "population": 328353,
+    "ideciclo_original": [0.032]
+  },
+  {
+    "name": "São Lourenço da Mata",
+    "id": 7,
+    "state": "PE",
+    "reviewed_at": [2018],
+    "population": 112099,
+    "ideciclo_original": []
+  },
+  {
+    "name": "Belo Horizonte",
+    "id": 8,
+    "state": "MG",
+    "reviewed_at": [2018],
+    "population": 2521564,
+    "ideciclo_original": []
+  },
+  {
+    "name": "São Paulo",
+    "id": 9,
+    "state": "SP",
+    "reviewed_at": [2018],
+    "population": 12325232,
+    "ideciclo_original": [0.107]
+  },
+  {
+    "name": "Águas Claras",
+    "id": 10,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 148940,
+    "ideciclo_original": [0.155]
+  },
+  {
+    "name": "Brazlândia",
+    "id": 11,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 52287,
+    "ideciclo_original": [0.027]
+  },
+  {
+    "name": "Ceilândia",
+    "id": 12,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 489351,
+    "ideciclo_original": [0.123]
+  },
+  {
+    "name": "Gama",
+    "id": 13,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 141911,
+    "ideciclo_original": [0.145]
+  },
+  {
+    "name": "Guará",
+    "id": 14,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 132685,
+    "ideciclo_original": [0.087]
+  },
+  {
+    "name": "Itapuã",
+    "id": 15,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 68587,
+    "ideciclo_original": [0.009]
+  },
+  {
+    "name": "Lago Norte",
+    "id": 16,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 37455,
+    "ideciclo_original": [0.148]
+  },
+  {
+    "name": "Lago Sul",
+    "id": 17,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 29346,
+    "ideciclo_original": [0.185]
+  },
+  {
+    "name": "Núcleo Bandeirante",
+    "id": 18,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 25072,
+    "ideciclo_original": [0.144]
+  },
+  {
+    "name": "Paranoá",
+    "id": 19,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 48020,
+    "ideciclo_original": [0.106]
+  },
+  {
+    "name": "Park Way",
+    "id": 20,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 19824,
+    "ideciclo_original": [0.278]
+  },
+  {
+    "name": "Planaltina",
+    "id": 21,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 189421,
+    "ideciclo_original": [0.009]
+  },
+  {
+    "name": "Plano Piloto",
+    "id": 22,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 220393,
+    "ideciclo_original": [0.071]
+  },
+  {
+    "name": "Recanto das Emas",
+    "id": 23,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 145304,
+    "ideciclo_original": [0.088]
+  },
+  {
+    "name": "Riacho Fundo II",
+    "id": 24,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 51709,
+    "ideciclo_original": [0.088]
+  },
+  {
+    "name": "Samambaia",
+    "id": 25,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 254439,
+    "ideciclo_original": [0.116]
+  },
+  {
+    "name": "Santa Maria",
+    "id": 26,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 125123,
+    "ideciclo_original": [0.111]
+  },
+  {
+    "name": "São Sebastião",
+    "id": 27,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 100161,
+    "ideciclo_original": [0.144]
+  },
+  {
+    "name": "SIA",
+    "id": 28,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 2585,
+    "ideciclo_original": [0.051]
+  },
+  {
+    "name": "Sobradinho",
+    "id": 29,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 68551,
+    "ideciclo_original": [0.008]
+  },
+  {
+    "name": "Sobradinho II",
+    "id": 30,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 100775,
+    "ideciclo_original": [0.064]
+  },
+  {
+    "name": "Sudoeste/Octogonal",
+    "id": 31,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 53262,
+    "ideciclo_original": [0.184]
+  },
+  {
+    "name": "Taguatinga",
+    "id": 32,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 222598,
+    "ideciclo_original": [0.005]
+  },
+  {
+    "name": "Vicente Pires",
+    "id": 33,
+    "state": "DF",
+    "reviewed_at": [2019],
+    "population": 72879,
+    "ideciclo_original": [0.143]
+  },
+  {
+    "name": "Campo Grande",
+    "id": 34,
+    "state": "MS",
+    "reviewed_at": [2020],
+    "population": 906092,
+    "ideciclo_original": [0.038]
+  },
+  {
+    "name": "Rio de Janeiro",
+    "id": 35,
+    "state": "RJ",
+    "reviewed_at": [2022],
+    "population": 17463349,
+    "ideciclo_original": []
+  },
+  {
+    "name": "Salvador",
+    "id": 36,
+    "state": "BA",
+    "reviewed_at": [2023],
+    "population": 2418005,
+    "ideciclo_original": []
+  }
+]

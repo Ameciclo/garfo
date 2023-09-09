@@ -106,8 +106,7 @@ function get_converted_form(form, edition = "salvador2023") {
     converted["bad_conditions_crossing_signs"] +
     converted["no_visible_crossing_signs"];
   converted["mean_square_size"] =
-    crosses > 2 ? converted["length"] / (crosses - 1) : -1;
-
+    crosses > 2 ? converted["seg_length"] / (crosses - 1) : -1;
   return converted;
 }
 

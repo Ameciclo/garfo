@@ -63,7 +63,7 @@ function get_rates_tree(parameters) {
     dedicated_ligthing,
     same_side_ligthing,
     other_side_ligthing,
-    length,
+    seg_length: length,
     on_way_risks_situations_count,
     crossing_risks_situations_count,
     total_unlevel_controls,
@@ -330,9 +330,10 @@ function get_rates_tree(parameters) {
       rate_function: proportional_rate,
       parameters_leaf: {
         count:
-          access_evaluation !== "Segregadores NÃO DIFICULTAM o acesso"
-            ? all_access_count
-            : way_with_access + ways_without_access,
+          access_evaluation !== "Segregadores NÃO DIFICULTAM o acesso" ||
+          all_access_count > way_with_access + ways_without_access
+            ? way_with_access + ways_without_access
+            : all_access_count,
         total: way_with_access + ways_without_access,
         skip: access_evaluation == "N/A",
       },
@@ -720,7 +721,6 @@ function get_rates_tree(parameters) {
       },
     },
   };
-
   return rates_tree;
 }
 
