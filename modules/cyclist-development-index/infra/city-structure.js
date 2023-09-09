@@ -1,7 +1,8 @@
+const segments = require("./city-segments.json")
+
 // Função para salvar informações das estruturas em formato JSON
 function save_structures() {
   let structures = [];
-  const segments = getFileAsJson("IDECICLO - segments - public.json");
   const groupedCitySegments = groupSegmentsByCity(segments);
 
   // Itera sobre cada cidade e obtém suas estruturas

@@ -1,6 +1,7 @@
 [
   {
     "city": "Belo Horizonte",
+    "year": 2018,
     "motorway": 86451.164,
     "motorway_link": 24448.001,
     "primary": 154844.756,
@@ -16,6 +17,7 @@
   },
   {
     "city": "São Paulo",
+    "year": 2018,
     "motorway": 294057.774,
     "motorway_link": 101174.917,
     "primary": 805413.304,
@@ -31,6 +33,7 @@
   },
   {
     "city": "Campo Grande",
+    "year": 2020,
     "motorway": 0,
     "motorway_link": 0,
     "primary": 339318.988,
@@ -46,6 +49,7 @@
   },
   {
     "city": "Recife",
+    "year": 2021,
     "motorway": 7168.28,
     "motorway_link": 160.934,
     "primary": 152925.459,
@@ -61,6 +65,7 @@
   },
   {
     "city": "Olinda",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "primary": 30844.33,
@@ -76,6 +81,7 @@
   },
   {
     "city": "Paulista",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "primary": 32818,
@@ -91,6 +97,7 @@
   },
   {
     "city": "Jaboatão dos Guararapes",
+    "year": 2018,
     "motorway": 30600.898,
     "motorway_link": 2167.153,
     "primary": 58833.922,
@@ -106,6 +113,7 @@
   },
   {
     "city": "Ipojuca",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "primary": 74099.492,
@@ -121,6 +129,7 @@
   },
   {
     "city": "Cabo de Santo Agostinho",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "primary": 48550.276,
@@ -136,6 +145,7 @@
   },
   {
     "city": "São Lourenço da Mata",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "primary": 45855.391,
@@ -151,6 +161,7 @@
   },
   {
     "city": "Águas Claras",
+    "year": 2018,
     "motorway": 3583,
     "motorway_link": 0,
     "trunk": 9856,
@@ -166,6 +177,7 @@
   },
   {
     "city": "Brazlândia",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "trunk": 0,
@@ -181,6 +193,7 @@
   },
   {
     "city": "Ceilândia",
+    "year": 2018,
     "motorway": 41038,
     "motorway_link": 1332,
     "trunk": 0,
@@ -196,6 +209,7 @@
   },
   {
     "city": "Gama",
+    "year": 2018,
     "motorway": 40335,
     "motorway_link": 803,
     "trunk": 19108,
@@ -211,6 +225,7 @@
   },
   {
     "city": "Guará",
+    "year": 2018,
     "motorway": 14143,
     "motorway_link": 1361,
     "trunk": 13007,
@@ -226,6 +241,7 @@
   },
   {
     "city": "Itapuã",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "trunk": 0,
@@ -241,6 +257,7 @@
   },
   {
     "city": "Lago Norte",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "trunk": 16176,
@@ -256,6 +273,7 @@
   },
   {
     "city": "Lago Sul",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "trunk": 9018,
@@ -271,6 +289,7 @@
   },
   {
     "city": "Núcleo Bandeirante",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "trunk": 10765,
@@ -286,6 +305,7 @@
   },
   {
     "city": "Paranoá",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "trunk": 0,
@@ -301,6 +321,7 @@
   },
   {
     "city": "Park Way",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "trunk": 41390,
@@ -316,6 +337,7 @@
   },
   {
     "city": "Planaltina",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "trunk": 94558,
@@ -331,6 +353,7 @@
   },
   {
     "city": "Plano Piloto",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "trunk": 125120,
@@ -346,6 +369,7 @@
   },
   {
     "city": "Recanto das Emas",
+    "year": 2018,
     "motorway": 49786,
     "motorway_link": 2089,
     "trunk": 0,
@@ -361,6 +385,7 @@
   },
   {
     "city": "Riacho Fundo II",
+    "year": 2018,
     "motorway": 10376,
     "motorway_link": 0,
     "trunk": 7650,
@@ -376,6 +401,7 @@
   },
   {
     "city": "Samambaia",
+    "year": 2018,
     "motorway": 15506,
     "motorway_link": 2689,
     "trunk": 3272,
@@ -391,6 +417,7 @@
   },
   {
     "city": "Santa Maria",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "trunk": 39242,
@@ -406,6 +433,7 @@
   },
   {
     "city": "São Sebastião",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "trunk": 0,
@@ -421,6 +449,7 @@
   },
   {
     "city": "SIA",
+    "year": 2018,
     "motorway": 9060,
     "motorway_link": 0,
     "trunk": 10003,
@@ -436,6 +465,7 @@
   },
   {
     "city": "Sobradinho",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "trunk": 66928,
@@ -451,6 +481,7 @@
   },
   {
     "city": "Sobradinho II",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "trunk": 14046,
@@ -466,6 +497,7 @@
   },
   {
     "city": "Sudoeste/Octogonal",
+    "year": 2018,
     "motorway": 0,
     "motorway_link": 0,
     "trunk": 7316,
@@ -481,6 +513,7 @@
   },
   {
     "city": "Taguatinga",
+    "year": 2018,
     "motorway": 49141,
     "motorway_link": 2762,
     "trunk": 24666,
@@ -496,6 +529,7 @@
   },
   {
     "city": "Vicente Pires",
+    "year": 2018,
     "motorway": 10870,
     "motorway_link": 532,
     "trunk": 0,
@@ -511,6 +545,7 @@
   },
   {
     "city": "Rio de Janeiro",
+    "year": 2021,
     "bridleway": 1236.907,
     "motorway": 62133.885,
     "motorway_link": 14967.886,
@@ -528,6 +563,7 @@
   },
   {
     "city": "Salvador",
+    "city_id": 36,
     "year": 2023,
     "motorway": 30542.724,
     "motorway_link": 8426.998,
