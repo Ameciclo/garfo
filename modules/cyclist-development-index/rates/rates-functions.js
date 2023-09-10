@@ -1,7 +1,7 @@
 const { interpolation } = require("../../../commons/utils");
 
 function average_rate(arr) {
-  let sum = 0;
+  let sum = null;
   let count = 0;
   arr.forEach((f) => {
     if (f != null) {
@@ -9,7 +9,7 @@ function average_rate(arr) {
       count++;
     }
   });
-  if (count > 0 && sum > null) return sum / count;
+  if (count > 0 && sum != null) return sum / count;
   else return null;
 }
 
