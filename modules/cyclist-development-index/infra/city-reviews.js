@@ -1,5 +1,5 @@
 const cities_basics = require("./cities-basics.json");
-const { groupStructuresByRoadType } = require("./city-structure");
+const { groupStructuresByRoadType, groupSegLengthByRoadTypeAll } = require("./city-structure");
 const { get_weights, get_city_name, get_road_network } = require("./utils");
 
 // Função para retornar os ideciclos
@@ -63,19 +63,19 @@ function get_cycle_structures(city_id, year) {
 
 // Função para obter o comprimento da rede cicloviária de uma cidade para um determinado ano
 function get_cycling_network_length(city_id, year) {
-  const grouped_reviews = groupStructuresByRoadType();
+  const grouped_reviews = groupSegLengthByRoadTypeAll();
 
   return {
     road: grouped_reviews.road.reduce(
-      (acc, cur) => acc + cur.seg_length,
+      (acc, cur) => acc + cur,
       0
     ),
     street: grouped_reviews.street.reduce(
-      (acc, cur) => acc + cur.seg_length,
+      (acc, cur) => acc + cur,
       0
     ),
     local: grouped_reviews.local.reduce(
-      (acc, cur) => acc + cur.seg_length,
+      (acc, cur) => acc + cur,
       0
     ),
   };

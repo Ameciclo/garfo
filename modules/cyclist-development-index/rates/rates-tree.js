@@ -448,14 +448,14 @@ function get_rates_tree(parameters) {
       id: "1.2.1.2.1",
       title: "Tamanho de quadra",
       description: "Tamanho médio da quadra",
-      rate_function: interpolated_rate,
+      rate_function: no_evaluated_rate,
       parameters_leaf: { x: mean_square_size, x0: 300, x1: 100 },
     },
     lane_width: {
       id: "1.2.1.2.2",
       title: "Largura de faixa",
       description: "Largura média das faixas de rolamento",
-      rate_function: interpolated_rate,
+      rate_function: no_evaluated_rate,
       parameters_leaf: { x: mean_lane_width, x0: 3.5, x1: 2.5 },
     },
     other_controls: {
@@ -466,14 +466,14 @@ function get_rates_tree(parameters) {
       parameters_leaf: { count: other_control_elements_count !== 0 },
     },
     speed_signs: {
-      id: "1.2.1.2.4.1",
+      id: "1.2.1.2.4",
       title: "Sinalizaçao de velocidade",
       description: "Quantidade de sinalização R-19 disponível na via.",
       rate_function: average_rate,
       parameters_branch: ["vertical_speed_sign", "horizontal_speed_sign"],
     },
     vertical_speed_sign: {
-      id: "1.2.1.2.4.1.1",
+      id: "1.2.1.2.4.1",
       title: "Placas de velocidade",
       description: "Quantidade de sinalização R-19 disponível na via.",
       rate_function: interpolated_rate,
@@ -484,7 +484,7 @@ function get_rates_tree(parameters) {
       },
     },
     horizontal_speed_sign: {
-      id: "1.2.1.2.4.1.2",
+      id: "1.2.1.2.4.2",
       title: "Velocidade pintada no chão",
       description: "Quantidade de sinalização pintada no chão da via.",
       rate_function: interpolated_rate,
@@ -501,8 +501,8 @@ function get_rates_tree(parameters) {
       rate_function: interpolated_rate,
       parameters_leaf: {
         x: total_unlevel_controls / length,
-        x0: 600,
-        x1: 200,
+        x0: 1/.6,
+        x1: 1/.2,
         skip: speed_limit <= 30,
       },
     },
@@ -716,8 +716,9 @@ function get_rates_tree(parameters) {
                 (road_width > 1.6 * 12 ? 1 : 0.7) * other_side_ligthing)) /
               (road_width <= 12 ? 1 : 2)) /
           length,
-        x0: 2823,
-        x1: 706,
+        x0: 262.2938112 / road_width,
+        x1: 65.5734528 / road_width,
+        skip: road_width == null
       },
     },
   };

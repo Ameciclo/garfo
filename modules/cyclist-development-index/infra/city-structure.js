@@ -18,13 +18,34 @@ function groupStructuresByRoadType() {
   return groupedStructures;
 }
 
+// Função para agrupar os valores de seg_length por tipo de estrada
+function groupSegLengthByRoadTypeAll() {
+  const structures = geojson.features; // Obtenha apenas os recursos do GeoJSON
+  const roadTypes = get_road_types();
+  const groupedSegLength = {};
+
+  for (const roadType in roadTypes) {
+    const highwayTypes = roadTypes[roadType].highway_types;
+    const filteredStructures = structures.filter((structure) =>
+      highwayTypes.includes(structure.properties.highway)
+    );
+
+    const segLengthValues = filteredStructures.map(
+      (structure) => structure.properties.seg_length
+    );
+
+    groupedSegLength[roadType] = segLengthValues;
+  }
+  return groupedSegLength;
+}
+
+
 function get_structures() {
   // Crie um objeto para mapear as estruturas por geo_id
   const structuresMap = {};
   // Mapeie as entradas em structures_rates
   Object.keys(structures_rates).forEach((geo_id) => {
     const ratesEntry = structures_rates[geo_id];
-
     // Encontre a entrada correspondente no geojson com base no geo_id
     const geojsonFeatures = geojson.features.filter(
       (feature) => feature.properties.geo_id == geo_id
@@ -102,4 +123,4 @@ function get_structures() {
   return structures;
 }
 
-module.exports = { get_structures, groupStructuresByRoadType };
+module.exports = { get_structures, groupStructuresByRoadType, groupSegLengthByRoadTypeAll };

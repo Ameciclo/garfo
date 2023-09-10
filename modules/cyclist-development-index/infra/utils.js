@@ -1,6 +1,41 @@
 const cities_basics = require("./cities-basics-all.json");
 const cities_network = require("./cities-network.json");
 
+const fs = require("fs");
+
+// Função para converter um objeto JSON em uma linha CSV
+function jsonToCsvRow(jsonObj) {
+  const values = Object.values(jsonObj);
+  return values.join(",");
+}
+
+function json2csv(data) {
+  if (!Array.isArray(data) || data.length === 0) {
+    console.error("Os dados não são um array de objetos JSON válidos.");
+    return;
+  }
+
+  // Caminho para o arquivo onde você deseja salvar os dados
+  const filePath = "dados.csv";
+
+  // Crie o cabeçalho a partir das chaves do primeiro objeto no array
+  const header = Object.keys(data[0]);
+
+  // Converter cada objeto JSON em uma linha CSV e juntar todas as linhas em uma única string CSV
+  const csvString = [header.map(JSON.stringify).join(",")].concat(
+    data.map(jsonToCsvRow)
+  ).join("\n");
+
+  // Use writeFile para salvar a string no arquivo
+  fs.writeFile(filePath, csvString, (err) => {
+    if (err) {
+      console.error("Erro ao salvar o arquivo:", err);
+      return;
+    }
+    console.log("Arquivo salvo com sucesso em", filePath);
+  });
+}
+
 function get_weights() {
   return {
     road: 0.5901639344,
@@ -86,4 +121,5 @@ module.exports = {
   get_city_name,
   group_by,
   get_road_network,
+  json2csv,
 };

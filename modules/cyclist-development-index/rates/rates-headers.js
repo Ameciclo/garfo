@@ -29,7 +29,7 @@ function formatTitleTree(tree, idCount = {}) {
         const childId = generateId(id, count);
         const nodeItem = node[key];
         if (nodeItem.title) {
-          formatted += `${childId}: ${nodeItem.title}\n`;
+          formatted += `${nodeItem.name}; ${nodeItem.title}; ${nodeItem.description}\n`;
           count++;
         }
 
@@ -61,7 +61,9 @@ function buildTitleTree(parameters) {
 
       if (index === parts.length - 1) {
         // Último nó, adicione o título
+        currentNode.name = item.key;
         currentNode.title = item.title;
+        currentNode.description = item.description;
         if (item.parameters_leaf) currentNode.leafs = item.id;
         if (item.parameters_branch)
           currentNode.leafs = "" + item.parameters_branch;
