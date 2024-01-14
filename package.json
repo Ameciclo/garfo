@@ -4,7 +4,11 @@
   "description": "An Express API for studying and observing cycling data by Ameciclo, focused on promoting and improving cycling infrastructure and safety.",
   "main": "index.js",
   "scripts": {
-    "test": "// Sem testes por enquanto"
+    "test": "// Sem testes por enquanto",
+    "migration:public": "drizzle-kit generate:pg --schema=./db/public_schema.ts",
+    "migration:cyclist_profile": "drizzle-kit generate:pg --schema=./db/cyclist_profile.ts",
+    "migration:cyclist_infra": "drizzle-kit generate:pg --schema=./db/cyclist_infra.ts",
+    "migration:cyclist_count": "drizzle-kit generate:pg --schema=./db/cyclist_count.ts"
   },
   "repository": {
     "type": "git",
