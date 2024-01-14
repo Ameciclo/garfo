@@ -5,8 +5,9 @@ import {
   serial,
   varchar,
   real,
-  index,
   boolean,
+  index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { cities, researchers, coordinates } from "./public_schema";
 
@@ -20,7 +21,7 @@ export const edition = pgTable(
       .notNull(),
   },
   (edition) => ({
-    yearCityIdx: index("year_city_idx").onOnly(edition.year, edition.cityId),
+    yearCityIdx: uniqueIndex("year_city_idx").on(edition.year, edition.cityId),
   })
 );
 
@@ -32,7 +33,7 @@ export const categories = pgTable(
     name: varchar("name"),
   },
   (categories) => ({
-    type_name_idx: index("type_name_idx").onOnly(
+    typeNameIdx: uniqueIndex("type_name_idx").on(
       categories.type,
       categories.name
     ),
