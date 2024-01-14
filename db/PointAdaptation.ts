@@ -1,5 +1,5 @@
-import { sql, type DriverValueMapper, type SQL } from 'drizzle-orm';
-import { customType } from 'drizzle-orm/pg-core';
+import { sql, type DriverValueMapper, type SQL } from "drizzle-orm";
+import { customType } from "drizzle-orm/pg-core";
 
 export type Point = {
   lat: number;
@@ -8,7 +8,7 @@ export type Point = {
 
 export const pointType = customType<{ data: Point; driverData: string }>({
   dataType() {
-    return 'geometry(Point,4326)';
+    return "geometry(Point,4326)";
   },
   toDriver(value: Point): string {
     return `SRID=4326;POINT(${value.lng} ${value.lat})`;
@@ -22,7 +22,7 @@ export const pointType = customType<{ data: Point; driverData: string }>({
         `Could not parse point value in function pointType.fromDriver
          Currently returning() is not supported and select must use a 
          custom select like so: db.select({ geo: selectPoint('geo', place.geo) })`,
-        value,
+        value
       );
     }
 
@@ -30,6 +30,9 @@ export const pointType = customType<{ data: Point; driverData: string }>({
   },
 });
 
-export const selectPoint = (column: string, decoder: DriverValueMapper<any, any>): SQL<Point> => {
+export const selectPoint = (
+  column: string,
+  decoder: DriverValueMapper<any, any>
+): SQL<Point> => {
   return sql<Point>`st_astext(${sql.identifier(column)})`.mapWith(decoder);
 };
