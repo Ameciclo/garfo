@@ -12,7 +12,11 @@ import {
   time,
   jsonb,
 } from "drizzle-orm/pg-core";
-import { pointType } from "./PointAdaptation";
+
+type Point = {
+  latitude: number;
+  longitude: number;
+};
 
 export const cities = pgTable(
   "cities",
@@ -33,11 +37,13 @@ export const researchers = pgTable("researchers", {
 
 export const coordinates = pgTable("coordinates", {
   id: integer("id").primaryKey(),
-  point: pointType("point"),
+  point: varchar("point").$type<Point>(), // Armazenar como texto, por exemplo, "latitude,longitude"
   type: varchar("type"),
 });
 
 //CYCLIST COUNT
+
+
 
 export const cyclist_count_schema = pgSchema("cyclist_count");
 
@@ -55,20 +61,8 @@ export const cyclist_count_summary = cyclist_count_schema.table("summary", {
   count: integer("count"),
 });
 
-export const cyclist_count_researcherSession = cyclist_count_schema.table(
-  "researcher_session",
-  {
-    countSessionId: integer("count_session_id")
-      .references(() => cyclist_count_session.id)
-      .notNull(),
-    researcherId: integer("researcher_id")
-      .references(() => researchers.id)
-      .notNull(),
-  }
-);
-
 export const cyclist_count_session = cyclist_count_schema.table("session", {
-  id: integer("id").primaryKey(),
+  id: integer("id").primaryKey(), 
   editionId: integer("edition_id").references(() => cyclist_count_edition.id),
   startTime: time("start_time"),
   endTime: time("end_time"),
@@ -87,8 +81,18 @@ export const cyclist_count_directionCounts = cyclist_count_schema.table(
   }
 );
 
-export const cyclist_count_characteristicsCount = pgTable(
-  "cyclist_count.characteristics_count",
+export const cyclist_count_characteristics = cyclist_count_schema.table(
+  "characteristics",
+  {
+    id: integer("id").primaryKey(),
+    name: varchar("name"),
+    type: varchar("type"),
+    atribute: varchar("atribute"),
+  }
+);
+
+export const cyclist_count_characteristicsCount = cyclist_count_schema.table(
+  "characteristics_count",
   {
     id: integer("id").primaryKey(),
     sessionId: integer("session_id").references(() => cyclist_count_session.id),
@@ -99,59 +103,64 @@ export const cyclist_count_characteristicsCount = pgTable(
   }
 );
 
-export const cyclist_count_characteristics = cyclist_count_schema.table(
-  "characteristics",
+export const cyclist_count_researcherSession = cyclist_count_schema.table(
+  "researcher_session",
   {
-    id: integer("id").primaryKey(),
-    name: varchar("name"),
-    type: varchar("type"),
-    atributo: varchar("atributo"),
+    countSessionId: integer("count_session_id")
+      .references(() => cyclist_count_session.id)
+      .notNull(),
+    researcherId: integer("researcher_id")
+      .references(() => researchers.id)
+      .notNull(),
   }
 );
-
 // CYCLIST INFRA
 
 export const cyclist_infra_schema = pgSchema("cyclist_infra");
 
-export const cyclist_infra_relations = cyclist_infra_schema.table(
-  "cycling_infra.relations",
-  {
-    osmId: integer("osm_id").primaryKey(),
-    name: varchar("name"),
-    pdcRef: varchar("pdc_ref"),
-    pdcNotes: varchar("pdc_notes"),
-    pdcTypology: varchar("pdc_typology"),
-    kmTotal: real("km_total"),
-    kmTotalCycleway: real("km_total_cycleway"),
-    kmTotalCyclepath: real("km_total_cyclepath"),
-    kmTotalCyclingRoute: real("km_total_cycling_route"),
-    kmTotalFootway: real("km_total_footway"),
-  }
-);
+// Tabela 'relations' no schema 'cyclist_infra'
+export const cyclist_infra_relations = cyclist_infra_schema.table("relations", {
+  id: integer("id").primaryKey(),
+  name: varchar("name"),
+  pdcRef: varchar("pdc_ref"),
+  pdcNotes: varchar("pdc_notes"),
+  pdcTypology: varchar("pdc_typology"),
+  pdcKm: real("pdc_km"),
+  pdcStretch: real("pdc_stretch"),
+  pdcCities: real("pdc_cities"),
+  osmId: real("osm_id"),
+  notes: real("notes"),
+});
+
 
 export const cyclist_infra_relationCities = cyclist_infra_schema.table(
-  "cycling_infra.relation_cities",
+  "relation_cities",
   {
-    relationId: integer("relation_id").references(() => cyclist_infra_relations.osmId),
+    relationId: integer("relation_id").references(
+      () => cyclist_infra_relations.id
+    ),
     citiesId: integer("cities_id").references(() => cities.id),
   }
 );
 
-export const cyclist_infra_ways = cyclist_infra_schema.table(
-  "cycling_infra.ways",
-  {
-    osmId: integer("osm_id").primaryKey(),
-    name: varchar("name"),
-    length: real("length"),
-    highway: varchar("highway"),
-    hasCycleway: boolean("has_cycleway"),
-    cyclewayTypology: varchar("cycleway_typology"),
-    relationId: integer("relation_id").references(() => cyclist_infra_relations.osmId),
-    geojson: jsonb("geojson"),
-  }
-);
+export const cyclist_infra_ways = cyclist_infra_schema.table("ways", {
+  osmId: integer("osm_id").primaryKey(),
+  name: varchar("name"),
+  length: real("length"),
+  highway: varchar("highway"),
+  hasCycleway: boolean("has_cycleway"),
+  cyclewayTypology: varchar("cycleway_typology"),
+  relationId: integer("relation_id").references(
+    () => cyclist_infra_relations.id
+  ),
+  geojson: jsonb("geojson"),
+  lastUpdated: date("lastupdated"), // Coluna 'lastupdated' como tipo 'date'
+  cityId: integer("city_id"), // Coluna 'city_id'
+  dualCarriageway: boolean("dual_carriageway"), // Coluna 'dual_carriageway' como tipo boolean
+  pdcTypology: varchar("pdc_typology"), // Coluna 'pdc_typology'
+});
 
-// CYCLIST PROFILE
+/* // CYCLIST PROFILE
 
 export const cyclist_profile_schema = pgSchema("cyclist_profile");
 
@@ -165,7 +174,10 @@ export const cyclist_profile_edition = cyclist_profile_schema.table(
       .notNull(),
   },
   (edition) => ({
-    yearCityIdx: uniqueIndex("year_city_idx").on(edition.year, edition.cityId),
+    yearCityIdx: uniqueIndex("year_city_idx").on(
+      cyclist_profile_edition.year,
+      cyclist_profile_edition.cityId
+    ),
   })
 );
 
@@ -178,8 +190,8 @@ export const cyclist_profile_categories = cyclist_profile_schema.table(
   },
   (categories) => ({
     typeNameIdx: uniqueIndex("type_name_idx").on(
-      categories.type,
-      categories.name
+      cyclist_profile_categories.type,
+      cyclist_profile_categories.name
     ),
   })
 );
@@ -217,11 +229,21 @@ export const cyclist_profile_formData = cyclist_profile_schema.table(
     address: varchar("address"),
     job: varchar("job"),
     age: integer("age"),
-    ageCategoryId: integer("age_category_id").references(() => cyclist_profile_categories.id),
-    genderId: integer("gender_id").references(() => cyclist_profile_categories.id),
-    schoolingId: integer("schooling_id").references(() => cyclist_profile_categories.id),
-    wageStandardId: integer("wage_standard_id").references(() => cyclist_profile_categories.id),
-    colorRaceId: integer("color_race_id").references(() => cyclist_profile_categories.id),
+    ageCategoryId: integer("age_category_id").references(
+      () => cyclist_profile_categories.id
+    ),
+    genderId: integer("gender_id").references(
+      () => cyclist_profile_categories.id
+    ),
+    schoolingId: integer("schooling_id").references(
+      () => cyclist_profile_categories.id
+    ),
+    wageStandardId: integer("wage_standard_id").references(
+      () => cyclist_profile_categories.id
+    ),
+    colorRaceId: integer("color_race_id").references(
+      () => cyclist_profile_categories.id
+    ),
     peopleAtHome: integer("people_at_home"),
     neighborhoodLiving: varchar("neighborhood_living"),
     weekUsageTotalCatId: integer("week_usage_total_cat_id").references(
@@ -243,7 +265,9 @@ export const cyclist_profile_formData = cyclist_profile_schema.table(
     distanceTimeCategoryId: integer("distance_time_category_id").references(
       () => cyclist_profile_categories.id
     ),
-    yearsUsingId: integer("years_using_id").references(() => cyclist_profile_categories.id),
+    yearsUsingId: integer("years_using_id").references(
+      () => cyclist_profile_categories.id
+    ),
     sharedBicycle: boolean("shared_bicycle"),
     collisionsLastYears: integer("collisions_last_years").references(
       () => cyclist_profile_categories.id
@@ -251,8 +275,12 @@ export const cyclist_profile_formData = cyclist_profile_schema.table(
     neighborhoodOrigin: varchar("neighborhood_origin"),
     neighborhoodDestiny: varchar("neighborhood_destiny"),
     shareBikeChanges: boolean("share_bike_changes"),
-    biggestIssue: integer("biggest_issue").references(() => cyclist_profile_categories.id),
-    biggestNeed: integer("biggest_need").references(() => cyclist_profile_categories.id),
+    biggestIssue: integer("biggest_issue").references(
+      () => cyclist_profile_categories.id
+    ),
+    biggestNeed: integer("biggest_need").references(
+      () => cyclist_profile_categories.id
+    ),
     motivationToStart: integer("motivation_to_start").references(
       () => cyclist_profile_categories.id
     ),
@@ -265,8 +293,8 @@ export const cyclist_profile_formData = cyclist_profile_schema.table(
   }
 );
 
-export const cyclist_profile_editionFormData = pgTable(
-  "cyclist_profile.edition_form_data",
+export const cyclist_profile_editionFormData = cyclist_profile_schema.table(
+  "edition_form_data",
   {
     editionId: integer("edition_id")
       .references(() => cyclist_profile_edition.id)
@@ -288,3 +316,4 @@ export const cyclist_profile_researcherFormData = cyclist_profile_schema.table(
       .notNull(),
   }
 );
+ */

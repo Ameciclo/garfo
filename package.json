@@ -5,10 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "// Sem testes por enquanto",
-    "migration:public": "drizzle-kit generate:pg --schema=./db/public_schema.ts",
-    "migration:cyclist_profile": "drizzle-kit generate:pg --schema=./db/cyclist_profile_schema.ts",
-    "migration:cyclist_infra": "drizzle-kit generate:pg --schema=./db/cyclist_infra_schema.ts",
-    "migration:cyclist_count": "drizzle-kit generate:pg --schema=./db/cyclist_count_schema.ts"
+    "migration:generate": "drizzle-kit generate:pg --schema=./db/schema.ts",
+    "migration:push": "node -r esbuild-register db/migrate.ts"
   },
   "repository": {
     "type": "git",
