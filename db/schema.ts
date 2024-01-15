@@ -43,8 +43,6 @@ export const coordinates = pgTable("coordinates", {
 
 //CYCLIST COUNT
 
-
-
 export const cyclist_count_schema = pgSchema("cyclist_count");
 
 export const cyclist_count_edition = cyclist_count_schema.table("edition", {
@@ -62,7 +60,7 @@ export const cyclist_count_summary = cyclist_count_schema.table("summary", {
 });
 
 export const cyclist_count_session = cyclist_count_schema.table("session", {
-  id: integer("id").primaryKey(), 
+  id: integer("id").primaryKey(),
   editionId: integer("edition_id").references(() => cyclist_count_edition.id),
   startTime: time("start_time"),
   endTime: time("end_time"),
@@ -114,6 +112,7 @@ export const cyclist_count_researcherSession = cyclist_count_schema.table(
       .notNull(),
   }
 );
+
 // CYCLIST INFRA
 
 export const cyclist_infra_schema = pgSchema("cyclist_infra");
