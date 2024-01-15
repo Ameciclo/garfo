@@ -54,7 +54,7 @@ class OSMController {
       (${waysQueries};);
       out body geom;>;
     `;
-  } 
+  }
 
   static _getMultipleRelationQuery(relationIds) {
     const relationQueries = relationIds
@@ -116,7 +116,7 @@ class OSMController {
         )
           .then((response) => response.json())
           .then((nominatimData) => {
-            console.debug("nominatimData", nominatimData);
+            //console.debug("nominatimData", nominatimData);
 
             if (nominatimData.length > 0) {
               // This tries to replicate the behavior of the "geocodeArea" filter on Overpass Turbo.
@@ -128,7 +128,7 @@ class OSMController {
                 i < nominatimData.length && osmId === undefined;
                 i++
               ) {
-                console.debug("nominatimData[i]", nominatimData[i]);
+                //console.debug("nominatimData[i]", nominatimData[i]);
                 if (nominatimData[i].osm_type === "relation") {
                   osmId = nominatimData[i].osm_id;
                 }
@@ -167,7 +167,7 @@ class OSMController {
       OSMController._getAreaId(constraints.area)
         .then((areaId) => {
           const query = OSMController._getAreaQuery({ areaId });
-          console.debug("generated query: ", query);
+          //console.debug("generated query: ", query);
 
           const encodedQuery = encodeURI(query);
 
@@ -175,7 +175,7 @@ class OSMController {
           for (let i = 0; i < OVERPASS_SERVERS.length; i++) {
             const endpoint = OVERPASS_SERVERS[i] + "?data=" + encodedQuery;
 
-            console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
+            //(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
 
             // Create a cancel token for each request
             cancelSource = CancelToken.source();
@@ -185,7 +185,7 @@ class OSMController {
               .then((response) => {
                 const data = response.data;
                 if (data.elements.length > 0) {
-                  console.debug(`[SERVER #${i}] Success!`);
+                  //console.debug(`[SERVER #${i}] Success!`);
                   // Cancel all other requests once one succeeds
                   for (let r = 0; r < requests.length; r++) {
                     if (r !== i) {
@@ -237,7 +237,7 @@ class OSMController {
   static async getWaysFromRelationId(relationId) {
     try {
       const query = OSMController._getRelationQuery(relationId);
-      console.debug("generated query:", query);
+      //console.debug("generated query:", query);
 
       const encodedQuery = encodeURI(query);
 
@@ -246,15 +246,13 @@ class OSMController {
       for (let i = 0; i < OVERPASS_SERVERS.length; i++) {
         const endpoint = OVERPASS_SERVERS[i] + "?data=" + encodedQuery;
 
-        console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
+        //console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
 
         try {
           const response = await axios.get(endpoint);
 
           if (response.status === 200 && response.data.elements.length > 0) {
-            console.debug(
-              `[SERVER #${i}] - relation ${relationId} -> Success!`
-            );
+            //console.debug(`[SERVER #${i}] - relation ${relationId} -> Success!`);
             geoJson = osmtogeojson(response.data);
             break; // Stop iterating servers once we get data
           } else {
@@ -279,17 +277,17 @@ class OSMController {
     // Step 2: Query Overpass Turbo with relationRefs
     const query = OSMController._getMultipleWaysQuery(waysIds);
 
-    console.debug("generated query:", query);
+    //console.debug("generated query:", query);
     const encodedQuery = encodeURI(query);
     let relationsWays = null;
 
     for (let i = 0; i < OVERPASS_SERVERS.length; i++) {
       const endpoint = OVERPASS_SERVERS[i] + "?data=" + encodedQuery;
-      console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
+      //console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
       try {
         const response = await axios.get(endpoint);
         if (response.status === 200 && response.data.elements.length > 0) {
-          console.debug(`[SERVER #${i}] Success!`);
+          ////console.debug(`[SERVER #${i}] Success!`);
           relationsWays = response.data;
           break; // Stop iterating servers once we get data
         } else {
@@ -305,16 +303,16 @@ class OSMController {
   static async getRelationJsonFromIds(RELATION_IDS) {
     try {
       const query = OSMController._getMultipleRelationQuery(RELATION_IDS);
-      console.debug("generated query:", query);
+      //console.debug("generated query:", query);
       const encodedQuery = encodeURI(query);
       let data = null;
       for (let i = 0; i < OVERPASS_SERVERS.length; i++) {
         const endpoint = OVERPASS_SERVERS[i] + "?data=" + encodedQuery;
-        console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
+        //console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
         try {
           const response = await axios.get(endpoint);
           if (response.status === 200 && response.data.elements.length > 0) {
-            console.debug(`[SERVER #${i}] Success!`);
+            //console.debug(`[SERVER #${i}] Success!`);
             data = response.data;
             break; // Stop iterating servers once we get data
           } else {
@@ -339,13 +337,13 @@ class OSMController {
     try {
       const areaId = await OSMController._getAreaId(constraints.area);
       const query = OSMController._getAreaQuery({ areaId });
-      console.debug("generated query: ", query);
+      //console.debug("generated query: ", query);
       const encodedQuery = encodeURI(query);
       let cancelSource;
       const requests = [];
       for (let i = 0; i < OVERPASS_SERVERS.length; i++) {
         const endpoint = OVERPASS_SERVERS[i] + "?data=" + encodedQuery;
-        console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
+        //console.debug(`[SERVER #${i}] ${OVERPASS_SERVERS[i]}`);
 
         // Create a cancel token for each request
         cancelSource = CancelToken.source();
@@ -357,7 +355,7 @@ class OSMController {
           const data = response.data;
 
           if (data.elements.length > 0) {
-            console.debug(`[SERVER #${i}] Success!`);
+            //console.debug(`[SERVER #${i}] Success!`);
             // Cancel all other requests once one succeeds
             for (let r = 0; r < requests.length; r++) {
               if (r !== i) {
@@ -402,5 +400,5 @@ module.exports = {
   getWaysFromRelationId: OSMController.getWaysFromRelationId,
   getCycleWaysOSMJsonFromArea: OSMController.getCycleWaysOSMJsonFromArea,
   getRelationJsonFromIds: OSMController.getRelationJsonFromIds,
-  getOSMJsonWaysFromWaysIds: OSMController.getOSMJsonWaysFromWaysIds
+  getOSMJsonWaysFromWaysIds: OSMController.getOSMJsonWaysFromWaysIds,
 };

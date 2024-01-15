@@ -110,6 +110,7 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
                 member.tags.dual_carriageway == "yes" ? true : false;
             const total_km = turf.length(geojson);
             const typology = getTypologyFromProperties(member.tags);
+            const onPDC = element.pdc != undefined
             if (member.type === "way") {
               const newElementFormat = {
                 osm_id: member.id,
@@ -118,12 +119,12 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
                 highway: member.tags.highway || "",
                 has_cycleway: typology != "none" ? true : false,
                 cycleway_typology: typology || "",
-                relation_id: element.pdc.id || 0,
+                relation_id: onPDC ? element.pdc.id : 0,
                 geojson: geojson,
                 lastUpdated: lastupdated,
                 city_id: city_id,
                 dual_carriageway: dual_carriageway,
-                pdc_typology: element.pdc.pdc_typology,
+                pdc_typology: onPDC ? element.pdc.pdc_typology : "notOnPDC",
               };
               allCycleWays.push(newElementFormat);
             }

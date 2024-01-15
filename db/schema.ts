@@ -125,10 +125,10 @@ export const cyclist_infra_relations = cyclist_infra_schema.table("relations", {
   pdcNotes: varchar("pdc_notes"),
   pdcTypology: varchar("pdc_typology"),
   pdcKm: real("pdc_km"),
-  pdcStretch: real("pdc_stretch"),
-  pdcCities: real("pdc_cities"),
-  osmId: real("osm_id"),
-  notes: real("notes"),
+  pdcStretch: varchar("pdc_stretch"),
+  pdcCities: varchar("pdc_cities"),
+  osmId: integer("osm_id"),
+  notes: varchar("notes"),
 });
 
 
