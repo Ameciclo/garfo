@@ -1,5 +1,5 @@
 {
-  "id": "f15634b6-69f5-4ee5-a45c-9fb371c08cc8",
+  "id": "a5abb7e2-535d-49f7-8a93-25956bbfb3da",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -10,7 +10,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
           "notNull": true
         },
@@ -534,25 +534,25 @@
         },
         "pdc_stretch": {
           "name": "pdc_stretch",
-          "type": "real",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
         "pdc_cities": {
           "name": "pdc_cities",
-          "type": "real",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
         "osm_id": {
           "name": "osm_id",
-          "type": "real",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
         "notes": {
           "name": "notes",
-          "type": "real",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         }
@@ -665,7 +665,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
           "notNull": true
         },

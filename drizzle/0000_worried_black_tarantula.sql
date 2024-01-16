@@ -3,7 +3,7 @@ CREATE SCHEMA "cyclist_count";
 CREATE SCHEMA "cyclist_infra";
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cities" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" integer PRIMARY KEY NOT NULL,
 	"name" varchar NOT NULL,
 	"state" varchar(2)
 );
@@ -76,10 +76,10 @@ CREATE TABLE IF NOT EXISTS "cyclist_infra"."relations" (
 	"pdc_notes" varchar,
 	"pdc_typology" varchar,
 	"pdc_km" real,
-	"pdc_stretch" real,
-	"pdc_cities" real,
-	"osm_id" real,
-	"notes" real
+	"pdc_stretch" varchar,
+	"pdc_cities" varchar,
+	"osm_id" integer,
+	"notes" varchar
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cyclist_infra"."ways" (
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS "cyclist_infra"."ways" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "researchers" (
-	"id" integer PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar
 );
 --> statement-breakpoint

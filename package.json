@@ -1,12 +1,13 @@
 {
   "name": "garfo",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "An Express API for studying and observing cycling data by Ameciclo, focused on promoting and improving cycling infrastructure and safety.",
   "main": "index.js",
   "scripts": {
     "test": "// Sem testes por enquanto",
-    "migration:generate": "drizzle-kit generate:pg --schema=./db/schema.ts",
-    "migration:push": "node -r esbuild-register db/migrate.ts"
+    "migration:generate": "drizzle-kit generate:pg --schema=./db/migration/schema.ts",
+    "migration:push": "node -r esbuild-register db/migration/migrate.ts",
+    "migration:seed": "tsx watch -r dotenv/config db/seed/seed.ts"
   },
   "repository": {
     "type": "git",
@@ -32,16 +33,18 @@
     "@vercel/postgres": "^0.4.0",
     "axios": "^1.4.0",
     "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
     "dotenv": "^16.3.1",
     "drizzle-orm": "^0.29.3",
     "express": "^4.18.2",
     "file-saver": "^2.0.5",
     "node-fetch": "^3.3.2",
     "osmtogeojson": "^3.0.0-beta.5",
-    "pg": "^8.11.1",
+    "pg": "^8.11.3",
     "postgres": "^3.4.3"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.20.12"
+    "drizzle-kit": "^0.20.12",
+    "tsx": "^4.7.0"
   }
 }

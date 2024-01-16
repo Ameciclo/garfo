@@ -21,9 +21,9 @@ type Point = {
 export const cities = pgTable(
   "cities",
   {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey(),
     name: varchar("name").notNull(),
-    state: varchar("state", { length: 2 }),
+    state: varchar("state", { length: 2 }).notNull(),
   },
   (cities) => ({
     nameStateIdx: uniqueIndex("name_state_idx").on(cities.name, cities.state),
@@ -31,13 +31,13 @@ export const cities = pgTable(
 );
 
 export const researchers = pgTable("researchers", {
-  id: integer("id").primaryKey(),
-  name: varchar("name"),
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
 });
 
 export const coordinates = pgTable("coordinates", {
   id: integer("id").primaryKey(),
-  point: varchar("point").$type<Point>(), // Armazenar como texto, por exemplo, "latitude,longitude"
+  point: varchar("point").$type<Point>().notNull(), // Armazenar como texto, por exemplo, "latitude,longitude"
   type: varchar("type"),
 });
 
