@@ -18,7 +18,7 @@ const cyclistInfraRelationRouter = require("./modules/cyclist-infra/relation");
 const cyclistInfraWaysRouter = require("./modules/cyclist-infra/ways");
 const cyclistInfraUpdateRouter = require("./modules/cyclist-infra/updater");
 
-const port = 3000; // Define the desired port for the API
+const port = 8080; // Define the desired port for the API
 
 // Create an instance of Express app
 const app = express();

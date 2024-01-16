@@ -10,7 +10,7 @@ const pool = new Pool({
   database: process.env.POSTGRES_DATABASE, // Nome do banco de dados
   password: process.env.POSTGRES_PASSWORD, // Senha do banco de dados
   port: process.env.POSTGRES_PORT, // Porta para se conectar ao banco de dados
-  ssl: true, // Define o uso de SSL para conexão segura (isso depende das configurações do servidor PostgreSQL)
+  //ssl: true, // Define o uso de SSL para conexão segura (isso depende das configurações do servidor PostgreSQL)
 });
 
 // Rota GET para "cyclist-count"

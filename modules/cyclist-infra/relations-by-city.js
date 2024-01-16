@@ -8,11 +8,11 @@ const pool = new Pool({
   database: process.env.POSTGRES_DATABASE,
   password: process.env.POSTGRES_PASSWORD,
   port: process.env.POSTGRES_PORT,
- // ssl: true,
+  // ssl: true,
 });
 
 const router = express.Router();
-
+  
 router.get("/", async (req, res) => {
   try {
     const citiesData = await getCitiesData();
@@ -22,72 +22,55 @@ router.get("/", async (req, res) => {
     const citiesWithInfo = {};
 
     citiesData.forEach((city) => {
-      if (
-        relationsData.some((relation) =>
-          relation.pdc_cities.includes(city.name)
-        )
-      ) {
-        const cityRelations = relationsData
-          .filter((relation) => relation.pdc_cities.includes(city.name))
-          .map((relation) => {
-            const relationWays = waysData.filter(
-              (way) => way.relation_id === relation.id
-            );
-
-            const relationLength = relationWays.reduce(
-              (total, way) => total + way.length,
-              0
-            );
-
-            const relationHasCyclewayLength = relationWays.reduce(
-              (total, way) => {
-                if (way.has_cycleway) {
-                  return total + way.length;
-                }
-                return total;
-              },
-              0
-            );
-
-            const typologies = relationWays.reduce((typologiesObj, way) => {
-              if (way.cycleway_typology) {
-                if (!typologiesObj[way.cycleway_typology]) {
-                  typologiesObj[way.cycleway_typology] = 0;
-                }
-                typologiesObj[way.cycleway_typology] += way.length;
-              }
-              return typologiesObj;
-            }, {});
-
-            return {
-              relation_id: relation.id,
-              pdc_ref: relation.pdc_ref,
-              name: relation.name,
-              cod_name: `(${relation.pdc_ref}) ${relation.name}`,
-              length: relationLength,
-              has_cycleway_length: relationHasCyclewayLength,
-              pdc_typology: relation.pdc_typology,
-              typologies_str: Object.keys(typologies).join(', '),
-              typologies: typologies,
-            };
-          });
-
+      // Inicialize o objeto da cidade em citiesWithInfo se ainda não foi inicializado
+      if (!citiesWithInfo[city.id]) {
         citiesWithInfo[city.id] = {
           city_id: city.id,
           name: city.name,
           state: city.state,
-          relations: cityRelations,
+          relations: []
         };
       }
+
+      // Adicione todas as relações correspondentes a esta cidade
+      relationsData.filter(relation => relation.id === city.relation_id)
+                   .forEach(relation => {
+        const relationWays = waysData.filter(way => way.relation_id === relation.id);
+        const relationLength = relationWays.reduce((total, way) => total + way.length, 0);
+        const relationHasCyclewayLength = relationWays.reduce((total, way) => way.has_cycleway ? total + way.length : total, 0);
+
+        const typologies = relationWays.reduce((typologiesObj, way) => {
+          if (way.cycleway_typology) {
+            if (!typologiesObj[way.cycleway_typology]) {
+              typologiesObj[way.cycleway_typology] = 0;
+            }
+            typologiesObj[way.cycleway_typology] += way.length;
+          }
+          return typologiesObj;
+        }, {});
+
+        citiesWithInfo[city.id].relations.push({
+          relation_id: relation.id,
+          pdc_ref: relation.pdc_ref,
+          name: relation.name,
+          cod_name: `(${relation.pdc_ref}) ${relation.name}`,
+          length: relationLength,
+          has_cycleway_length: relationHasCyclewayLength,
+          pdc_typology: relation.pdc_typology,
+          typologies_str: Object.keys(typologies).join(", "),
+          typologies: typologies,
+        });
+      });
     });
 
-    console.log("GET /cyclist-infra/byCity: Data processed successfully");
+    console.log("GET /cyclist-infra/relationsByCity: Data processed successfully");
     res.json(citiesWithInfo);
   } catch (error) {
-    console.error("GET /cyclist-infra/byCity: Error processing data:", error);
+    console.error("GET /cyclist-infra/relationsByCity: Error processing data:", error);
     res.status(500).json({ error: "An error occurred while processing data." });
   }
 });
+
 
 // Function to fetch ways data from the database
 async function getWaysData() {
@@ -109,14 +92,16 @@ async function getWaysData() {
   }
 }
 
-// Function to fetch cities data from the database
 async function getCitiesData() {
   try {
     const query = `
-      SELECT id,
-      name,
-      state
-      FROM public.cities
+      SELECT c.id,
+      c.name,
+      c.state,
+      rc.relation_id
+      FROM public.cities AS c
+      INNER JOIN cyclist_infra.relation_cities AS rc
+      ON c.id = rc.cities_id
     `;
     const { rows } = await pool.query(query);
     return rows;
