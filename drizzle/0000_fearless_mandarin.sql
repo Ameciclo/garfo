@@ -5,12 +5,12 @@ CREATE SCHEMA "cyclist_infra";
 CREATE TABLE IF NOT EXISTS "cities" (
 	"id" integer PRIMARY KEY NOT NULL,
 	"name" varchar NOT NULL,
-	"state" varchar(2)
+	"state" varchar(2) NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "coordinates" (
 	"id" integer PRIMARY KEY NOT NULL,
-	"point" varchar,
+	"point" varchar NOT NULL,
 	"type" varchar
 );
 --> statement-breakpoint
@@ -28,16 +28,6 @@ CREATE TABLE IF NOT EXISTS "cyclist_count"."characteristics_count" (
 	"count" integer
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "cyclist_count"."direction_counts" (
-	"id" integer PRIMARY KEY NOT NULL,
-	"session_id" integer,
-	"origin" varchar,
-	"origin_cardinal" varchar,
-	"destin" varchar,
-	"destin_cardinal" varchar,
-	"count" integer
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cyclist_count"."edition" (
 	"id" integer PRIMARY KEY NOT NULL,
 	"city_id" integer,
@@ -46,22 +36,11 @@ CREATE TABLE IF NOT EXISTS "cyclist_count"."edition" (
 	"coordinates_id" integer
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "cyclist_count"."researcher_session" (
-	"count_session_id" integer NOT NULL,
-	"researcher_id" integer NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cyclist_count"."session" (
 	"id" integer PRIMARY KEY NOT NULL,
 	"edition_id" integer,
-	"start_time" time,
-	"end_time" time
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "cyclist_count"."summary" (
-	"id" integer PRIMARY KEY NOT NULL,
-	"edition_id" integer,
-	"count" integer
+	"start_time" timestamp,
+	"end_time" timestamp
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cyclist_infra"."relation_cities" (
@@ -97,9 +76,19 @@ CREATE TABLE IF NOT EXISTS "cyclist_infra"."ways" (
 	"pdc_typology" varchar
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "researchers" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"name" varchar
+CREATE TABLE IF NOT EXISTS "cyclist_count"."direction_count" (
+	"id" integer PRIMARY KEY NOT NULL,
+	"session_id" integer,
+	"direction_id" integer,
+	"count" integer
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "cyclist_count"."directions" (
+	"id" integer PRIMARY KEY NOT NULL,
+	"origin" varchar,
+	"origin_cardinal" varchar,
+	"destin" varchar,
+	"destin_cardinal" varchar
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "name_state_idx" ON "cities" ("name","state");--> statement-breakpoint
@@ -111,12 +100,6 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cyclist_count"."characteristics_count" ADD CONSTRAINT "characteristics_count_characteristics_id_characteristics_id_fk" FOREIGN KEY ("characteristics_id") REFERENCES "cyclist_count"."characteristics"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "cyclist_count"."direction_counts" ADD CONSTRAINT "direction_counts_session_id_session_id_fk" FOREIGN KEY ("session_id") REFERENCES "cyclist_count"."session"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -134,25 +117,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "cyclist_count"."researcher_session" ADD CONSTRAINT "researcher_session_count_session_id_session_id_fk" FOREIGN KEY ("count_session_id") REFERENCES "cyclist_count"."session"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "cyclist_count"."researcher_session" ADD CONSTRAINT "researcher_session_researcher_id_researchers_id_fk" FOREIGN KEY ("researcher_id") REFERENCES "researchers"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
  ALTER TABLE "cyclist_count"."session" ADD CONSTRAINT "session_edition_id_edition_id_fk" FOREIGN KEY ("edition_id") REFERENCES "cyclist_count"."edition"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "cyclist_count"."summary" ADD CONSTRAINT "summary_edition_id_edition_id_fk" FOREIGN KEY ("edition_id") REFERENCES "cyclist_count"."edition"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -171,6 +136,18 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "cyclist_infra"."ways" ADD CONSTRAINT "ways_relation_id_relations_id_fk" FOREIGN KEY ("relation_id") REFERENCES "cyclist_infra"."relations"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cyclist_count"."direction_count" ADD CONSTRAINT "direction_count_session_id_session_id_fk" FOREIGN KEY ("session_id") REFERENCES "cyclist_count"."session"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "cyclist_count"."direction_count" ADD CONSTRAINT "direction_count_direction_id_directions_id_fk" FOREIGN KEY ("direction_id") REFERENCES "cyclist_count"."directions"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

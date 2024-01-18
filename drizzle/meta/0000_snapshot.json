@@ -1,5 +1,5 @@
 {
-  "id": "a5abb7e2-535d-49f7-8a93-25956bbfb3da",
+  "id": "1bbe62da-fb71-4a82-804e-bafce39860ec",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -24,7 +24,7 @@
           "name": "state",
           "type": "varchar(2)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {
@@ -55,7 +55,7 @@
           "name": "point",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "type": {
           "name": "type",
@@ -166,73 +166,6 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "direction_counts": {
-      "name": "direction_counts",
-      "schema": "cyclist_count",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "session_id": {
-          "name": "session_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "origin": {
-          "name": "origin",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "origin_cardinal": {
-          "name": "origin_cardinal",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "destin": {
-          "name": "destin",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "destin_cardinal": {
-          "name": "destin_cardinal",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "count": {
-          "name": "count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "direction_counts_session_id_session_id_fk": {
-          "name": "direction_counts_session_id_session_id_fk",
-          "tableFrom": "direction_counts",
-          "tableTo": "session",
-          "schemaTo": "cyclist_count",
-          "columnsFrom": [
-            "session_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "edition": {
       "name": "edition",
       "schema": "cyclist_count",
@@ -300,56 +233,6 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "researcher_session": {
-      "name": "researcher_session",
-      "schema": "cyclist_count",
-      "columns": {
-        "count_session_id": {
-          "name": "count_session_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "researcher_id": {
-          "name": "researcher_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "researcher_session_count_session_id_session_id_fk": {
-          "name": "researcher_session_count_session_id_session_id_fk",
-          "tableFrom": "researcher_session",
-          "tableTo": "session",
-          "schemaTo": "cyclist_count",
-          "columnsFrom": [
-            "count_session_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "researcher_session_researcher_id_researchers_id_fk": {
-          "name": "researcher_session_researcher_id_researchers_id_fk",
-          "tableFrom": "researcher_session",
-          "tableTo": "researchers",
-          "columnsFrom": [
-            "researcher_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "session": {
       "name": "session",
       "schema": "cyclist_count",
@@ -368,13 +251,13 @@
         },
         "start_time": {
           "name": "start_time",
-          "type": "time",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         },
         "end_time": {
           "name": "end_time",
-          "type": "time",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         }
@@ -384,49 +267,6 @@
         "session_edition_id_edition_id_fk": {
           "name": "session_edition_id_edition_id_fk",
           "tableFrom": "session",
-          "tableTo": "edition",
-          "schemaTo": "cyclist_count",
-          "columnsFrom": [
-            "edition_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "summary": {
-      "name": "summary",
-      "schema": "cyclist_count",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "edition_id": {
-          "name": "edition_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "count": {
-          "name": "count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "summary_edition_id_edition_id_fk": {
-          "name": "summary_edition_id_edition_id_fk",
-          "tableFrom": "summary",
           "tableTo": "edition",
           "schemaTo": "cyclist_count",
           "columnsFrom": [
@@ -659,18 +499,99 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "researchers": {
-      "name": "researchers",
-      "schema": "",
+    "direction_count": {
+      "name": "direction_count",
+      "schema": "cyclist_count",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
+        "session_id": {
+          "name": "session_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "direction_id": {
+          "name": "direction_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "direction_count_session_id_session_id_fk": {
+          "name": "direction_count_session_id_session_id_fk",
+          "tableFrom": "direction_count",
+          "tableTo": "session",
+          "schemaTo": "cyclist_count",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "direction_count_direction_id_directions_id_fk": {
+          "name": "direction_count_direction_id_directions_id_fk",
+          "tableFrom": "direction_count",
+          "tableTo": "directions",
+          "schemaTo": "cyclist_count",
+          "columnsFrom": [
+            "direction_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "directions": {
+      "name": "directions",
+      "schema": "cyclist_count",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "origin": {
+          "name": "origin",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "origin_cardinal": {
+          "name": "origin_cardinal",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "destin": {
+          "name": "destin",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "destin_cardinal": {
+          "name": "destin_cardinal",
           "type": "varchar",
           "primaryKey": false,
           "notNull": false

@@ -9,7 +9,7 @@ import {
   integer,
   real,
   date,
-  time,
+  timestamp,
   jsonb,
 } from "drizzle-orm/pg-core";
 
@@ -30,11 +30,6 @@ export const cities = pgTable(
   })
 );
 
-export const researchers = pgTable("researchers", {
-  id: serial("id").primaryKey(),
-  name: varchar("name").notNull(),
-});
-
 export const coordinates = pgTable("coordinates", {
   id: integer("id").primaryKey(),
   point: varchar("point").$type<Point>().notNull(), // Armazenar como texto, por exemplo, "latitude,longitude"
@@ -53,31 +48,29 @@ export const cyclist_count_edition = cyclist_count_schema.table("edition", {
   coordinatesId: integer("coordinates_id").references(() => coordinates.id),
 });
 
-export const cyclist_count_summary = cyclist_count_schema.table("summary", {
-  id: integer("id").primaryKey(),
-  editionId: integer("edition_id").references(() => cyclist_count_edition.id),
-  count: integer("count"),
-});
-
 export const cyclist_count_session = cyclist_count_schema.table("session", {
   id: integer("id").primaryKey(),
   editionId: integer("edition_id").references(() => cyclist_count_edition.id),
-  startTime: time("start_time"),
-  endTime: time("end_time"),
+  startTime: timestamp("start_time"),
+  endTime: timestamp("end_time"),
 });
 
-export const cyclist_count_directionCounts = cyclist_count_schema.table(
-  "direction_counts",
-  {
-    id: integer("id").primaryKey(),
-    sessionId: integer("session_id").references(() => cyclist_count_session.id),
-    origin: varchar("origin"),
-    originCardinal: varchar("origin_cardinal"),
-    destin: varchar("destin"),
-    destinCardinal: varchar("destin_cardinal"),
-    count: integer("count"),
-  }
-);
+// Tabela 'direction_count' no esquema 'cyclist_count'
+export const direction_count = cyclist_count_schema.table("direction_count", {
+  id: integer("id").primaryKey(),
+  sessionId: integer("session_id").references(() => cyclist_count_session.id),
+  directionId: integer("direction_id").references(() => directions.id),
+  count: integer("count"),
+});
+
+// Tabela 'directions' no esquema 'cyclist_count'
+export const directions = cyclist_count_schema.table("directions", {
+  id: integer("id").primaryKey(),
+  origin: varchar("origin"),
+  originCardinal: varchar("origin_cardinal"),
+  destin: varchar("destin"),
+  destinCardinal: varchar("destin_cardinal"),
+});
 
 export const cyclist_count_characteristics = cyclist_count_schema.table(
   "characteristics",
@@ -98,18 +91,6 @@ export const cyclist_count_characteristicsCount = cyclist_count_schema.table(
       () => cyclist_count_characteristics.id
     ),
     count: integer("count"),
-  }
-);
-
-export const cyclist_count_researcherSession = cyclist_count_schema.table(
-  "researcher_session",
-  {
-    countSessionId: integer("count_session_id")
-      .references(() => cyclist_count_session.id)
-      .notNull(),
-    researcherId: integer("researcher_id")
-      .references(() => researchers.id)
-      .notNull(),
   }
 );
 

@@ -1,0 +1,32 @@
+id,name,type,atribute
+1,cargo,cargo,Cargueira
+2,cargo_adaptation,cargo,Adaptada a carga
+3,tricycle_and_other_big_cargo,cargo,"Triciclo, carroça ou reboque"
+4,helmet,helmet,Capacete
+5,juveniles,juveniles,Crianças e adolescentes
+6,motor,motor,Motorizada ou elétrica
+7,motor_combustion,motor,Motorizada
+8,motor_electric,motor,Elétrica
+9,handbike_or_wheelchair,other_active_modes,Handbike e cadeirante
+10,runners,other_active_modes,Correndo
+11,skate_or_scooter,other_active_modes,Skate e outros patináveis
+12,bus_lane,other_behaviors,Faixa Exclusiva de Ônibus
+13,bus_lane_wrong_way,other_behaviors,Faixa Exclusiva de Ônibus (contramão)
+14,mask,other_behaviors,Máscara
+15,on_cyclelane,other_behaviors,Na estrutura cicloviária
+16,on_cyclelane_wrong_way,other_behaviors,Na estrutura cicloviária (contramão)
+17,pushing,other_behaviors,Empurrando
+18,riders_group,other_behaviors,Grupo de pedal
+19,others,others,Outros
+20,rain,rain,Chuva
+21,ride,ride,Carona
+22,ride_children,ride,Carona criança
+23,ride_men,ride,Carona homem
+24,ride_women,ride,Carona mulher
+25,service,service,Serviço
+26,service_app,service,Serviço App
+27,shared_bike,shared_bike,Compartilhada
+28,sidewalk,sidewalk,Calçada
+29,women,women,Mulher
+30,wrong_way,wrong_way,Contramão
+31,wrong_way_to_turn,wrong_way,Contramão para conversão

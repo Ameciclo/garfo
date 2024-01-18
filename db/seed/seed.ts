@@ -62,7 +62,7 @@ async function seedCoordinates() {
   }
 }
 
-async function seedRelations() {
+async function seedCyclistInfraRelations() {
   const data = await readCsv("./db/seed/cyclist-infra/relations.csv");
   const insertionData: RelationsInsertType[] = data.map((item) => ({
     id: item.id,
@@ -87,7 +87,7 @@ async function seedRelations() {
   }
 }
 
-async function seedRelationsCities() {
+async function seedCyclistInfraRelationsCities() {
   const data = await readCsv("./db/seed/cyclist-infra/relations_cities.csv");
   const insertionData: RelationsCitiesInsertType[] = data.map((item) => ({
     relationId: item.relation_id,
@@ -104,12 +104,163 @@ async function seedRelationsCities() {
   }
 }
 
+// Função para fazer o seeding da tabela cyclist_count_edition
+async function seedCyclistCountEdition() {
+  const data = await readCsv("./db/seed/cyclist-count/count_edition.csv");
+  const insertionData: (typeof schema.cyclist_count_edition.$inferInsert)[] =
+    data.map((item) => ({
+      id: item.id,
+      cityId: item.city_id,
+      name: item.name,
+      date: item.date,
+      coordinatesId: item.coordinates_id,
+    }));
+
+  try {
+    await db
+      .insert(schema.cyclist_count_edition)
+      .values(insertionData)
+      .onConflictDoNothing();
+    console.log("Seeding da tabela cyclist_count_edition concluído.");
+  } catch (error) {
+    console.error("Erro ao inserir dados em cyclist_count_edition:", error);
+  }
+}
+
+// Função para fazer o seeding da tabela cyclist_count_session
+async function seedCyclistCountSession() {
+  const data = await readCsv("./db/seed/cyclist-count/count_session.csv");
+  const insertionData: (typeof schema.cyclist_count_session.$inferInsert)[] =
+    data.map((item) => ({
+      id: item.id,
+      editionId: item.edition_id,
+      startTime: new Date(item.start_time),
+      endTime: new Date(item.end_time),
+    }));
+
+  try {
+    await db
+      .insert(schema.cyclist_count_session)
+      .values(insertionData)
+      .onConflictDoNothing();
+    console.log("Seeding da tabela cyclist_count_session concluído.");
+  } catch (error) {
+    console.error("Erro ao inserir dados em cyclist_count_session:", error);
+  }
+}
+
+async function seedCyclistCountDirections() {
+  const data = await readCsv("./db/seed/cyclist-count/directions.csv");
+  const insertionData = data.map((item) => ({
+    id: parseInt(item.id, 10),
+    origin: item.origin,
+    originCardinal: item.origin_cardinal,
+    destin: item.destin,
+    destinCardinal: item.destin_cardinal,
+  }));
+
+  try {
+    await db
+      .insert(schema.directions)
+      .values(insertionData)
+      .onConflictDoNothing();
+    console.log("Seeding de directions concluído.");
+  } catch (error) {
+    console.error("Erro ao inserir dados em directions:", error);
+  }
+} 
+
+async function seedCyclistCountDirectionCounts() {
+  const data = await readCsv("./db/seed/cyclist-count/direction_count.csv");
+  const insertionData = data.map((item) => ({
+    id: parseInt(item.id, 10),
+    sessionId: parseInt(item.session_id, 10),
+    directionId: parseInt(item.direction_id, 10),
+    count: parseInt(item.count, 10),
+  }));
+
+  try {
+    await db
+      .insert(schema.direction_count)
+      .values(insertionData)
+      .onConflictDoNothing();
+    console.log("Seeding de direction_count concluído.");
+  } catch (error) {
+    console.error("Erro ao inserir dados em direction_count:", error);
+  }
+}
+
+// Função para fazer o seeding da tabela cyclist_count_characteristics
+async function seedCyclistCountCharacteristics() {
+  const data = await readCsv("./db/seed/cyclist-count/characteristics.csv");
+  const insertionData: (typeof schema.cyclist_count_characteristics.$inferInsert)[] =
+    data.map((item) => ({
+      id: item.id,
+      name: item.name,
+      type: item.type,
+      atribute: item.atribute,
+    }));
+
+  try {
+    await db
+      .insert(schema.cyclist_count_characteristics)
+      .values(insertionData)
+      .onConflictDoNothing();
+    console.log("Seeding da tabela cyclist_count_characteristics concluído.");
+  } catch (error) {
+    console.error(
+      "Erro ao inserir dados em cyclist_count_characteristics:",
+      error
+    );
+  }
+}
+
+// Função para fazer o seeding da tabela cyclist_count_characteristicsCount
+async function seedCyclistCountCharacteristicsCount() {
+  const data = await readCsv(
+    "./db/seed/cyclist-count/characteristics_count.csv"
+  );
+  const insertionData: (typeof schema.cyclist_count_characteristicsCount.$inferInsert)[] =
+    data.map((item) => ({
+      id: item.id,
+      sessionId: item.session_id,
+      characteristicsId: item.characteristics_id,
+      count: item.count,
+    }));
+
+  try {
+    await db
+      .insert(schema.cyclist_count_characteristicsCount)
+      .values(insertionData)
+      .onConflictDoNothing();
+    console.log(
+      "Seeding da tabela cyclist_count_characteristicsCount concluído."
+    );
+  } catch (error) {
+    console.error(
+      "Erro ao inserir dados em cyclist_count_characteristicsCount:",
+      error
+    );
+  }
+}
+
 // Função principal para executar todos os seedings
 async function runSeed() {
+  // public
   await seedCities();
   await seedCoordinates();
-  await seedRelations();
-  await seedRelationsCities();
+
+  // Cyclist Infra
+  await seedCyclistInfraRelations();
+  await seedCyclistInfraRelationsCities();
+
+  // Cyclist Count
+  await seedCyclistCountEdition();
+  await seedCyclistCountSession();
+  await seedCyclistCountDirections();
+  await seedCyclistCountDirectionCounts();
+  await seedCyclistCountCharacteristics();
+  await seedCyclistCountCharacteristicsCount();
 }
 
 runSeed();
