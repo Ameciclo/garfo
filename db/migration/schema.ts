@@ -90,7 +90,7 @@ export const cyclist_count_characteristicsCount = cyclist_count_schema.table(
     characteristicsId: integer("characteristics_id").references(
       () => cyclist_count_characteristics.id
     ),
-    count: integer("count"),
+    count: integer("count").notNull(),
   }
 );
 
