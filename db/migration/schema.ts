@@ -42,42 +42,42 @@ export const cyclist_count_schema = pgSchema("cyclist_count");
 
 export const cyclist_count_edition = cyclist_count_schema.table("edition", {
   id: integer("id").primaryKey(),
-  cityId: integer("city_id").references(() => cities.id),
-  name: varchar("name"),
-  date: date("date"),
-  coordinatesId: integer("coordinates_id").references(() => coordinates.id),
+  cityId: integer("city_id").references(() => cities.id).notNull(),
+  name: varchar("name").notNull(),
+  date: date("date").notNull(),
+  coordinatesId: integer("coordinates_id").references(() => coordinates.id).notNull(),
 });
 
 export const cyclist_count_session = cyclist_count_schema.table("session", {
   id: integer("id").primaryKey(),
-  editionId: integer("edition_id").references(() => cyclist_count_edition.id),
-  startTime: timestamp("start_time"),
-  endTime: timestamp("end_time"),
+  editionId: integer("edition_id").references(() => cyclist_count_edition.id).notNull(),
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time").notNull(),
 });
 
 // Tabela 'direction_count' no esquema 'cyclist_count'
 export const direction_count = cyclist_count_schema.table("direction_count", {
   id: integer("id").primaryKey(),
-  sessionId: integer("session_id").references(() => cyclist_count_session.id),
-  directionId: integer("direction_id").references(() => directions.id),
-  count: integer("count"),
+  sessionId: integer("session_id").references(() => cyclist_count_session.id).notNull(),
+  directionId: integer("direction_id").references(() => directions.id).notNull(),
+  count: integer("count").notNull(),
 });
 
 // Tabela 'directions' no esquema 'cyclist_count'
 export const directions = cyclist_count_schema.table("directions", {
   id: integer("id").primaryKey(),
-  origin: varchar("origin"),
-  originCardinal: varchar("origin_cardinal"),
-  destin: varchar("destin"),
-  destinCardinal: varchar("destin_cardinal"),
+  origin: varchar("origin").notNull(),
+  originCardinal: varchar("origin_cardinal").notNull(),
+  destin: varchar("destin").notNull(),
+  destinCardinal: varchar("destin_cardinal").notNull(),
 });
 
 export const cyclist_count_characteristics = cyclist_count_schema.table(
   "characteristics",
   {
     id: integer("id").primaryKey(),
-    name: varchar("name"),
-    type: varchar("type"),
+    name: varchar("name").notNull(),
+    type: varchar("type").notNull(),
     atribute: varchar("atribute"),
   }
 );

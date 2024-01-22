@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import citiesRouter from './modules/cities/cities';
+import cyclistCountsEditionsRouter from "./modules/cyclist-counts/edition"
 
 const port = 8080; // Define the desired port for the API
 
@@ -12,6 +13,7 @@ app.use(cors());
 
 // ROUTES
 app.use("/cities", citiesRouter);
+app.use("/cyclist-counts/edition", cyclistCountsEditionsRouter);
 
 // Start the Express app listening on the specified port
 app.listen(port, () => {
