@@ -161,10 +161,11 @@ router.get("/:id", async (req: Request, res: Response) => {
 
       let session_total_cyclists = 0;
 
-      // Obter todos os directionIds únicos de todas as sessões
-      let sessionDirectionCount = await db.query.direction_count.findMany({
-        where: eq(schema.direction_count.sessionId, session.id),
-      });
+    // Obter todos os directionIds únicos de todas as sessões
+    let sessionDirectionCount = await db.query.direction_count.findMany({
+      where: eq(schema.direction_count.sessionId, session.id),
+    });
+
 
       // Obter counts de direção para a sessão
       const directionCounts = sessionDirectionCount.filter(
