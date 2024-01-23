@@ -13,6 +13,15 @@ interface DirectionDetail {
   destinCardinal: string;
 }
 
+export interface CountEditionCoordinates {
+  point: {
+    x: number;
+    y: number;
+  };
+  type: string;
+  name: string;
+}
+
 interface SessionData {
   start_time: Date;
   end_time: Date;
@@ -35,9 +44,6 @@ export interface CountEditionSummary {
   total_women: number;
   total_wrong_way: number;
 }
-
-// Então declare sessions como um mapeamento de sessionId para SessionData
-const sessions: { [sessionId: number]: SessionData } = {};
 
 router.get("/:id", async (req: Request, res: Response) => {
   try {
@@ -75,8 +81,23 @@ router.get("/:id", async (req: Request, res: Response) => {
     });
 
     // Obter coordenadas relacionadas a esta edição
-    const coordinates = await db.query.coordinates.findFirst({
+    const coordinatesData = await db.query.coordinates.findFirst({
       where: eq(schema.coordinates.id, coordinatesId!),
+    });
+
+    // Converter a string de coordenadas para o formato da interface
+    const coordParts = coordinatesData!.point
+      .toString()
+      .split(", ")
+      .map(Number);
+    const coordinates: CountEditionCoordinates[] = [] 
+    coordinates.push({
+      point: {
+        x: coordParts[0],
+        y: coordParts[1],
+      },
+      type: "Point",
+      name: name,
     });
 
     const sessionsData = await db.query.cyclist_count_session.findMany({
@@ -161,11 +182,10 @@ router.get("/:id", async (req: Request, res: Response) => {
 
       let session_total_cyclists = 0;
 
-    // Obter todos os directionIds únicos de todas as sessões
-    let sessionDirectionCount = await db.query.direction_count.findMany({
-      where: eq(schema.direction_count.sessionId, session.id),
-    });
-
+      // Obter todos os directionIds únicos de todas as sessões
+      let sessionDirectionCount = await db.query.direction_count.findMany({
+        where: eq(schema.direction_count.sessionId, session.id),
+      });
 
       // Obter counts de direção para a sessão
       const directionCounts = sessionDirectionCount.filter(
