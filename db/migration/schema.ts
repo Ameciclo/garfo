@@ -42,15 +42,21 @@ export const cyclist_count_schema = pgSchema("cyclist_count");
 
 export const cyclist_count_edition = cyclist_count_schema.table("edition", {
   id: integer("id").primaryKey(),
-  cityId: integer("city_id").references(() => cities.id).notNull(),
+  cityId: integer("city_id")
+    .references(() => cities.id)
+    .notNull(),
   name: varchar("name").notNull(),
   date: date("date").notNull(),
-  coordinatesId: integer("coordinates_id").references(() => coordinates.id).notNull(),
+  coordinatesId: integer("coordinates_id")
+    .references(() => coordinates.id)
+    .notNull(),
 });
 
 export const cyclist_count_session = cyclist_count_schema.table("session", {
   id: integer("id").primaryKey(),
-  editionId: integer("edition_id").references(() => cyclist_count_edition.id).notNull(),
+  editionId: integer("edition_id")
+    .references(() => cyclist_count_edition.id)
+    .notNull(),
   startTime: timestamp("start_time").notNull(),
   endTime: timestamp("end_time").notNull(),
 });
@@ -58,8 +64,12 @@ export const cyclist_count_session = cyclist_count_schema.table("session", {
 // Tabela 'direction_count' no esquema 'cyclist_count'
 export const direction_count = cyclist_count_schema.table("direction_count", {
   id: integer("id").primaryKey(),
-  sessionId: integer("session_id").references(() => cyclist_count_session.id).notNull(),
-  directionId: integer("direction_id").references(() => directions.id).notNull(),
+  sessionId: integer("session_id")
+    .references(() => cyclist_count_session.id)
+    .notNull(),
+  directionId: integer("direction_id")
+    .references(() => directions.id)
+    .notNull(),
   count: integer("count").notNull(),
 });
 
@@ -111,7 +121,6 @@ export const cyclist_infra_relations = cyclist_infra_schema.table("relations", {
   osmId: integer("osm_id"),
   notes: varchar("notes"),
 });
-
 
 export const cyclist_infra_relationCities = cyclist_infra_schema.table(
   "relation_cities",

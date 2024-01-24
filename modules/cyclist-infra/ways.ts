@@ -1,19 +1,10 @@
-// cyclist-infra/ways.js
-const express = require("express");
-const { Pool } = require("pg");
-
-const pool = new Pool({
-  user: process.env.POSTGRES_USER,
-  host: process.env.POSTGRES_HOST,
-  database: process.env.POSTGRES_DATABASE,
-  password: process.env.POSTGRES_PASSWORD,
-  port: process.env.POSTGRES_PORT,
- // ssl: true,
-});
+import express, { Request, Response } from "express";
+import { db } from "../../db";
+import * as schema from "../../db/migration/schema";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
     const waysData = await getWaysData();
     console.log("GET /cyclist-infra/ways: Data fetched successfully");
@@ -24,7 +15,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-function generateCitySummary(cityData) {
+function generateCitySummary(cityData: any[]) {
   const newData = cityData.map((d) => {
     const hasCycleway = d.has_cycleway === true;
     const isNotOutPDC = d.relation_id !== 0;
@@ -59,20 +50,20 @@ function generateCitySummary(cityData) {
   };
 }
 
-router.get("/summary", async (req, res) => {
+router.get("/summary", async (req: Request, res: Response) => {
   try {
     const waysData = await getWaysData();
 
-    const cities = {}; // Objeto para armazenar dados por cidade
+    const cities: { [key: string]: any[] } = {}; // Objeto para armazenar dados por cidade
 
     waysData.forEach((d) => {
-      if (!cities[d.city_id]) {
-        cities[d.city_id] = [];
+      if (!cities[d.cityId!]) {
+        cities[d.cityId!] = [];
       }
-      cities[d.city_id].push(d);
+      cities[d.cityId!].push(d);
     });
 
-    const summaryByCity = {};
+    const summaryByCity: { [key: string]: any } = {};
 
     for (const cityId in cities) {
       if (cities.hasOwnProperty(cityId)) {
@@ -100,22 +91,22 @@ router.get("/summary", async (req, res) => {
   }
 });
 
-router.get("/all-ways", async (req, res) => {
+router.get("/all-ways", async (req: Request, res: Response) => {
   try {
     const waysData = await getWaysData();
     const combinedData = combineFeatures(waysData);
     console.log("GET /cyclist-infra/all-ways: Data processed successfully");
 
-    const cities = {}; // Objeto para armazenar dados por cidade
+    const cities: { [key: string]: any[] } = {}; // Objeto para armazenar dados por cidade
 
     waysData.forEach((d) => {
-      if (!cities[d.city_id]) {
-        cities[d.city_id] = [];
+      if (!cities[d.cityId!]) {
+        cities[d.cityId!] = [];
       }
-      cities[d.city_id].push(d);
+      cities[d.cityId!].push(d);
     });
 
-    const combinedDataByCity = {};
+    const combinedDataByCity: { [key: string]: any } = {};
 
     for (const cityId in cities) {
       if (cities.hasOwnProperty(cityId)) {
@@ -138,7 +129,7 @@ router.get("/all-ways", async (req, res) => {
 });
 
 // Função para combinar os recursos
-function combineFeatures(dataArray) {
+function combineFeatures(dataArray: any[]) {
   const combinedFeatures = dataArray.map((item) => {
     let status = "NotPDC";
     if (item.relation_id !== 0)
@@ -163,30 +154,14 @@ function combineFeatures(dataArray) {
   return combinedGeoJSON;
 }
 
-// Function to fetch relations data from the database
 async function getWaysData() {
   try {
-    const query = `
-      SELECT osm_id,
-      name,
-      length,
-      highway,
-      has_cycleway,
-      cycleway_typology,
-      relation_id,
-      city_id,
-      dual_carriageway,
-      pdc_typology,
-      geojson,
-      lastupdated
-      FROM cyclist_infra.ways
-    `;
-    const { rows } = await pool.query(query);
-    return rows;
+    const ways = await db.select().from(schema.cyclist_infra_ways).execute();
+    return ways;
   } catch (error) {
     console.error("Error fetching data:", error);
     throw new Error("An error occurred while fetching data.");
   }
 }
 
-module.exports = router;
+export default router;
