@@ -9,7 +9,7 @@ import citiesRouter from "./modules/cities/cities.js";
 import cyclistCountsRouter from "./modules/cyclist-counts/summary";
 import cyclistCountsEditionsRouter from "./modules/cyclist-counts/edition";
 
-//import cyclistInfraRelationsByCityRouter from "./modules/cyclist-infra/relations-by-city.js";
+import cyclistInfraRelationsByCityRouter from "./modules/cyclist-infra/relations-by-city.js";
 import cyclistInfraRelationsRouter from "./modules/cyclist-infra/relations";
 import cyclistInfraRelationRouter from "./modules/cyclist-infra/relation";
 import cyclistInfraWaysRouter from "./modules/cyclist-infra/ways";
@@ -28,7 +28,7 @@ app.use("/cities", citiesRouter);
 app.use("/cyclist-counts", cyclistCountsRouter);
 app.use("/cyclist-counts/edition", cyclistCountsEditionsRouter);
 app.use("/cyclist-infra/relations", cyclistInfraRelationsRouter);
-//app.use("/cyclist-infra/relationsByCity", cyclistInfraRelationsByCityRouter);
+app.use("/cyclist-infra/relationsByCity", cyclistInfraRelationsByCityRouter);
 app.use("/cyclist-infra/relation", cyclistInfraRelationRouter);
 app.use("/cyclist-infra/ways", cyclistInfraWaysRouter);
 //app.use("/cyclist-infra/update", cyclistInfraUpdateRouter);
