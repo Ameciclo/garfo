@@ -1,5 +1,4 @@
 // Import necessary modules and packages
-import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import fs from "fs/promises";
