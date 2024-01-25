@@ -27,6 +27,7 @@ type CoordinateInsertType = typeof schema.coordinates.$inferInsert;
 type RelationsInsertType = typeof schema.cyclist_infra_relations.$inferInsert;
 type RelationsCitiesInsertType =
   typeof schema.cyclist_infra_relationCities.$inferInsert;
+type WaysInsertType = typeof schema.cyclist_infra_ways.$inferInsert;
 
 async function seedCities() {
   const data = await readCsv("./db/seed/public/cities.csv");
@@ -104,6 +105,33 @@ async function seedCyclistInfraRelationsCities() {
   }
 }
 
+async function seedCyclistInfraWays() {
+  const data = await readCsv("./db/seed/cyclist-infra/ways.csv");
+  const insertionData: WaysInsertType[] = data.map((item) => ({
+    osmId: item.osm_id,
+    name: item.name,
+    length: item.length,
+    highway: item.highway,
+    hasCycleway: item.has_cycleway,
+    cyclewayTypology: item.cycleway_typology,
+    relationId: item.relation_id,
+    geojson: item.geojson,
+    lastUpdated: item.lastupdated,
+    cityId: item.city_id,
+    dualCarriageway: item.dual_carriageway,
+    pdcTypology: item.pdc_typology,
+  }));
+  try {
+    await db
+      .insert(schema.cyclist_infra_ways)
+      .values(insertionData)
+      .onConflictDoNothing();
+    console.log("Seeding de ways concluído.");
+  } catch (error) {
+    console.error("Erro ao inserir dados em ways:", error);
+  }
+}
+
 // Função para fazer o seeding da tabela cyclist_count_edition
 async function seedCyclistCountEdition() {
   const data = await readCsv("./db/seed/cyclist-count/count_edition.csv");
@@ -168,7 +196,7 @@ async function seedCyclistCountDirections() {
   } catch (error) {
     console.error("Erro ao inserir dados em directions:", error);
   }
-} 
+}
 
 async function seedCyclistCountDirectionCounts() {
   const data = await readCsv("./db/seed/cyclist-count/direction_count.csv");
@@ -253,6 +281,7 @@ async function runSeed() {
   // Cyclist Infra
   await seedCyclistInfraRelations();
   await seedCyclistInfraRelationsCities();
+  await seedCyclistInfraWays();
 
   // Cyclist Count
   await seedCyclistCountEdition();
