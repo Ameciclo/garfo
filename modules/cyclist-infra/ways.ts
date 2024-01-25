@@ -4,6 +4,21 @@ import * as schema from "../../db/migration/schema";
 
 const router = express.Router();
 
+interface CyclistInfraWays {
+  length: number | null;
+  name: string | null;
+  cityId: number | null;
+  pdcTypology: string | null;
+  osmId: number;
+  relationId: number | null;
+  highway: string | null;
+  hasCycleway: boolean | null;
+  cyclewayTypology: string | null;
+  geojson: unknown;
+  lastUpdated: string | null;
+  dualCarriageway: boolean | null;
+}
+
 router.get("/", async (req: Request, res: Response) => {
   try {
     const waysData = await getWaysData();
@@ -17,12 +32,13 @@ router.get("/", async (req: Request, res: Response) => {
 
 function generateCitySummary(cityData: any[]) {
   const newData = cityData.map((d) => {
-    const hasCycleway = d.has_cycleway === true;
-    const isNotOutPDC = d.relation_id !== 0;
+    const hasCycleway = d.hasCycleway === true;
+    const isNotOutPDC = d.relationId !== 0;
 
     const pdc_feito = hasCycleway && isNotOutPDC ? d.length : 0;
     const out_pdc = hasCycleway && !isNotOutPDC ? d.length : 0;
     const pdc_total = isNotOutPDC ? d.length : 0;
+    if(d.cityId == "2607208") console.log(d);
 
     return {
       ...d,
@@ -65,11 +81,11 @@ router.get("/summary", async (req: Request, res: Response) => {
 
     const summaryByCity: { [key: string]: any } = {};
 
-    for (const cityId in cities) {
-      if (cities.hasOwnProperty(cityId)) {
-        const cityData = cities[cityId];
+    for (const city in cities) {
+      if (cities.hasOwnProperty(city)) {
+        const cityData = cities[city];
         const citySummary = generateCitySummary(cityData);
-        summaryByCity[cityId] = citySummary;
+        summaryByCity[city] = citySummary;
       }
     }
 
@@ -132,8 +148,8 @@ router.get("/all-ways", async (req: Request, res: Response) => {
 function combineFeatures(dataArray: any[]) {
   const combinedFeatures = dataArray.map((item) => {
     let status = "NotPDC";
-    if (item.relation_id !== 0)
-      status = item.has_cycleway ? "Realizada" : "Projeto";
+    if (item.relationId !== 0)
+      status = item.hasCycleway ? "Realizada" : "Projeto";
     const properties = {
       id: item.id,
       name: item.name,
