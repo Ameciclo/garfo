@@ -1,5 +1,5 @@
 import osmtogeojson from "osmtogeojson";
-import axios, { CancelToken, CancelTokenSource } from "axios";
+import axios, { CancelTokenSource } from "axios";
 
 import { OVERPASS_SERVERS, DEFAULT_BORDER_WIDTH } from "./constants";
 import { slugify } from "./utils";
@@ -72,7 +72,7 @@ class OSMController {
       `;
   }
 
-  static _getMultipleWaysQuery(waysIds: number[][]): string {
+  static _getMultipleWaysQuery(waysIds: number[]): string {
     const flatIds = waysIds.flat();
     const waysQueries = flatIds
       .map((id: number) => `way(id:${id})`)
@@ -214,6 +214,8 @@ class OSMController {
         try {
           const response = await axios.get(endpoint);
 
+          console.log(server)
+
           if (response.status === 200 && response.data.elements.length > 0) {
             geoJson = osmtogeojson(response.data);
             break;
@@ -233,7 +235,7 @@ class OSMController {
     }
   }
 
-  static async getOSMJsonWaysFromWaysIds(waysIds: number[][]): Promise<any> {
+  static async getOSMJsonWaysFromWaysIds(waysIds: number[]): Promise<any> {
     const query = OSMController._getMultipleWaysQuery(waysIds);
     const encodedQuery = encodeURI(query);
     let relationsWays = null;

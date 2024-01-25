@@ -12,7 +12,7 @@ import cyclistInfraRelationsByCityRouter from "./modules/cyclist-infra/relations
 import cyclistInfraRelationsRouter from "./modules/cyclist-infra/relations";
 import cyclistInfraRelationRouter from "./modules/cyclist-infra/relation";
 import cyclistInfraWaysRouter from "./modules/cyclist-infra/ways";
-//import cyclistInfraUpdateRouter from "./modules/cyclist-infra/updater";
+import cyclistInfraUpdateRouter from "./modules/update/updater";
 
 const port = 8080; // Define the desired port for the API
 
@@ -30,7 +30,7 @@ app.use("/cyclist-infra/relations", cyclistInfraRelationsRouter);
 app.use("/cyclist-infra/relationsByCity", cyclistInfraRelationsByCityRouter);
 app.use("/cyclist-infra/relation", cyclistInfraRelationRouter);
 app.use("/cyclist-infra/ways", cyclistInfraWaysRouter);
-//app.use("/cyclist-infra/update", cyclistInfraUpdateRouter);
+app.use("/cyclist-infra/update", cyclistInfraUpdateRouter);
 
 // Rota para servir a página de listagem de rotas
 app.get("/api-routes", async (req, res) => {
