@@ -14,7 +14,7 @@ import cyclistInfraRelationRouter from "./modules/cyclist-infra/relation";
 import cyclistInfraWaysRouter from "./modules/cyclist-infra/ways";
 //import cyclistInfraUpdateRouter from "./modules/update/updater";
 
-const port = 3000; // Define the desired port for the API
+const port = 8080; // Define the desired port for the API
 
 // Create an instance of Express app
 const app = express();

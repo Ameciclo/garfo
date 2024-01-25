@@ -1,6 +1,6 @@
 {
   "name": "garfo",
-  "version": "1.4.0",
+  "version": "1.6.0",
   "description": "An Express API for studying and observing cycling data by Ameciclo, focused on promoting and improving cycling infrastructure and safety.",
   "main": "index.js",
   "scripts": {
