@@ -1,5 +1,5 @@
 # Use uma imagem base do Node.js
-FROM node:16.16.0
+FROM node:18.19.0
 
 # Defina o diretório de trabalho dentro do contêiner
 WORKDIR /app
@@ -13,8 +13,5 @@ RUN npm install
 # Copie o restante dos arquivos do projeto para o diretório de trabalho
 COPY . .
 
-# Exponha a porta que a aplicação Express.js está ouvindo
-EXPOSE 3000
-
-# Comando para iniciar a aplicação
-CMD [ "node", "index.js" ]
+# Execute o aplicativo usando o comando "npm start"
+CMD [ "npm", "start" ]
