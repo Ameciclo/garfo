@@ -116,7 +116,7 @@ async function seedCyclistInfraWays() {
     cyclewayTypology: item.cycleway_typology,
     relationId: item.relation_id,
     geojson: item.geojson,
-    lastUpdated: item.lastupdated,
+    lastUpdated: null,
     cityId: item.city_id,
     dualCarriageway: item.dual_carriageway,
     pdcTypology: item.pdc_typology,
