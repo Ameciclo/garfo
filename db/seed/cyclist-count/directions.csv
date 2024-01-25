@@ -1,0 +1,727 @@
+id,origin,destin,origin_cardinal,destin_cardinal
+1,Parnamirim,Torre,north,west
+2,Parnamirim,Centro,north,south
+3,Parnamirim,Espinheiro,north,east
+4,Espinheiro,Parnamirim,east,north
+5,Espinheiro,Torre,east,west
+6,Espinheiro,Centro,east,south
+7,Centro,Espinheiro,south,east
+8,Centro,Parnamirim,south,north
+9,Centro,Torre,south,west
+10,Torre,Centro,west,south
+11,Torre,Espinheiro,west,east
+12,Torre,Parnamirim,west,north
+13,Caxangá,Abdias,north,west
+14,Caxangá,Engenho,north,south
+15,Caxangá,Centro,north,east
+16,Centro,Caxangá,east,north
+17,Centro,Abdias,east,west
+18,Centro,Engenho,east,south
+19,Engenho,Caxangá,south,east
+20,Engenho,Centro,south,north
+21,Engenho,Abdias,south,west
+22,Abdias,Engenho,west,south
+23,Abdias,Cento,west,east
+24,Abdias,Caxangá,west,north
+25,Água Fria,Casa Amarela,north,west
+26,Água Fria,Encruzilhada,north,south
+27,Água Fria,Campo Grande,north,east
+28,Campo Grande,Água Fria,east,north
+29,Campo Grande,Casa Amarela,east,west
+30,Campo Grande,Encruzilhada,east,south
+31,Encruzilhada,Campo Grande,south,east
+32,Encruzilhada,Água Fria,south,north
+33,Encruzilhada,Casa Amarela,south,west
+34,Casa Amarela,Encruzilhada,west,south
+35,Casa Amarela,Campo Grande,west,east
+36,Casa Amarela,Água Fria,west,north
+37,Vasco da Gama,Monteiro,north,west
+38,Vasco da Gama,Casa Forte,north,south
+39,Vasco da Gama,Parnamirim,north,east
+40,Parnamirim,Vasco da Gama,east,north
+41,Parnamirim,Monteiro,east,west
+42,Parnamirim,Casa Forte,east,south
+43,Casa Forte,Parnamirim,south,east
+44,Casa Forte,Vasco da Gama,south,north
+45,Casa Forte,Monteiro,south,west
+46,Monteiro,Casa Forte,west,south
+47,Monteiro,Parnamirim,west,east
+48,Monteiro,Vasco da Gama,west,north
+49,Centro,Lagoa do Araçá,north,west
+50,Centro,Jaboatão,north,south
+51,Centro,Boa Viagem,north,east
+52,Boa Viagem,Centro,east,north
+53,Boa Viagem,Lagoa do Araçá,east,west
+54,Boa Viagem,Jaboatão,east,south
+55,Jaboatão,Boa Viagem,south,east
+56,Jaboatão,Centro,south,north
+57,Jaboatão,Lagoa do Araçá,south,west
+58,Lagoa do Araçá,Jaboatão,west,south
+59,Lagoa do Araçá,Boa Viagem,west,east
+60,Lagoa do Araçá,Centro,west,north
+61,Centro,Lagoa do Araçá,north,west
+62,Centro,Jaboatão,north,south
+63,Centro,Boa Viagem,north,east
+64,Boa Viagem,Centro,east,north
+65,Boa Viagem,Lagoa do Araçá,east,west
+66,Boa Viagem,Jaboatão,east,south
+67,Jaboatão,Boa Viagem,south,east
+68,Jaboatão,Centro,south,north
+69,Jaboatão,Lagoa do Araçá,south,west
+70,Lagoa do Araçá,Jaboatão,west,south
+71,Lagoa do Araçá,Boa Viagem,west,east
+72,Lagoa do Araçá,Centro,west,north
+73,Arruda,Espinheiro,north,west
+74,Arruda,Agamenon,north,south
+75,Arruda,Olinda,north,east
+76,Olinda,Arruda,east,north
+77,Olinda,Espinheiro,east,west
+78,Olinda,Agamenon,east,south
+79,Agamenon,Olinda,south,east
+80,Agamenon,Arruda,south,north
+81,Agamenon,Espinheiro,south,west
+82,Espinheiro,Agamenon,west,south
+83,Espinheiro,Olinda,west,east
+84,Espinheiro,Arruda,west,north
+85,Jaqueira,Graças,north,south
+86,Jaqueira,Rosarinho,north,east
+87,Rosarinho,Jaqueira,east,north
+88,Rosarinho,Graças,east,south
+89,Graças,Rosarinho,south,east
+90,Graças,Jaqueira,south,north
+91,Jaqueira,Rio Capibaribe,north,west
+92,Jaqueira,Graças,north,south
+93,Jaqueira,Rosarinho,north,east
+94,Rosarinho,Jaqueira,east,north
+95,Rosarinho,Rio Capibaribe,east,west
+96,Rosarinho,Graças,east,south
+97,Graças,Rosarinho,south,east
+98,Graças,Jaqueira,south,north
+99,Graças,Rio Capibaribe,south,west
+100,Rio Capibaribe,Graças,west,south
+101,Rio Capibaribe,Rosarinho,west,east
+102,Rio Capibaribe,Jaqueira,west,north
+103,Jaqueira,Rio Capibaribe,north,west
+104,Jaqueira,Graças,north,south
+105,Jaqueira,Rosarinho,north,east
+106,Rosarinho,Jaqueira,east,north
+107,Rosarinho,Rio Capibaribe,east,west
+108,Rosarinho,Graças,east,south
+109,Graças,Rosarinho,south,east
+110,Graças,Jaqueira,south,north
+111,Graças,Rio Capibaribe,south,west
+112,Rio Capibaribe,Graças,west,south
+113,Rio Capibaribe,Rosarinho,west,east
+114,Rio Capibaribe,Jaqueira,west,north
+115,Santana,Derby,north,west
+116,Santana,Estância,north,south
+117,Santana,Camaragibe,north,east
+118,Derby,Estância,east,north
+119,Derby,Camaragibe,east,west
+120,Derby,Santana,east,south
+121,Estância,Camaragibe,south,east
+122,Estância,Santana,south,north
+123,Estância,Derby,south,west
+124,Camaragibe,Santana,west,south
+125,Camaragibe,Derby,west,east
+126,Camaragibe,Estância,west,north
+127,Espinheiro,Boa Vista,north,west
+128,Espinheiro,Aurora,north,south
+129,Espinheiro,Santo Amaro,north,east
+130,Santo Amaro,Espinheiro,east,north
+131,Santo Amaro,Boa Vista,east,west
+132,Santo Amaro,Aurora,east,south
+133,Aurora,Santo Amaro,south,east
+134,Aurora,Espinheiro,south,north
+135,Aurora,Boa Vista,south,west
+136,Boa Vista,Aurora,west,south
+137,Boa Vista,Santo Amaro,west,east
+138,Boa Vista,Espinheiro,west,north
+139,Santo Amaro,Espinheiro,north,west
+140,Santo Amaro,Boa Vista,north,south
+141,Santo Amaro,Aurora,north,east
+142,Aurora,Santo Amaro,east,north
+143,Aurora,Espinheiro,east,west
+144,Aurora,Boa Vista,east,south
+145,Boa Vista,Aurora,south,east
+146,Boa Vista,Santo Amaro,south,north
+147,Boa Vista,Espinheiro,south,west
+148,Espinheiro,Boa Vista,west,south
+149,Espinheiro,Aurora,west,east
+150,Espinheiro,Santo Amaro,west,north
+151,Bongi,Mustardinha,north,west
+152,Bongi,Imbiribeira,north,south
+153,Bongi,Afogados,north,east
+154,Afogados,Bongi,east,north
+155,Afogados,Mustardinha,east,west
+156,Afogados,Imbiribeira,east,south
+157,Imbiribeira,Afogados,south,east
+158,Imbiribeira,Bongi,south,north
+159,Imbiribeira,Mustardinha,south,west
+160,Mustardinha,Imbiribeira,west,south
+161,Mustardinha,Afogados,west,east
+162,Mustardinha,Bongi,west,north
+163,Olinda,Benfica,north,west
+164,Olinda,Boa Viagem,north,south
+165,Olinda,Boa Vista,north,east
+166,Boa Vista,Olinda,east,north
+167,Boa Vista,Benfica,east,west
+168,Boa Vista,Boa Viagem,east,south
+169,Boa Viagem,Boa Vista,south,east
+170,Boa Viagem,Olinda,south,north
+171,Boa Viagem,Benfica,south,west
+172,Benfica,Boa Viagem,west,south
+173,Benfica,Boa Vista,west,east
+174,Benfica,Olinda,west,north
+175,Olinda,Benfica,north,west
+176,Olinda,Boa Viagem,north,south
+177,Olinda,Boa Vista,north,east
+178,Boa Vista,Olinda,east,north
+179,Boa Vista,Benfica,east,west
+180,Boa Vista,Boa Viagem,east,south
+181,Boa Viagem,Boa Vista,south,east
+182,Boa Viagem,Olinda,south,north
+183,Boa Viagem,Benfica,south,west
+184,Benfica,Boa Viagem,west,south
+185,Benfica,Boa Vista,west,east
+186,Benfica,Olinda,west,north
+187,Curado,Estância,north,west
+188,Curado,Ilha do Retiro,north,south
+189,Curado,Cordeiro,north,east
+190,Cordeiro,Curado,east,north
+191,Cordeiro,Estância,east,west
+192,Cordeiro,Ilha do Retiro,east,south
+193,Ilha do Retiro,Cordeiro,south,east
+194,Ilha do Retiro,Curado,south,north
+195,Ilha do Retiro,Estância,south,west
+196,Estância,Ilha do Retiro,west,south
+197,Estância,Cordeiro,west,east
+198,Estância,Curado,west,north
+199,Estância ,IPSEP,north,west
+200,Estância ,Boa Viagem,north,south
+201,Estância ,IBURA,north,east
+202,IPSEP,Boa Viagem,east,north
+203,IPSEP,IBURA,east,west
+204,IPSEP,Estância ,east,south
+205,Boa Viagem,IBURA,south,east
+206,Boa Viagem,Estância ,south,north
+207,Boa Viagem,IPSEP,south,west
+208,IBURA,Boa Viagem,west,south
+209,IBURA,IPSEP,west,east
+210,IBURA,Estância ,west,north
+211,Estância,IPSEP,north,west
+212,Estância,Boa Viagem,north,south
+213,Estância,Ibura,north,east
+214,Ibura,Estância,east,north
+215,Ibura,IPSEP,east,west
+216,Ibura,Boa Viagem,east,south
+217,Boa Viagem,Ibura,south,east
+218,Boa Viagem,Estância,south,north
+219,Boa Viagem,IPSEP,south,west
+220,IPSEP,Estância,west,south
+221,IPSEP,Ibura,west,east
+222,IPSEP,Boa Viagem,west,north
+223,Pina,Imbiribeira,north,west
+224,Pina,Piedade,north,south
+225,Pina,Praia,north,east
+226,Praia,Pina,east,north
+227,Praia,Imbiribeira,east,west
+228,Praia,Piedade,east,south
+229,Piedade,Praia,south,east
+230,Piedade,Pina,south,north
+231,Piedade,Imbiribeira,south,west
+232,Imbiribeira,Piedade,west,south
+233,Imbiribeira,Praia,west,east
+234,Imbiribeira,Pina,west,north
+235,Olinda,Pan Nordestina,north,west
+236,Olinda,Recife,north,south
+237,Olinda,Milagres,north,east
+238,Milagres,Olinda,east,north
+239,Milagres,Pan Nordestina,east,west
+240,Milagres,Recife,east,south
+241,Recife,Milagres,south,east
+242,Recife,Olinda,south,north
+243,Recife,Pan Nordestina,south,west
+244,Pan Nordestina,Recife,west,south
+245,Pan Nordestina,Milagres,west,east
+246,Pan Nordestina,Olinda,west,north
+247,Janga,Orla Olinda,north,west
+248,Janga,Rio Doce,north,south
+249,Orla Olinda,Janga,east,north
+250,Orla Olinda,Rio Doce,east,south
+251,Rio Doce,Orla Olinda,south,east
+252,Rio Doce,Janga,south,north
+253,Santo Amaro,Espinheiro,north,west
+254,Santo Amaro,Boa Vista,north,south
+255,Santo Amaro,Bairro do Recife,north,east
+256,Bairro do Recife,Santo Amaro,east,north
+257,Bairro do Recife,Espinheiro,east,west
+258,Bairro do Recife,Boa Vista,east,south
+259,Boa Vista,Bairro do Recife,south,east
+260,Boa Vista,Santo Amaro,south,north
+261,Boa Vista,Espinheiro,south,west
+262,Espinheiro,Boa Vista,west,south
+263,Espinheiro,Bairro do Recife,west,east
+264,Espinheiro,Santo Amaro,west,north
+265,Santo Amaro,Espinheiro,north,west
+266,Santo Amaro,Boa Vista,north,south
+267,Santo Amaro,Bairro do Recife,north,east
+268,Bairro do Recife,Santo Amaro,east,north
+269,Bairro do Recife,Espinheiro,east,west
+270,Bairro do Recife,Boa Vista,east,south
+271,Boa Vista,Bairro do Recife,south,east
+272,Boa Vista,Santo Amaro,south,north
+273,Boa Vista,Espinheiro,south,west
+274,Espinheiro,Boa Vista,west,south
+275,Espinheiro,Bairro do Recife,west,east
+276,Espinheiro,Santo Amaro,west,north
+277,Parnamirim,Torre,north,west
+278,Parnamirim,Graças,north,south
+279,Parnamirim,Encruzilhada,north,east
+280,Encruzilhada,Parnamirim,east,north
+281,Encruzilhada,Torre,east,west
+282,Encruzilhada,Graças,east,south
+283,Graças,Encruzilhada,south,east
+284,Graças,Parnamirim,south,north
+285,Graças,Torre,south,west
+286,Torre,Graças,west,south
+287,Torre,Encruzilhada,west,east
+288,Torre,Parnamirim,west,north
+289,Lagoa do Araçá,Jaboatão,north,west
+290,Lagoa do Araçá,Boa Viagem,north,south
+291,Lagoa do Araçá,Centro,north,east
+292,Jaboatão,Lagoa do Araçá,east,north
+293,Jaboatão,Centro,east,west
+294,Jaboatão,Boa Viagem,east,south
+295,Boa Viagem,Jaboatão,south,east
+296,Boa Viagem,Lagoa do Araçá,south,north
+297,Boa Viagem,Centro,south,west
+298,Centro,Lagoa do Araçá,west,south
+299,Centro,Jaboatão,west,east
+300,Centro,Boa Viagem,west,north
+301,Lagoa do Araçá,Jaboatão,north,west
+302,Lagoa do Araçá,Boa Viagem,north,south
+303,Lagoa do Araçá,Centro,north,east
+304,Jaboatão,Lagoa do Araçá,east,north
+305,Jaboatão,Centro,east,west
+306,Jaboatão,Boa Viagem,east,south
+307,Boa Viagem,Jaboatão,south,east
+308,Boa Viagem,Lagoa do Araçá,south,north
+309,Boa Viagem,Centro,south,west
+310,Centro,Lagoa do Araçá,west,south
+311,Centro,Jaboatão,west,east
+312,Centro,Boa Viagem,west,north
+313,Água Fria,Casa Amarela,north,west
+314,Água Fria,Encruzilhada,north,south
+315,Água Fria,Campo Grande,north,east
+316,Campo Grande,Água Fria,east,north
+317,Campo Grande,Casa Amarela,east,west
+318,Campo Grande,Encruzilhada,east,south
+319,Encruzilhada,Campo Grande,south,east
+320,Encruzilhada,Água Fria,south,north
+321,Encruzilhada,Casa Amarela,south,west
+322,Casa Amarela,Encruzilhada,west,south
+323,Casa Amarela,Campo Grande,west,east
+324,Casa Amarela,Água Fria,west,north
+325,Jaqueira,Graças,north,south
+326,Jaqueira,Rosarinho,north,east
+327,Rosarinho,Jaqueira,east,north
+328,Rosarinho,Graças,east,south
+329,Graças,Rosarinho,south,east
+330,Graças,Jaqueira,south,north
+331,Jaqueira,Graças,north,west
+332,Jaqueira,Aflitos,north,south
+333,Jaqueira,Rosarinho,north,east
+334,Rosarinho,Jaqueira,east,north
+335,Rosarinho,Graças,east,west
+336,Rosarinho,Aflitos,east,south
+337,Graças,Aflitos,south,east
+338,Graças,Rosarinho,south,north
+339,Graças,Jaqueira,south,west
+340,Aflitos,Rosarinho,west,south
+341,Aflitos,Jaqueira,west,east
+342,Aflitos,Graças,west,north
+343,Ilha do Retiro,Mustardinha,north,west
+344,Ilha do Retiro,Imbiribeira,north,south
+345,Ilha do Retiro,Cabanga,north,east
+346,Cabanga,Ilha do Retiro,east,north
+347,Cabanga,Mustardinha,east,west
+348,Cabanga,Imbiribeira,east,south
+349,Imbiribeira,Cabanga,south,east
+350,Imbiribeira,Ilha do Retiro,south,north
+351,Imbiribeira,Mustardinha,south,west
+352,Mustardinha,Imbiribeira,west,south
+353,Mustardinha,Cabanga,west,east
+354,Mustardinha,Ilha do Retiro,west,north
+355,Arruda,Espinheiro,north,west
+356,Arruda,Agamenon,north,south
+357,Arruda,Olinda,north,east
+358,Olinda,Arruda,east,north
+359,Olinda,Espinheiro,east,west
+360,Olinda,Agamenon,east,south
+361,Agamenon,Olinda,south,east
+362,Agamenon,Arruda,south,north
+363,Agamenon,Espinheiro,south,west
+364,Espinheiro,Agamenon,west,south
+365,Espinheiro,Olinda,west,east
+366,Espinheiro,Arruda,west,north
+367,Camaragibe,Cordeiro,north,west
+368,Camaragibe,Derby,north,south
+369,Camaragibe,Torre,north,east
+370,Torre,Camaragibe,east,north
+371,Torre,Cordeiro,east,west
+372,Torre,Derby,east,south
+373,Derby,Torre,south,east
+374,Derby,Camaragibe,south,north
+375,Derby,Cordeiro,south,west
+376,Cordeiro,Derby,west,south
+377,Cordeiro,Torre,west,east
+378,Cordeiro,Camaragibe,west,north
+379,Olinda,Benfica,north,west
+380,Olinda,Boa Viagem,north,south
+381,Olinda,Boa Vista,north,east
+382,Boa Vista,Olinda,east,north
+383,Boa Vista,Benfica,east,west
+384,Boa Vista,Boa Viagem,east,south
+385,Boa Viagem,Boa Vista,south,east
+386,Boa Viagem,Olinda,south,north
+387,Boa Viagem,Benfica,south,west
+388,Benfica,Boa Viagem,west,south
+389,Benfica,Boa Vista,west,east
+390,Benfica,Olinda,west,north
+391,Olinda,Benfica,north,west
+392,Olinda,Boa Viagem,north,south
+393,Olinda,Boa Vista,north,east
+394,Boa Vista,Olinda,east,north
+395,Boa Vista,Benfica,east,west
+396,Boa Vista,Boa Viagem,east,south
+397,Boa Viagem,Boa Vista,south,east
+398,Boa Viagem,Olinda,south,north
+399,Boa Viagem,Benfica,south,west
+400,Benfica,Boa Viagem,west,south
+401,Benfica,Boa Vista,west,east
+402,Benfica,Olinda,west,north
+403,Vasco da Gama,Monteiro,north,west
+404,Vasco da Gama,Casa Forte,north,south
+405,Vasco da Gama,Parnamirim,north,east
+406,Parnamirim,Vasco da Gama,east,north
+407,Parnamirim,Monteiro,east,west
+408,Parnamirim,Casa Forte,east,south
+409,Casa Forte,Parnamirim,south,east
+410,Casa Forte,Vasco da Gama,south,north
+411,Casa Forte,Monteiro,south,west
+412,Monteiro,Casa Forte,west,south
+413,Monteiro,Parnamirim,west,east
+414,Monteiro,Vasco da Gama,west,north
+415,Pina,Imbiribeira,north,west
+416,Pina,Piedade,north,south
+417,Pina,Praia,north,east
+418,Praia,Pina,east,north
+419,Praia,Imbiribeira,east,west
+420,Praia,Piedade,east,south
+421,Piedade,Praia,south,east
+422,Piedade,Pina,south,north
+423,Piedade,Imbiribeira,south,west
+424,Imbiribeira,Piedade,west,south
+425,Imbiribeira,Praia,west,east
+426,Imbiribeira,Pina,west,north
+427,Estância,IPSEP,north,west
+428,Estância,Boa Viagem,north,south
+429,Estância,Ibura,north,east
+430,Ibura,Estância,east,north
+431,Ibura,IPSEP,east,west
+432,Ibura,Boa Viagem,east,south
+433,Boa Viagem,Ibura,south,east
+434,Boa Viagem,Estância,south,north
+435,Boa Viagem,IPSEP,south,west
+436,IPSEP,Estância,west,south
+437,IPSEP,Ibura,west,east
+438,IPSEP,Boa Viagem,west,north
+439,Curado,Estância,north,west
+440,Curado,Ilha do Retiro,north,south
+441,Curado,Cordeiro,north,east
+442,Cordeiro,Curado,east,north
+443,Cordeiro,Estância,east,west
+444,Cordeiro,Ilha do Retiro,east,south
+445,Ilha do Retiro,Cordeiro,south,east
+446,Ilha do Retiro,Curado,south,north
+447,Ilha do Retiro,Estância,south,west
+448,Estância,Ilha do Retiro,west,south
+449,Estância,Cordeiro,west,east
+450,Estância,Curado,west,north
+451,Camaragibe,Várzea,north,west
+452,Camaragibe,Centro,north,south
+453,Camaragibe,Dois Irmãos,north,east
+454,Dois Irmãos,Camaragibe,east,north
+455,Dois Irmãos,Várzea,east,west
+456,Dois Irmãos,Centro,east,south
+457,Centro,Dois Irmãos,south,east
+458,Centro,Camaragibe,south,north
+459,Centro,Várzea,south,west
+460,Várzea,Centro,west,south
+461,Várzea,Dois Irmãos,west,east
+462,Várzea,Camaragibe,west,north
+463,Rui Barbosa,Jaqueira,north,west
+464,Rui Barbosa,Padre Roma,north,south
+465,Rui Barbosa,Tamarineira,north,east
+466,Parnamirim,Rui Barbosa,east,north
+467,Parnamirim,Jaqueira,east,west
+468,Parnamirim,Padre Roma,east,south
+469,Padre Roma,Parnamirim,south,east
+470,Padre Roma,Rui Barbosa,south,north
+471,Padre Roma,Jaqueira,south,west
+472,Jaqueira,Padre Roma,west,south
+473,Jaqueira,Parnamirim,west,east
+474,Jaqueira,Rui Barbosa,west,north
+475,Sigismundo,Quinze,north,west
+476,Sigismundo,Kennedy,north,south
+477,Sigismundo,Olinda,north,east
+478,Olinda,Sigismundo,east,north
+479,Olinda,Quinze,east,west
+480,Olinda,Kennedy,east,south
+481,Kennedy,Olinda,south,east
+482,Kennedy,Sigismundo,south,north
+483,Kennedy,Quinze,south,west
+484,Quinze,Kennedy,west,south
+485,Quinze,Olinda,west,east
+486,Quinze,Sigismundo,west,north
+487,Paulista/Janga,Hotel PM,north,west
+488,Paulista/Janga,Olinda/Rio Doce,north,south
+489,Paulista/Janga,Praia/Orla de Olinda,north,east
+490,Praia/Orla de Olinda,Paulista/Janga,east,north
+491,Praia/Orla de Olinda,Hotel PM,east,west
+492,Praia/Orla de Olinda,Olinda/Rio Doce,east,south
+493,Olinda/Rio Doce,Praia/Orla de Olinda,south,east
+494,Olinda/Rio Doce,Paulista/Janga,south,north
+495,Olinda/Rio Doce,Hotel PM,south,west
+496,Hotel PM,Olinda/Rio Doce,west,south
+497,Hotel PM,Praia/Orla de Olinda,west,east
+498,Hotel PM,Paulista/Janga,west,north
+499,Caixa D'água ,Peixinhos,north,west
+500,Caixa D'água ,Olinda,north,south
+501,Caixa D'água ,Jardim Brasil,north,east
+502,Jardim Brasil,Caixa D'água ,east,north
+503,Jardim Brasil,Peixinhos,east,west
+504,Jardim Brasil,Olinda,east,south
+505,Olinda,Jardim Brasil,south,east
+506,Olinda,Caixa D'água ,south,north
+507,Olinda,Peixinhos,south,west
+508,Peixinhos,Olinda,west,south
+509,Peixinhos,Jardim Brasil,west,east
+510,Peixinhos,Caixa D'água ,west,north
+511,Prazeres,Cajueiro Seco,north,west
+512,Prazeres,Piedade,north,south
+513,Prazeres,Massangana,north,east
+514,Massangana,Prazeres,east,north
+515,Massangana,Cajueiro Seco,east,west
+516,Massangana,Piedade,east,south
+517,Piedade,Massangana,south,east
+518,Piedade,Prazeres,south,north
+519,Piedade,Cajueiro Seco,south,west
+520,Cajueiro Seco,Piedade,west,south
+521,Cajueiro Seco,Massangana,west,east
+522,Cajueiro Seco,Prazeres,west,north
+523,Pina ,Imbiribeira,north,west
+524,Pina ,Piedade,north,south
+525,Pina ,Praia,north,east
+526,Praia,Pina ,east,north
+527,Praia,Imbiribeira,east,west
+528,Praia,Piedade,east,south
+529,Piedade,Praia,south,east
+530,Piedade,Pina ,south,north
+531,Piedade,Imbiribeira,south,west
+532,Imbiribeira,Piedade,west,south
+533,Imbiribeira,Praia,west,east
+534,Imbiribeira,Pina ,west,north
+535,Curado,Estância,north,west
+536,Curado,Ilha do Retiro,north,south
+537,Curado,Cordeiro,north,east
+538,Cordeiro,Curado,east,north
+539,Cordeiro,Estância,east,west
+540,Cordeiro,Ilha do Retiro,east,south
+541,Ilha do Retiro,Cordeiro,south,east
+542,Ilha do Retiro,Curado,south,north
+543,Ilha do Retiro,Estância,south,west
+544,Estância,Ilha do Retiro,west,south
+545,Estância,Cordeiro,west,east
+546,Estância,Curado,west,north
+547,Estância ,Ibura,north,west
+548,Estância ,Boa Viagem,north,south
+549,Estância ,IPSEP,north,east
+550,IPSEP,Estância ,east,north
+551,IPSEP,Ibura,east,west
+552,IPSEP,Boa Viagem,east,south
+553,Boa Viagem,IPSEP,south,east
+554,Boa Viagem,Estância ,south,north
+555,Boa Viagem,Ibura,south,west
+556,Ibura,Boa Viagem,west,south
+557,Ibura,IPSEP,west,east
+558,Ibura,Estância ,west,north
+559,Parnamirim,Torre,north,west
+560,Parnamirim,Centro,north,south
+561,Parnamirim,Espinheiro,north,east
+562,Espinheiro,Parnamirim,east,north
+563,Espinheiro,Torre,east,west
+564,Espinheiro,Centro,east,south
+565,Centro,Espinheiro,south,east
+566,Centro,Parnamirim,south,north
+567,Centro,Torre,south,west
+568,Torre,Centro,west,south
+569,Torre,Espinheiro,west,east
+570,Torre,Parnamirim,west,north
+571,Abdias,Centro,north,west
+572,Abdias,Caxangá,north,south
+573,Abdias,Engenho,north,east
+574,Engenho,Abdias,east,north
+575,Engenho,Centro,east,west
+576,Engenho,Caxangá,east,south
+577,Caxangá,Engenho,south,east
+578,Caxangá,Abdias,south,north
+579,Caxangá,Centro,south,west
+580,Centro,Caxangá,west,south
+581,Centro,Engenho,west,east
+582,Centro,Abdias,west,north
+583,Olinda,Abdias,north,west
+584,Olinda,Ponte José B Lima,north,south
+585,Olinda,Ilha do Leite,north,east
+586,Ilha do Leite,Olinda,east,north
+587,Ilha do Leite,Abdias,east,west
+588,Ilha do Leite,Ponte José B Lima,east,south
+589,Ponte José B Lima,Ilha do Leite,south,east
+590,Ponte José B Lima,Olinda,south,north
+591,Ponte José B Lima,Abdias,south,west
+592,Abdias,Ponte José B Lima,west,south
+593,Abdias,Ilha do Leite,west,east
+594,Abdias,Olinda,west,north
+595,Santo Amaro,Boa Vista,north,west
+596,Santo Amaro,Coelhos,north,south
+597,Santo Amaro,Santo Antônio,north,east
+598,Santo Antônio,Santo Amaro,east,north
+599,Santo Antônio,Boa Vista,east,west
+600,Santo Antônio,Coelhos,east,south
+601,Coelhos,Santo Antônio,south,east
+602,Coelhos,Santo Amaro,south,north
+603,Coelhos,Boa Vista,south,west
+604,Boa Vista,Coelhos,west,south
+605,Boa Vista,Santo Antônio,west,east
+606,Boa Vista,Santo Amaro,west,north
+607,Olinda,Campo Grande,north,west
+608,Olinda,Santo Amaro,north,south
+609,Olinda,Aurora,north,east
+610,Aurora,Olinda,east,north
+611,Aurora,Campo Grande,east,west
+612,Aurora,Santo Amaro,east,south
+613,Santo Amaro,Aurora,south,east
+614,Santo Amaro,Olinda,south,north
+615,Santo Amaro,Campo Grande,south,west
+616,Campo Grande,Santo Amaro,west,south
+617,Campo Grande,Aurora,west,east
+618,Campo Grande,Olinda,west,north
+619,Praça da República,Boa Vista,north,west
+620,Praça da República,São José,north,south
+621,Praça da República,Bairro Recife,north,east
+622,Bairro Recife,Praça da República,east,north
+623,Bairro Recife,Boa Vista,east,west
+624,Bairro Recife,São José,east,south
+625,São José,Bairro Recife,south,east
+626,São José,Praça da República,south,north
+627,São José,Boa Vista,south,west
+628,Boa Vista,São José,west,south
+629,Boa Vista,Bairro Recife,west,east
+630,Boa Vista,Praça da República,west,north
+631,Camaragibe,Várzea,north,west
+632,Camaragibe,Centro,north,south
+633,Camaragibe,Dois Irmãos,north,east
+634,Dois Irmãos,Camaragibe,east,north
+635,Dois Irmãos,Várzea,east,west
+636,Dois Irmãos,Centro,east,south
+637,Centro,Dois Irmãos,south,east
+638,Centro,Camaragibe,south,north
+639,Centro,Várzea,south,west
+640,Várzea,Centro,west,south
+641,Várzea,Dois Irmãos,west,east
+642,Várzea,Camaragibe,west,north
+643,Norte,Oeste,north,west
+644,Norte,Sul,north,south
+645,Norte,Leste,north,east
+646,Leste,Norte,east,north
+647,Leste,Oeste,east,west
+648,Leste,Sul,east,south
+649,Sul,Leste,south,east
+650,Sul,Norte,south,north
+651,Sul,Oeste,south,west
+652,Oeste,Sul,west,south
+653,Oeste,Leste,west,east
+654,Oeste,Norte,west,north
+655,Santana,Cordeiro,north,west
+656,Santana,San Martin,north,south
+657,Santana,Torre,north,east
+658,Torre,Santana,east,north
+659,Torre,Cordeiro,east,west
+660,Torre,San Martin,east,south
+661,San Martin,Torre,south,east
+662,San Martin,Santana,south,north
+663,San Martin,Cordeiro,south,west
+664,Cordeiro,San Martin,west,south
+665,Cordeiro,Torre,west,east
+666,Cordeiro,Santana,west,north
+667,Santana,Cordeiro,north,west
+668,Santana,San Martin,north,south
+669,Santana,Torre,north,east
+670,Torre,Santana,east,north
+671,Torre,Cordeiro,east,west
+672,Torre,San Martin,east,south
+673,San Martin,Torre,south,east
+674,San Martin,Santana,south,north
+675,San Martin,Cordeiro,south,west
+676,Cordeiro,San Martin,west,south
+677,Cordeiro,Torre,west,east
+678,Cordeiro,Santana,west,north
+679,Santana,Camaragibe,north,west
+680,Santana,San Martin,north,south
+681,Santana,Derby,north,east
+682,Derby,Santana,east,north
+683,Derby,Camaragibe,east,west
+684,Derby,San Martin,east,south
+685,San Martin,Derby,south,east
+686,San Martin,Santana,south,north
+687,San Martin,Camaragibe,south,west
+688,Camaragibe,San Martin,west,south
+689,Camaragibe,Derby,west,east
+690,Camaragibe,Santana,west,north
+691,Jardim Brasil,Caixa D'Água,north,west
+692,Jardim Brasil,Peixinhos,north,south
+693,Jardim Brasil,Olinda,north,east
+694,Olinda,Jardim Brasil,east,north
+695,Olinda,Caixa D'Água,east,west
+696,Olinda,Peixinhos,east,south
+697,Peixinhos,Olinda,south,east
+698,Peixinhos,Jardim Brasil,south,north
+699,Peixinhos,Caixa D'Água,south,west
+700,Caixa D'Água,Peixinhos,west,south
+701,Caixa D'Água,Olinda,west,east
+702,Caixa D'Água,Jardim Brasil,west,north
+703,Aldeia,São Lourenço / Centro,north,west
+704,Aldeia,Varzea (S),north,south
+705,Aldeia,Varzea (L),north,east
+706,Varzea (L),Aldeia,east,north
+707,Varzea (L),São Lourenço / Centro,east,west
+708,Varzea (L),Varzea (S),east,south
+709,Varzea (S),Varzea (L),south,east
+710,Varzea (S),Aldeia,south,north
+711,Varzea (S),São Lourenço / Centro,south,west
+712,São Lourenço / Centro,Varzea (S),west,south
+713,São Lourenço / Centro,Varzea (L),west,east
+714,São Lourenço / Centro,Aldeia,west,north
+715,Agua Fria,Casa Amarela,north,west
+716,Agua Fria,Encruzilhada,north,south
+717,Agua Fria,Campo Grande,north,east
+718,Campo Grande,Agua Fria,east,north
+719,Campo Grande,Casa Amarela,east,west
+720,Campo Grande,Encruzilhada,east,south
+721,Encruzilhada,Campo Grande,south,east
+722,Encruzilhada,Agua Fria,south,north
+723,Encruzilhada,Casa Amarela,south,west
+724,Casa Amarela,Encruzilhada,west,south
+725,Casa Amarela,Campo Grande,west,east
+726,Casa Amarela,Agua Fria,west,north

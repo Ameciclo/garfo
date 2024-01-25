@@ -16,7 +16,7 @@ const pool = new Pool({
   database: process.env.POSTGRES_DATABASE,
   password: process.env.POSTGRES_PASSWORD,
   port: process.env.POSTGRES_PORT,
-  ssl: true,
+  // ssl: true,
 });
 
 const router = express.Router();
@@ -40,18 +40,18 @@ router.get("/", async (req, res) => {
 async function getOSMIdFromRelations() {
   try {
     const query = `
-      SELECT id,
-      name,
-      pdc_ref,
-      pdc_notes,
-      pdc_typology,
-      pdc_km,
-      pdc_stretch,
-      pdc_cities,
-      osm_id,
-      notes
-      FROM cyclist_infra.relations
-  `;
+        SELECT id,
+        name,
+        pdc_ref,
+        pdc_notes,
+        pdc_typology,
+        pdc_km,
+        pdc_stretch,
+        pdc_cities,
+        osm_id,
+        notes
+        FROM cyclist_infra.relations
+    `;
     const { rows } = await pool.query(query);
     return rows;
   } catch (error) {
@@ -63,11 +63,11 @@ async function getOSMIdFromRelations() {
 async function getCities() {
   try {
     const query = `
-      SELECT id,
-      name,
-      state
-      FROM public.cities
-  `;
+        SELECT id,
+        name,
+        state
+        FROM public.cities
+    `;
     const { rows } = await pool.query(query);
     return rows;
   } catch (error) {
@@ -98,11 +98,13 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
       return Promise.all(
         element.members.map((member) => {
           const geojson = osmtogeojson({ elements: [member] });
+          const middleMember = Math.floor(member.geometry.length / 2);
           return getCityByPoint(
             cities,
             rmrCities,
-            member.geometry[0].lat,
-            member.geometry[0].lon
+            member.geometry[middleMember].lat,
+            member.geometry[middleMember].lon,
+            element
           ).then((city_id) => {
             let dual_carriageway = false;
             if (member.tags.dual_carriageway)
@@ -110,6 +112,7 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
                 member.tags.dual_carriageway == "yes" ? true : false;
             const total_km = turf.length(geojson);
             const typology = getTypologyFromProperties(member.tags);
+            const onPDC = element.pdc != undefined;
             if (member.type === "way") {
               const newElementFormat = {
                 osm_id: member.id,
@@ -118,12 +121,12 @@ async function compareExistingInfrastrutureOnAreaWithProjectOnRelations(
                 highway: member.tags.highway || "",
                 has_cycleway: typology != "none" ? true : false,
                 cycleway_typology: typology || "",
-                relation_id: element.pdc.id || 0,
+                relation_id: onPDC ? element.pdc.id : 0,
                 geojson: geojson,
                 lastUpdated: lastupdated,
                 city_id: city_id,
                 dual_carriageway: dual_carriageway,
-                pdc_typology: element.pdc.pdc_typology,
+                pdc_typology: onPDC ? element.pdc.pdc_typology : "notOnPDC",
               };
               allCycleWays.push(newElementFormat);
             }
@@ -195,20 +198,27 @@ async function comparePDConRMR() {
   );
 }
 
-async function getCityByPoint(cities, citiesJson, lat, lon) {
+async function getCityByPoint(cities, citiesJson, lat, lon, element) {
   const point = turf.point([lon, lat]);
 
-  let cityName = null;
+  let cityId = null;
 
   for (const polygon of citiesJson.features) {
     if (turf.booleanPointInPolygon(point, polygon)) {
-      cityName = polygon.properties.name;
+      cityId = polygon.properties.id;
       break;
     }
   }
-  const city = cities.find((c) => c.name === cityName);
-  const city_id = city ? city.id : null;
-  return city_id;
+
+  if (cityId == null && lat == -8.1795871 && lon == -34.9167551) {
+    cityId = 2607901;
+  } else if (cityId == null) {
+    cityId = 2607208;
+  }
+
+  //const city = cities.find((c) => c.id === cityId);
+  //const city_id = city ? city.id : null;
+  return cityId;
 }
 // Function to get typology map from layers
 function getTypologyMap() {
@@ -294,23 +304,23 @@ async function insertWaysData(waysData) {
       } = { ...wayData };
 
       const query = `
-        INSERT INTO cyclist_infra.ways (
-          osm_id,
-          name,
-          length,
-          highway,
-          has_cycleway,
-          cycleway_typology,
-          relation_id,
-          geojson,
-          lastupdated,
-          city_id,
-          dual_carriageway,
-          pdc_typology
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-        ON CONFLICT (osm_id) DO NOTHING
-      `;
+          INSERT INTO cyclist_infra.ways (
+            osm_id,
+            name,
+            length,
+            highway,
+            has_cycleway,
+            cycleway_typology,
+            relation_id,
+            geojson,
+            lastupdated,
+            city_id,
+            dual_carriageway,
+            pdc_typology
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+          ON CONFLICT (osm_id) DO NOTHING
+        `;
       try {
         await client.query(query, [
           osm_id,
@@ -326,9 +336,14 @@ async function insertWaysData(waysData) {
           dual_carriageway,
           pdc_typology,
         ]);
-        console.debug(`Inserted or updated ${wayData.osm_id} - ${wayData.name}`);
+        console.debug(
+          `Inserted or updated ${wayData.osm_id} - ${wayData.name}`
+        );
       } catch (error) {
-        console.error(`Error inserting or updating ${wayData.osm_id} - ${wayData.name}:`, error);
+        console.error(
+          `Error inserting or updating ${wayData.osm_id} - ${wayData.name}:`,
+          error
+        );
         throw error;
       }
     }
