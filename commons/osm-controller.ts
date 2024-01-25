@@ -214,8 +214,6 @@ class OSMController {
         try {
           const response = await axios.get(endpoint);
 
-          console.log(server)
-
           if (response.status === 200 && response.data.elements.length > 0) {
             geoJson = osmtogeojson(response.data);
             break;

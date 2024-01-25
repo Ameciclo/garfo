@@ -38,7 +38,6 @@ function generateCitySummary(cityData: any[]) {
     const pdc_feito = hasCycleway && isNotOutPDC ? d.length : 0;
     const out_pdc = hasCycleway && !isNotOutPDC ? d.length : 0;
     const pdc_total = isNotOutPDC ? d.length : 0;
-    if(d.cityId == "2607208") console.log(d);
 
     return {
       ...d,
