@@ -1,5 +1,5 @@
 # Use a specific version of node as base image
-FROM node:18.19.0
+FROM node:16.16.0
 
 # Set working directory inside the container
 WORKDIR /usr/src/app
