@@ -1,13 +1,13 @@
-const { saveAs } = require('file-saver');
+// const { saveAs } = require('file-saver');
 
-function downloadObjectAsJson(data, fileName) {
-    fileName += '.geojson';
-    const blob = new Blob([JSON.stringify(data)], {
-        type: 'application/geo+json',
-        name: fileName
-    });
-    saveAs(blob, fileName);
-}
+// function downloadObjectAsJson(data, fileName) {
+//     fileName += '.geojson';
+//     const blob = new Blob([JSON.stringify(data)], {
+//         type: 'application/geo+json',
+//         name: fileName
+//     });
+//     saveAs(blob, fileName);
+// }
 
 
 // Thanks https://medium.com/@mhagemann/the-ultimate-way-to-slugify-a-url-string-in-javascript-b8e4a0d849e1
@@ -26,6 +26,6 @@ function slugify(str) {
   }
 
 module.exports = {
-    downloadObjectAsJson,
+    //downloadObjectAsJson,
     slugify,
 };

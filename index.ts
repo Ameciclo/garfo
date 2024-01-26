@@ -33,7 +33,7 @@ app.use("/cyclist-infra/ways", cyclistInfraWaysRouter);
 //app.use("/cyclist-infra/update", cyclistInfraUpdateRouter);
 
 // Rota para servir a página de listagem de rotas
-app.get("/api-routes", async (req, res) => {
+app.get("/", async (req, res) => {
   try {
     const routesListHtml = await fs.readFile("api-routes.html", "utf8");
     res.send(routesListHtml);
