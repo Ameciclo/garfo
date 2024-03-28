@@ -290,6 +290,7 @@ async function runSeed() {
   await seedCyclistCountDirectionCounts();
   await seedCyclistCountCharacteristics();
   await seedCyclistCountCharacteristicsCount();
+  console.log("FIM!")
 }
 
 runSeed();

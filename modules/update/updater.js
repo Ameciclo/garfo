@@ -8,16 +8,31 @@ const OSMController = require("../../commons/osm-controller");
 const layers = require("../../commons/layers.json");
 const rmrCities = require("../../commons/pe-cities.json");
 
-require("dotenv").config();
+require('dotenv').config({ path: '../../.env' });
 
-const pool = new Pool({
-  user: process.env.POSTGRES_USER,
-  host: process.env.POSTGRES_HOST,
-  database: process.env.POSTGRES_DATABASE,
-  password: process.env.POSTGRES_PASSWORD,
-  port: process.env.POSTGRES_PORT,
-  // ssl: true,
-});
+function parseDatabaseUrl(databaseUrl) {
+  const regex = /postgresql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/;
+  const match = databaseUrl.match(regex);
+  console.log(databaseUrl)
+  if (!match) {
+    throw new Error('Invalid DATABASE_URL format');
+  }
+
+  const [, user, password, host, port, database] = match;
+
+  return {
+    user,
+    host,
+    database,
+    password,
+    port: parseInt(port, 10),
+    // ssl: { rejectUnauthorized: false }, // Uncomment this line if you need to use SSL.
+  };
+}
+
+const poolConfig = parseDatabaseUrl(process.env.DATABASE_URL);
+
+const pool = new Pool(poolConfig);
 
 const router = express.Router();
 
@@ -31,7 +46,18 @@ router.get("/", async (req, res) => {
     console.log("GET /cyclist-infra/update: UPDATE successfully");
     res.json(comparedData);
   } catch (error) {
-    console.error("GET /cyclist-infra/relations: Error fetching data:", error);
+    console.error("GET /cyclist-infra/UPDATE: Error fetching data:", error);
+    res.status(500).json({ error: "An error occurred while fetching data." });
+  }
+});
+
+// Route to use the data from comparePDConRMR function
+router.get("/delete", async (req, res) => {
+  try {
+    await deleteAllDataFromWaysTable();
+    console.log("DADOS apagados com sucesso");
+  } catch (error) {
+    console.error("GET /cyclist-infra/DELETE: Error fetching data:", error);
     res.status(500).json({ error: "An error occurred while fetching data." });
   }
 });
@@ -336,9 +362,9 @@ async function insertWaysData(waysData) {
           dual_carriageway,
           pdc_typology,
         ]);
-        console.debug(
-          `Inserted or updated ${wayData.osm_id} - ${wayData.name}`
-        );
+        // console.debug(
+        //   `Inserted or updated ${wayData.osm_id} - ${wayData.name}`
+        // );
       } catch (error) {
         console.error(
           `Error inserting or updating ${wayData.osm_id} - ${wayData.name}:`,
