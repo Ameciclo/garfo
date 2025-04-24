@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { db } from "../../db"; // Ajuste o caminho conforme necessário
-import * as schema from "../../db/migration/schema"; // Ajuste o caminho conforme necessário
+import * as schema from "../../db/schema"; // Ajuste o caminho conforme necessário
 
 const router = express.Router();
 

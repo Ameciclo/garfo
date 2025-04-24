@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import { db } from "../../db";
 import { eq } from "drizzle-orm";
-import * as schema from "../../db/migration/schema";
+import * as schema from "../../db/schema";
 
 const router = express.Router();
 
