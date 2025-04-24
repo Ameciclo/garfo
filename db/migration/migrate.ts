@@ -1,4 +1,4 @@
-const { Pool } = require("pg"); // Importa a biblioteca pg para lidar com o PostgreSQL
+const { Pool } = require("pg");
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";

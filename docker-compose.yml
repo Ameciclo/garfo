@@ -22,7 +22,8 @@ services:
     env_file:
       - .env
     ports:
-      - '3000:3000'         # ajuste se for outra porta
+      - '3000:3000'         # porta do express
+      - '4983:4983'         # adiciona o Studio
     volumes:
       - .:/app              # código no host espelhado no container
       - /app/node_modules   # isola as deps

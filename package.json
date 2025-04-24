@@ -8,9 +8,9 @@
     "watch": "tsc --watch",
     "start": "node dist/index.js",
     "test": "// Sem testes por enquanto",
-    "migration:generate": "drizzle-kit generate:pg --schema=./db/schema.ts",
-    "migration:push": "node -r esbuild-register db/migration/migrate.ts",
-    "migration:seed": "tsx watch -r dotenv/config db/seed/seed.ts"
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:seed": "tsx watch -r dotenv/config db/seed/seed.ts"
   },
   "repository": {
     "type": "git",

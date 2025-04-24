@@ -9,7 +9,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { cities } from "./public";
 
-const ci = pgSchema("cyclist_infra");
+export const ci = pgSchema("cyclist_infra");
 
 export const cyclist_infra_relations = ci.table("relations", {
   id: integer("id").primaryKey(),

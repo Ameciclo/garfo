@@ -4,10 +4,11 @@ import {
   varchar,
   date,
   timestamp,
+  geometry,
 } from "drizzle-orm/pg-core";
 import { cities, coordinates } from "./public";
 
-const cc = pgSchema("cyclist_count");
+export const cc = pgSchema("cyclist_count");
 
 export const cyclist_count_edition = cc.table("edition", {
   id: integer("id").primaryKey(),
@@ -16,6 +17,7 @@ export const cyclist_count_edition = cc.table("edition", {
     .notNull(),
   name: varchar("name").notNull(),
   date: date("date").notNull(),
+  geom: geometry("geom", { type: "Point", srid: 4326 }).notNull(),
   coordinatesId: integer("coordinates_id")
     .references(() => coordinates.id)
     .notNull(),

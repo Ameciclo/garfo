@@ -1,4 +1,3 @@
-// migration/schema/public.ts
 import { pgTable, uniqueIndex, varchar, integer } from "drizzle-orm/pg-core";
 
 export const cities = pgTable(

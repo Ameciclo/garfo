@@ -1,7 +1,16 @@
+import { sql } from "drizzle-orm";
 import * as schemaCount from "../../schema";
 import { db, readCsv } from "../utils";
 
-type EditionInsert = typeof schemaCount.cyclist_count_edition.$inferInsert;
+interface EditionRaw {
+  id: string;
+  city_id: string;
+  coordinates_id: string;
+  name: string;
+  date: string;
+  latitude: string;
+  longitude: string;
+}
 type SessionRaw = Record<string, any>;
 interface DirInsertRaw {
   id: string;
@@ -30,17 +39,30 @@ interface CharCountRaw {
 }
 
 export async function seedCyclistCount() {
-  const editions = await readCsv<EditionInsert>(
-    "./db/seed/cyclist-count/count_edition.csv"
+  const rawEditions = await readCsv<EditionRaw>(
+    "./db/seed/cyclist_count/count_edition.csv"
   );
+  const editions = rawEditions.map((r) => ({
+    id: parseInt(r.id, 10),
+    cityId: parseInt(r.city_id, 10),
+    name: r.name,
+    date: r.date, // string YYYY-MM-DD funciona no Drizzle
+    coordinatesId: parseInt(r.coordinates_id, 10),
+    // injeta o SQL para montar o Point PostGIS
+    geom: sql`ST_SetSRID(
+      ST_MakePoint(${parseFloat(r.longitude)}, ${parseFloat(r.latitude)}),
+      4326
+    )`,
+  }));
   await db
     .insert(schemaCount.cyclist_count_edition)
-    .values(editions)
+    .values(editions as any) // Drizzle aceita SQL literal aqui
     .onConflictDoNothing();
+
   console.log("✅ cyclist_count_edition seeded");
 
   const sessionsRaw = await readCsv<SessionRaw>(
-    "./db/seed/cyclist-count/count_session.csv"
+    "./db/seed/cyclist_count/count_session.csv"
   );
   const sessions = sessionsRaw.map((s) => ({
     id: parseInt(s.id, 10),
@@ -55,7 +77,7 @@ export async function seedCyclistCount() {
   console.log("✅ cyclist_count_session seeded");
 
   const dirsRaw = await readCsv<DirInsertRaw>(
-    "./db/seed/cyclist-count/directions.csv"
+    "./db/seed/cyclist_count/directions.csv"
   );
   const dirs = dirsRaw.map((d) => ({
     id: parseInt(d.id, 10),
@@ -68,7 +90,7 @@ export async function seedCyclistCount() {
   console.log("✅ directions seeded");
 
   const dirCountsRaw = await readCsv<DirCountRaw>(
-    "./db/seed/cyclist-count/direction_count.csv"
+    "./db/seed/cyclist_count/direction_count.csv"
   );
   const dirCounts = dirCountsRaw.map((d) => ({
     id: parseInt(d.id, 10),
@@ -84,7 +106,7 @@ export async function seedCyclistCount() {
 
   // characteristics and counts
   const charsRaw = await readCsv<CharRaw>(
-    "./db/seed/cyclist-count/characteristics.csv"
+    "./db/seed/cyclist_count/characteristics.csv"
   );
   const chars = charsRaw.map((c) => ({
     id: parseInt(c.id, 10),
@@ -99,7 +121,7 @@ export async function seedCyclistCount() {
   console.log("✅ characteristics seeded");
 
   const charCountsRaw = await readCsv<CharCountRaw>(
-    "./db/seed/cyclist-count/characteristics_count.csv"
+    "./db/seed/cyclist_count/characteristics_count.csv"
   );
   const charCounts = charCountsRaw.map((c) => ({
     id: parseInt(c.id, 10),

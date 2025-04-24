@@ -1,4 +1,6 @@
 {
+  "id": "dec4157c-f8da-4c28-93db-4f341cc03e97",
+  "prevId": "ff8aae04-47ff-4545-a731-6258cbbbb05d",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -27,6 +29,7 @@
       },
       "indexes": {
         "name_state_idx": {
+          "name": "name_state_idx",
           "columns": [
             {
               "expression": "name",
@@ -41,9 +44,8 @@
               "nulls": "last"
             }
           ],
-          "with": {},
-          "name": "name_state_idx",
           "isUnique": true,
+          "with": {},
           "method": "btree",
           "concurrently": false
         }
@@ -52,8 +54,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.coordinates": {
       "name": "coordinates",
@@ -83,8 +85,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "cyclist_count.characteristics": {
       "name": "characteristics",
@@ -120,8 +122,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "cyclist_count.characteristics_count": {
       "name": "characteristics_count",
@@ -186,8 +188,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "cyclist_count.edition": {
       "name": "edition",
@@ -214,6 +216,12 @@
         "date": {
           "name": "date",
           "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "geom": {
+          "name": "geom",
+          "type": "geometry(point)",
           "primaryKey": false,
           "notNull": true
         },
@@ -256,8 +264,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "cyclist_count.session": {
       "name": "session",
@@ -308,8 +316,117 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "cyclist_count.direction_count": {
+      "name": "direction_count",
+      "schema": "cyclist_count",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "direction_id": {
+          "name": "direction_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "direction_count_session_id_session_id_fk": {
+          "name": "direction_count_session_id_session_id_fk",
+          "tableFrom": "direction_count",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "tableTo": "session",
+          "schemaTo": "cyclist_count",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "direction_count_direction_id_directions_id_fk": {
+          "name": "direction_count_direction_id_directions_id_fk",
+          "tableFrom": "direction_count",
+          "columnsFrom": [
+            "direction_id"
+          ],
+          "tableTo": "directions",
+          "schemaTo": "cyclist_count",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "cyclist_count.directions": {
+      "name": "directions",
+      "schema": "cyclist_count",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "origin": {
+          "name": "origin",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "origin_cardinal": {
+          "name": "origin_cardinal",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "destin": {
+          "name": "destin",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "destin_cardinal": {
+          "name": "destin_cardinal",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "cyclist_infra.relation_cities": {
       "name": "relation_cities",
@@ -361,8 +478,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "cyclist_infra.relations": {
       "name": "relations",
@@ -434,8 +551,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "cyclist_infra.ways": {
       "name": "ways",
@@ -534,117 +651,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
-    },
-    "cyclist_count.direction_count": {
-      "name": "direction_count",
-      "schema": "cyclist_count",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "session_id": {
-          "name": "session_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "direction_id": {
-          "name": "direction_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "count": {
-          "name": "count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "direction_count_session_id_session_id_fk": {
-          "name": "direction_count_session_id_session_id_fk",
-          "tableFrom": "direction_count",
-          "columnsFrom": [
-            "session_id"
-          ],
-          "tableTo": "session",
-          "schemaTo": "cyclist_count",
-          "columnsTo": [
-            "id"
-          ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
-        },
-        "direction_count_direction_id_directions_id_fk": {
-          "name": "direction_count_direction_id_directions_id_fk",
-          "tableFrom": "direction_count",
-          "columnsFrom": [
-            "direction_id"
-          ],
-          "tableTo": "directions",
-          "schemaTo": "cyclist_count",
-          "columnsTo": [
-            "id"
-          ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
-    },
-    "cyclist_count.directions": {
-      "name": "directions",
-      "schema": "cyclist_count",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "origin": {
-          "name": "origin",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "origin_cardinal": {
-          "name": "origin_cardinal",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "destin": {
-          "name": "destin",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "destin_cardinal": {
-          "name": "destin_cardinal",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false,
-      "checkConstraints": {}
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {},
@@ -652,15 +660,13 @@
     "cyclist_count": "cyclist_count",
     "cyclist_infra": "cyclist_infra"
   },
-  "_meta": {
-    "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "id": "3e08ed9c-6125-4d93-abaa-89368380c2b8",
-  "prevId": "00000000-0000-0000-0000-000000000000",
-  "sequences": {},
-  "policies": {},
   "views": {},
-  "roles": {}
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
 }

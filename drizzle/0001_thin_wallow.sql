@@ -1,0 +1,1 @@
+ALTER TABLE "cyclist_count"."edition" ADD COLUMN "geom" geometry(point) NOT NULL;
