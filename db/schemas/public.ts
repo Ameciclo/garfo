@@ -1,4 +1,12 @@
-import { pgTable, uniqueIndex, varchar, integer } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  uniqueIndex,
+  varchar,
+  integer,
+  serial,
+  geometry,
+  index,
+} from "drizzle-orm/pg-core";
 
 export const cities = pgTable(
   "cities",
@@ -19,3 +27,14 @@ export const coordinates = pgTable("coordinates", {
   type: varchar("type"),
 });
 
+export const os_streets = pgTable(
+  "streets",
+  {
+    id: serial("id").primaryKey(),
+    osm_id: integer("osm_id"),
+    name_osm: varchar("name_osm").notNull(),
+    name_pref: varchar("name_pref"),
+    geom: geometry("geom", { type: "LineString", srid: 4326 }).notNull(),
+  },
+  (t) => [index("streets_geom_idx").using("gist", t.geom)]
+);
