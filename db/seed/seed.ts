@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/node-postgres";
 import csv from "csv-parser";
 import fs from "fs";
-import * as schema from "../migration/schema";
+import * as schema from "../schema";
 
 dotenv.config();
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });

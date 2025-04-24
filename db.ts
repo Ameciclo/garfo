@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import * as schema from "./db/migration/schema"; // Ajuste o caminho para seu arquivo de esquema
+import * as schema from "./db/schema"; // Ajuste o caminho para seu arquivo de esquema
 import dotenv from 'dotenv';
 dotenv.config();
 
