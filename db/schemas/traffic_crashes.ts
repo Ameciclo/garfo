@@ -1,49 +1,58 @@
-// const traffic = pgSchema('traffic_crashes');
+// db/schemas/traffic_crashes.ts
+import {
+  pgSchema,
+  serial,
+  integer,
+  varchar,
+  text,
+  date,
+  time,
+  timestamp,
+} from "drizzle-orm/pg-core";
+import { pref_street_names } from "./streets";
 
-// export const accidents = traffic.table(
-//   'accidents',
-//   {
-//     id: serial('id').primaryKey(),
-//     protocolo: varchar('protocolo').notNull(),
-//     date: date('date').notNull(),
-//     time: varchar('time').notNull(),
-//     raw_name: text('raw_name').notNull(),
-//     name_id: integer('name_id').references(() => pref_street_names.id),
-//     natureza: text('natureza_acidente'),
-//     situacao: text('situacao'),
-//     bairro: varchar('bairro'),
-//     endereco: text('endereco'),
-//     numero: varchar('numero'),
-//     detalhe: text('detalhe_endereco_acidente'),
-//     complemento: text('complemento'),
-//     bairro_cruz: varchar('bairro_cruzamento'),
-//     semaforo: varchar('num_semaforo'),
-//     sentido_via: text('sentido_via'),
-//     tipo: text('tipo'),
-//     auto: integer('auto'),
-//     moto: integer('moto'),
-//     ciclom: integer('ciclom'),
-//     ciclista: integer('ciclista'),
-//     pedestre: integer('pedestre'),
-//     onibus: integer('onibus'),
-//     caminhao: integer('caminhao'),
-//     viatura: integer('viatura'),
-//     outros: integer('outros'),
-//     vitimas: integer('vitimas'),
-//     vitimas_fatais: integer('vitimasfatais'),
-//     acidente_verificado: boolean('acidente_verificado'),
-//     clima: text('tempo_clima'),
-//     semaforo_situacao: text('situacao_semaforo'),
-//     sinalizacao: text('sinalizacao'),
-//     condicao_via: text('condicao_via'),
-//     conservacao_via: text('conservacao_via'),
-//     ponto_controle: text('ponto_controle'),
-//     placa_situacao: text('situacao_placa'),
-//     velocidade_max: varchar('velocidade_max_via'),
-//     mao_direcao: text('mao_direcao'),
-//     divisao_via1: text('divisao_via1'),
-//     divisao_via2: text('divisao_via2'),
-//     divisao_via3: text('divisao_via3'),
-//     created_at: timestamp('created_at').defaultNow(),
-//   }
-// );
+export const traffic = pgSchema("traffic");
+
+export const crashes = traffic.table("crashes", {
+  id: serial("id").primaryKey(),
+
+  /**––– Data & hora –––––––––––––––––––––––––––––––––––––*/
+  crash_date: date("crash_date").notNull(), // coluna “data” nos CSVs
+  crash_time: time("crash_time").notNull(), // coluna “hora” nos CSVs
+  created_at: timestamp("created_at").defaultNow(), // facilita auditoria
+
+  /**––– Classificações oficiais ––––––––––––––––––––––––*/
+  natureza: varchar("natureza", { length: 50 }), // natureza_acidente
+  situacao: varchar("situacao", { length: 50 }), // situacao
+  tipo: varchar("tipo", { length: 80 }), // tipo
+  descricao: text("descricao"), // descricao
+
+  /**––– Localização textual ––––––––––––––––––––––––––––*/
+  bairro: varchar("bairro", { length: 60 }),
+  street_name: text("street_name"), // endereco
+  street_num: varchar("street_num", { length: 15 }), // numero
+  cross_st: text("cross_st"), // endereco_cruzamento
+
+  /**––– Vínculo opcional ao logradouro oficial ––––––––*/
+  street_id: integer("street_id").references(() => pref_street_names.id, {
+    onDelete: "set null",
+  }),
+
+  /**––– Envolvidos –––––––––––––––––––––––––––––––––––––*/
+  auto: integer("auto"),
+  moto: integer("moto"),
+  ciclom: integer("ciclom"),
+  ciclista: integer("ciclista"),
+  pedestre: integer("pedestre"),
+  onibus: integer("onibus"),
+  caminhao: integer("caminhao"),
+  viatura: integer("viatura"),
+  outros: integer("outros"),
+
+  /**––– Resultados –––––––––––––––––––––––––––––––––––––*/
+  vitimas: integer("vitimas"),
+  vitimas_fat: integer("vitimas_fat"),
+
+  /**––– Geometria (para geocodificação futura) ––––––––*/
+  geom: text("geom"), // usar geometry(point) custom type quando estiver pronto
+});

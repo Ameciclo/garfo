@@ -22,6 +22,13 @@
       "when": 1745543971856,
       "tag": "0002_pink_senator_kelly",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1745546898178,
+      "tag": "0003_furry_dagger",
+      "breakpoints": true
     }
   ]
 }

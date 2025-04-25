@@ -2,6 +2,7 @@ import { seedPublic } from "./public/seed";
 import { seedCyclistInfra } from "./cyclist_infra/seed";
 import { seedCyclistCount } from "./cyclist_count/seed";
 import { seedPrefStreets } from "./streets/seed";
+import { seedCrashes } from "./traffic_crashes/seed";
 
 async function runAll() {
   console.log("▶️ Starting all seeds...");
@@ -9,6 +10,7 @@ async function runAll() {
   await seedCyclistInfra();
   await seedCyclistCount();
   await seedPrefStreets();
+  await seedCrashes();
   console.log("🎉 All seeds completed.");
   process.exit(0);
 }
