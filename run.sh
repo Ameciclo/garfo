@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# run.sh — menu de comandos essenciais para Docker, migrações e seed
+# run.sh — menu de comandos essenciais para Docker, migrações, seed e Drizzle Studio
 # Uso: chmod +x run.sh && ./run.sh
 
 set -e
@@ -13,10 +13,13 @@ Selecione uma opção:
  2) Parar containers e remover volumes
  3) Mostrar logs do banco
  4) Gerar migrações (drizzle-kit generate)
- 5) Aplicar migrações (drizzle-kit migrate)
- 6) Enviar schema para o banco (db:push)
- 7) Popular banco (db:seed)
- 8) Sair
+ 5) Gerar migrações custom (drizzle-kit generate --custom)
+ 6) Aplicar migrações (drizzle-kit migrate)
+ 7) Enviar schema para o banco (db:push)
+ 8) Popular banco (db:seed)
+ 9) Drop migrations (drizzle-kit drop)
+10) Abrir Drizzle Studio
+11) Sair
 EOF
 }
 
@@ -41,15 +44,24 @@ while true; do
         --out=./drizzle
       ;;
     5)
-      docker compose exec app npx drizzle-kit migrate
+      docker compose exec app npx drizzle-kit generate --custom
       ;;
     6)
-      docker compose exec app npm run db:push
+      docker compose exec app npx drizzle-kit migrate
       ;;
     7)
-      docker compose exec app npm run db:seed
+      docker compose exec app npm run db:push
       ;;
     8)
+      docker compose exec app npm run db:seed
+      ;;
+    9)
+      docker compose exec app npx drizzle-kit drop
+      ;;
+   10)
+      docker compose exec app npx drizzle-kit studio --host 0.0.0.0 --port 4983
+      ;;
+   11)
       echo "Saindo..."
       exit 0
       ;;
@@ -58,4 +70,4 @@ while true; do
       ;;
   esac
   echo
-done
+ done
