@@ -14,7 +14,7 @@ CREATE TABLE "streets"."pref_street_names" (
 	"indica_perimetral" varchar,
 	"codbairro" integer,
 	"nomeBairro" text,
-	"geom" geometry(multilinestring, 4326), --> alterado manualmente
+	"geom" geometry(point),
 	CONSTRAINT "pref_street_names_codlogradouro_unique" UNIQUE("codlogradouro")
 );
 --> statement-breakpoint

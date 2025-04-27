@@ -1,6 +1,6 @@
 {
-  "id": "a88368fe-2aa3-4f3e-a244-7c6e2b606541",
-  "prevId": "8ba0afc4-cb22-4b93-b060-5c259f66ea27",
+  "id": "6c84248b-8ba4-4fcb-954b-63903054250f",
+  "prevId": "a88368fe-2aa3-4f3e-a244-7c6e2b606541",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -45,9 +45,9 @@
             }
           ],
           "isUnique": true,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {},
@@ -159,30 +159,30 @@
         "characteristics_count_session_id_session_id_fk": {
           "name": "characteristics_count_session_id_session_id_fk",
           "tableFrom": "characteristics_count",
-          "tableTo": "session",
-          "schemaTo": "cyclist_count",
           "columnsFrom": [
             "session_id"
           ],
+          "tableTo": "session",
+          "schemaTo": "cyclist_count",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "characteristics_count_characteristics_id_characteristics_id_fk": {
           "name": "characteristics_count_characteristics_id_characteristics_id_fk",
           "tableFrom": "characteristics_count",
-          "tableTo": "characteristics",
-          "schemaTo": "cyclist_count",
           "columnsFrom": [
             "characteristics_id"
           ],
+          "tableTo": "characteristics",
+          "schemaTo": "cyclist_count",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -237,28 +237,28 @@
         "edition_city_id_cities_id_fk": {
           "name": "edition_city_id_cities_id_fk",
           "tableFrom": "edition",
-          "tableTo": "cities",
           "columnsFrom": [
             "city_id"
           ],
+          "tableTo": "cities",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "edition_coordinates_id_coordinates_id_fk": {
           "name": "edition_coordinates_id_coordinates_id_fk",
           "tableFrom": "edition",
-          "tableTo": "coordinates",
           "columnsFrom": [
             "coordinates_id"
           ],
+          "tableTo": "coordinates",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -301,16 +301,16 @@
         "session_edition_id_edition_id_fk": {
           "name": "session_edition_id_edition_id_fk",
           "tableFrom": "session",
-          "tableTo": "edition",
-          "schemaTo": "cyclist_count",
           "columnsFrom": [
             "edition_id"
           ],
+          "tableTo": "edition",
+          "schemaTo": "cyclist_count",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -353,30 +353,30 @@
         "direction_count_session_id_session_id_fk": {
           "name": "direction_count_session_id_session_id_fk",
           "tableFrom": "direction_count",
-          "tableTo": "session",
-          "schemaTo": "cyclist_count",
           "columnsFrom": [
             "session_id"
           ],
+          "tableTo": "session",
+          "schemaTo": "cyclist_count",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "direction_count_direction_id_directions_id_fk": {
           "name": "direction_count_direction_id_directions_id_fk",
           "tableFrom": "direction_count",
-          "tableTo": "directions",
-          "schemaTo": "cyclist_count",
           "columnsFrom": [
             "direction_id"
           ],
+          "tableTo": "directions",
+          "schemaTo": "cyclist_count",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -450,29 +450,29 @@
         "relation_cities_relation_id_relations_id_fk": {
           "name": "relation_cities_relation_id_relations_id_fk",
           "tableFrom": "relation_cities",
-          "tableTo": "relations",
-          "schemaTo": "cyclist_infra",
           "columnsFrom": [
             "relation_id"
           ],
+          "tableTo": "relations",
+          "schemaTo": "cyclist_infra",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "relation_cities_cities_id_cities_id_fk": {
           "name": "relation_cities_cities_id_cities_id_fk",
           "tableFrom": "relation_cities",
-          "tableTo": "cities",
           "columnsFrom": [
             "cities_id"
           ],
+          "tableTo": "cities",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -636,16 +636,16 @@
         "ways_relation_id_relations_id_fk": {
           "name": "ways_relation_id_relations_id_fk",
           "tableFrom": "ways",
-          "tableTo": "relations",
-          "schemaTo": "cyclist_infra",
           "columnsFrom": [
             "relation_id"
           ],
+          "tableTo": "relations",
+          "schemaTo": "cyclist_infra",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -749,9 +749,9 @@
             }
           ],
           "isUnique": true,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {},
@@ -759,10 +759,10 @@
       "uniqueConstraints": {
         "pref_street_names_codlogradouro_unique": {
           "name": "pref_street_names_codlogradouro_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "codlogradouro"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       },
       "policies": {},
@@ -936,26 +936,26 @@
         "crashes_street_id_pref_street_names_id_fk": {
           "name": "crashes_street_id_pref_street_names_id_fk",
           "tableFrom": "crashes",
-          "tableTo": "pref_street_names",
-          "schemaTo": "streets",
           "columnsFrom": [
             "street_id"
           ],
+          "tableTo": "pref_street_names",
+          "schemaTo": "streets",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "set null"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "crashes_row_hash_unique": {
           "name": "crashes_row_hash_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "row_hash"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       },
       "policies": {},
@@ -970,10 +970,10 @@
     "streets": "streets",
     "traffic": "traffic"
   },
+  "views": {},
   "sequences": {},
   "roles": {},
   "policies": {},
-  "views": {},
   "_meta": {
     "columns": {},
     "schemas": {},
