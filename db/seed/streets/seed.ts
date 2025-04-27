@@ -1,5 +1,8 @@
 import * as schema from "../../schemas/streets";
 import { db, readCsv } from "../utils";
+import fs from "fs/promises";
+import path from "path";
+import { sql } from "drizzle-orm";
 
 type PrefStreetInsert = {
   codlogradouro: number;
@@ -22,12 +25,11 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
   return chunks;
 }
 
-export async function seedPrefStreets() {
+async function seedPrefStreets() {
   const data = await readCsv<PrefStreetInsert>(
     "./db/seed/streets/trechoslogradouro.csv"
   );
 
-  // filtra só as linhas que têm codlogradouro e nome
   const valid = data.filter(
     (r) =>
       r.codlogradouro != null &&
@@ -41,7 +43,49 @@ export async function seedPrefStreets() {
     await db
       .insert(schema.pref_street_names)
       .values(batch)
-      .onConflictDoNothing();
+      .onConflictDoNothing()
+      .execute();
     console.log(`✅ Inseridos ${batch.length} logradouros`);
   }
+}
+
+async function seedStreetGeoms() {
+  const geojsonPath = path.resolve(__dirname, "trechos-de-logradouros.geojson");
+  const content = await fs.readFile(geojsonPath, "utf-8");
+  const geojson = JSON.parse(content);
+
+  for (const feature of geojson.features) {
+    const rawCode = feature.properties.CLOGRACODI;
+    const code =
+      typeof rawCode === "number"
+        ? Math.round(rawCode)
+        : parseInt(String(rawCode), 10);
+    if (isNaN(code)) continue;
+
+    const geometry = JSON.stringify(feature.geometry);
+
+    await db.execute(
+      sql`UPDATE ${schema.pref_street_names}
+        SET geom = ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${geometry}), 4326))
+        WHERE codlogradouro = ${code}`
+    );
+  }
+
+  console.log("✅ Geometrias de logradouros atualizadas");
+}
+
+// Orquestra as duas etapas de seed
+export async function seedAllStreets() {
+  await seedPrefStreets();
+  await seedStreetGeoms();
+}
+
+// Se executado diretamente
+if (require.main === module) {
+  seedAllStreets()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
 }
