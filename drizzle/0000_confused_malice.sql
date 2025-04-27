@@ -1,6 +1,6 @@
-CREATE SCHEMA "cyclist_count";
+CREATE SCHEMA IF NOT EXISTS "cyclist_count";
 --> statement-breakpoint
-CREATE SCHEMA "cyclist_infra";
+CREATE SCHEMA IF NOT EXISTS "cyclist_infra";
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "cities" (
 	"id" integer PRIMARY KEY NOT NULL,

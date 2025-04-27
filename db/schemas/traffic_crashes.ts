@@ -8,7 +8,7 @@ import {
   date,
   time,
   timestamp,
-  uniqueIndex,
+  geometry,
 } from "drizzle-orm/pg-core";
 import { pref_street_names } from "./streets";
 
@@ -56,5 +56,5 @@ export const crashes = traffic.table("crashes", {
   vitimas_fat: integer("vitimas_fat"),
 
   /**––– Geometria (para geocodificação futura) ––––––––*/
-  geom: text("geom"), // usar geometry(point) custom type quando estiver pronto
+  geom: geometry("geom", { type: 'point', mode: 'xy', srid: 4326 }), // usar geometry(point) custom type quando estiver pronto
 });

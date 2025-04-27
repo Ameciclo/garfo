@@ -1,5 +1,5 @@
 {
-  "id": "def19ecb-58e1-4dfc-87a1-9cb5041de9e5",
+  "id": "4fccbe64-8289-4404-b672-a5a5ff12f845",
   "prevId": "8ba0afc4-cb22-4b93-b060-5c259f66ea27",
   "version": "7",
   "dialect": "postgresql",
@@ -723,12 +723,241 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "multilinestring": {
+          "name": "multilinestring",
+          "type": "geometry(point)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "pref_street_rua_bairro_unique": {
+          "name": "pref_street_rua_bairro_unique",
+          "columns": [
+            {
+              "expression": "codlogradouro",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "codbairro",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "pref_street_names_codlogradouro_unique": {
+          "name": "pref_street_names_codlogradouro_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "codlogradouro"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "traffic.crashes": {
+      "name": "crashes",
+      "schema": "traffic",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "row_hash": {
+          "name": "row_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "crash_date": {
+          "name": "crash_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "crash_time": {
+          "name": "crash_time",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "natureza": {
+          "name": "natureza",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "situacao": {
+          "name": "situacao",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bairro": {
+          "name": "bairro",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "street_name": {
+          "name": "street_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "street_num": {
+          "name": "street_num",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cross_st": {
+          "name": "cross_st",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "street_id": {
+          "name": "street_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "auto": {
+          "name": "auto",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "moto": {
+          "name": "moto",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ciclom": {
+          "name": "ciclom",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ciclista": {
+          "name": "ciclista",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pedestre": {
+          "name": "pedestre",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "onibus": {
+          "name": "onibus",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "caminhao": {
+          "name": "caminhao",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "viatura": {
+          "name": "viatura",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "outros": {
+          "name": "outros",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vitimas": {
+          "name": "vitimas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vitimas_fat": {
+          "name": "vitimas_fat",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "geom": {
+          "name": "geom",
+          "type": "geometry(point)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "crashes_street_id_pref_street_names_id_fk": {
+          "name": "crashes_street_id_pref_street_names_id_fk",
+          "tableFrom": "crashes",
+          "tableTo": "pref_street_names",
+          "schemaTo": "streets",
+          "columnsFrom": [
+            "street_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "crashes_row_hash_unique": {
+          "name": "crashes_row_hash_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "row_hash"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -738,7 +967,8 @@
   "schemas": {
     "cyclist_count": "cyclist_count",
     "cyclist_infra": "cyclist_infra",
-    "streets": "streets"
+    "streets": "streets",
+    "traffic": "traffic"
   },
   "sequences": {},
   "roles": {},

@@ -5,7 +5,9 @@ import {
   varchar,
   integer,
   uniqueIndex,
+  geometry,
 } from "drizzle-orm/pg-core";
+import { geometryType } from "../seed/geometryTypes";
 
 export const streets = pgSchema("streets");
 
@@ -23,6 +25,7 @@ export const pref_street_names = streets.table(
     indica_perimetral: varchar("indica_perimetral"),
     codbairro: integer("codbairro"),
     nomeBairro: text("nomeBairro"),
+    geom: geometry("geom"),
   },
   (t) => ({
     unique_rua_bairro: uniqueIndex("pref_street_rua_bairro_unique").on(

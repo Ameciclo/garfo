@@ -1,4 +1,22 @@
+CREATE SCHEMA "streets";
+--> statement-breakpoint
 CREATE SCHEMA "traffic";
+--> statement-breakpoint
+CREATE TABLE "streets"."pref_street_names" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"codlogradouro" integer NOT NULL,
+	"nome_logradouro_concatenado" text NOT NULL,
+	"nome_oficial_logradouro" text NOT NULL,
+	"nome_logradouro_resumido" text NOT NULL,
+	"cod_indica_pavimentacao" varchar,
+	"desc_indica_pavimentacao" text,
+	"indica_corredor_transporte" varchar,
+	"indica_perimetral" varchar,
+	"codbairro" integer,
+	"nomeBairro" text,
+	"geom" geometry(multilinestring, 4326), --> alterado manualmente
+	CONSTRAINT "pref_street_names_codlogradouro_unique" UNIQUE("codlogradouro")
+);
 --> statement-breakpoint
 CREATE TABLE "traffic"."crashes" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -26,10 +44,10 @@ CREATE TABLE "traffic"."crashes" (
 	"outros" integer,
 	"vitimas" integer,
 	"vitimas_fat" integer,
-	"geom" text,
+	"geom" geometry(point),
 	CONSTRAINT "crashes_row_hash_unique" UNIQUE("row_hash")
 );
 --> statement-breakpoint
+ALTER TABLE "cyclist_count"."edition" ADD COLUMN "geom" geometry(point) NOT NULL;--> statement-breakpoint
 ALTER TABLE "traffic"."crashes" ADD CONSTRAINT "crashes_street_id_pref_street_names_id_fk" FOREIGN KEY ("street_id") REFERENCES "streets"."pref_street_names"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-CREATE UNIQUE INDEX "pref_street_rua_bairro_unique" ON "streets"."pref_street_names" USING btree ("codlogradouro","codbairro");--> statement-breakpoint
-ALTER TABLE "streets"."pref_street_names" ADD CONSTRAINT "pref_street_names_codlogradouro_unique" UNIQUE("codlogradouro");
+CREATE UNIQUE INDEX "pref_street_rua_bairro_unique" ON "streets"."pref_street_names" USING btree ("codlogradouro","codbairro");
