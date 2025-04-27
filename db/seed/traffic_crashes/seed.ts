@@ -41,7 +41,7 @@ export async function seedCrashes() {
     // normalização mínima → adequar conforme necessidade
     const inserts = await Promise.all(
       csvRows.map(async (r) => ({
-        crash_date: r.data ? r.data.split("T")[0] : "undefined",
+        crash_date: r.data ||  "undefined",
         crash_time: r.hora || "undefined",
         natureza: r.natureza_acidente || undefined,
         situacao: r.situacao || undefined,
