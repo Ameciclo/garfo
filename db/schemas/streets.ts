@@ -1,23 +1,36 @@
-import { pgSchema, serial, text, varchar, integer } from "drizzle-orm/pg-core";
+import {
+  pgSchema,
+  serial,
+  text,
+  varchar,
+  integer,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 
-// Define a dedicated schema for street-related tables
 export const streets = pgSchema("streets");
 
-// Official list of street names from the prefeitura (dados abertos)
-export const pref_street_names = streets.table("pref_street_names", {
-  id: serial("id").primaryKey(),
-  codlogradouro: integer("codlogradouro").notNull(),
-  nome_logradouro_concatenado: text("nome_logradouro_concatenado").notNull(),
-  nome_oficial_logradouro: text("nome_oficial_logradouro").notNull(),
-  nome_logradouro_resumido: text("nome_logradouro_resumido").notNull(),
-  cod_indica_pavimentacao: varchar("cod_indica_pavimentacao"),
-  desc_indica_pavimentacao: text("desc_indica_pavimentacao"),
-  indica_corredor_transporte: varchar("indica_corredor_transporte"),
-  indica_perimetral: varchar("indica_perimetral"),
-  codbairro: integer("codbairro"),
-  nomeBairro: text("nomeBairro"),
-});
-
+export const pref_street_names = streets.table(
+  "pref_street_names",
+  {
+    id: serial("id").primaryKey(),
+    codlogradouro: integer("codlogradouro").notNull().unique(),
+    nome_logradouro_concatenado: text("nome_logradouro_concatenado").notNull(),
+    nome_oficial_logradouro: text("nome_oficial_logradouro").notNull(),
+    nome_logradouro_resumido: text("nome_logradouro_resumido").notNull(),
+    cod_indica_pavimentacao: varchar("cod_indica_pavimentacao"),
+    desc_indica_pavimentacao: text("desc_indica_pavimentacao"),
+    indica_corredor_transporte: varchar("indica_corredor_transporte"),
+    indica_perimetral: varchar("indica_perimetral"),
+    codbairro: integer("codbairro"),
+    nomeBairro: text("nomeBairro"),
+  },
+  (t) => ({
+    unique_rua_bairro: uniqueIndex("pref_street_rua_bairro_unique").on(
+      t.codlogradouro,
+      t.codbairro
+    ),
+  })
+);
 /* 
     // Street names extracted from OSM
     export const osm_street_names = streets.table(

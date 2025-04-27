@@ -2,6 +2,7 @@
 import path from "node:path";
 import glob from "fast-glob";
 import { ilike } from "drizzle-orm";
+import crypto from "node:crypto";
 
 import * as schema from "../../schemas/traffic_crashes";
 import { db, readCsv } from "../utils";
@@ -40,30 +41,69 @@ export async function seedCrashes() {
 
     // normalização mínima → adequar conforme necessidade
     const inserts = await Promise.all(
-      csvRows.map(async (r) => ({
-        crash_date: r.data ||  "undefined",
-        crash_time: r.hora || "undefined",
-        natureza: r.natureza_acidente || undefined,
-        situacao: r.situacao || undefined,
-        tipo: r.tipo || undefined,
-        descricao: r.descricao || undefined,
-        bairro: r.bairro || undefined,
-        street_name: r.endereco || undefined,
-        street_num: r.numero || undefined,
-        cross_st: r.endereco_cruzamento || undefined,
-        auto: Number(r.auto) || undefined,
-        moto: Number(r.moto) || undefined,
-        ciclom: Number(r.ciclom) || undefined,
-        ciclista: Number(r.ciclista) || undefined,
-        pedestre: Number(r.pedestre) || undefined,
-        onibus: Number(r.onibus) || undefined,
-        caminhao: Number(r.caminhao) || undefined,
-        viatura: Number(r.viatura) || undefined,
-        outros: Number(r.outros) || undefined,
-        vitimas: Number(r.vitimas) || undefined,
-        vitimas_fat: Number(r.vitimasfatais) || undefined,
-        street_id: await guessStreetId(r.endereco) || undefined,
-      }))
+      csvRows.map(async (r) => {
+        // 1. executa sua lógica de streetId primeiro
+        const streetId = await guessStreetId(r.endereco);
+
+        // 2. monta o array de valores a serem incluídos no hash
+        const hashInput = [
+          r.data,
+          r.hora,
+          r.natureza_acidente,
+          r.situacao,
+          r.tipo,
+          r.descricao,
+          r.bairro,
+          r.endereco,
+          r.numero,
+          r.endereco_cruzamento,
+          r.auto,
+          r.moto,
+          r.ciclom,
+          r.ciclista,
+          r.pedestre,
+          r.onibus,
+          r.caminhao,
+          r.viatura,
+          r.outros,
+          r.vitimas,
+          r.vitimasfatais,
+          streetId?.toString(),
+        ]
+          .map((v) => v ?? "") // converte null|undefined em ""
+          .join("|"); // delimita pra evitar colisão “ab|c” vs “a|bc”
+
+        const row_hash = crypto
+          .createHash("md5")
+          .update(hashInput)
+          .digest("hex");
+
+        return {
+          crash_date: r.data || "undefined",
+          crash_time: r.hora || "undefined",
+          natureza: r.natureza_acidente || undefined,
+          situacao: r.situacao || undefined,
+          tipo: r.tipo || undefined,
+          descricao: r.descricao || undefined,
+          bairro: r.bairro || undefined,
+          street_name: r.endereco || undefined,
+          street_num: r.numero || undefined,
+          cross_st: r.endereco_cruzamento || undefined,
+          auto: Number(r.auto) || undefined,
+          moto: Number(r.moto) || undefined,
+          ciclom: Number(r.ciclom) || undefined,
+          ciclista: Number(r.ciclista) || undefined,
+          pedestre: Number(r.pedestre) || undefined,
+          onibus: Number(r.onibus) || undefined,
+          caminhao: Number(r.caminhao) || undefined,
+          viatura: Number(r.viatura) || undefined,
+          outros: Number(r.outros) || undefined,
+          vitimas: Number(r.vitimas) || undefined,
+          vitimas_fat: Number(r.vitimasfatais) || undefined,
+          street_id: (await guessStreetId(r.endereco)) || undefined,
+          row_hash: row_hash,
+        };
+      })
     );
 
     for (const batch of chunkArray(inserts, 2000)) {

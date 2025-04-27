@@ -8,6 +8,7 @@ import {
   date,
   time,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { pref_street_names } from "./streets";
 
@@ -15,6 +16,7 @@ export const traffic = pgSchema("traffic");
 
 export const crashes = traffic.table("crashes", {
   id: serial("id").primaryKey(),
+  row_hash: text("row_hash").notNull().unique(),
 
   /**––– Data & hora –––––––––––––––––––––––––––––––––––––*/
   crash_date: date("crash_date").notNull(), // coluna “data” nos CSVs

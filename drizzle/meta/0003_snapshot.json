@@ -1,5 +1,5 @@
 {
-  "id": "8f081641-8468-4f09-9a7c-6398d048028c",
+  "id": "1553afd2-4029-4ea7-8c50-965ed40ffc57",
   "prevId": "def19ecb-58e1-4dfc-87a1-9cb5041de9e5",
   "version": "7",
   "dialect": "postgresql",
@@ -725,10 +725,40 @@
           "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "pref_street_rua_bairro_unique": {
+          "name": "pref_street_rua_bairro_unique",
+          "columns": [
+            {
+              "expression": "codlogradouro",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "codbairro",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "pref_street_names_codlogradouro_unique": {
+          "name": "pref_street_names_codlogradouro_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "codlogradouro"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -741,6 +771,12 @@
           "name": "id",
           "type": "serial",
           "primaryKey": true,
+          "notNull": true
+        },
+        "row_hash": {
+          "name": "row_hash",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true
         },
         "crash_date": {
@@ -907,7 +943,15 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "crashes_row_hash_unique": {
+          "name": "crashes_row_hash_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "row_hash"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
