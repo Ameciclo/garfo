@@ -3,12 +3,6 @@ import {
   uniqueIndex,
   varchar,
   integer,
-  serial,
-  text,
-  timestamp,
-  geometry,
-  jsonb,
-  index,
 } from "drizzle-orm/pg-core";
 
 export const cities = pgTable(

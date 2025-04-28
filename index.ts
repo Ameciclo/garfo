@@ -3,15 +3,20 @@ import express from "express";
 import cors from "cors";
 import fs from "fs/promises";
 
-import citiesRouter from "./modules/cities/cities.js";
+import citiesRouter from "./modules/cities/cities";
 
 import cyclistCountsRouter from "./modules/cyclist-counts/summary";
 import cyclistCountsEditionsRouter from "./modules/cyclist-counts/edition";
 
-import cyclistInfraRelationsByCityRouter from "./modules/cyclist-infra/relations-by-city.js";
+import cyclistInfraRelationsByCityRouter from "./modules/cyclist-infra/relations-by-city";
 import cyclistInfraRelationsRouter from "./modules/cyclist-infra/relations";
 import cyclistInfraRelationRouter from "./modules/cyclist-infra/relation";
 import cyclistInfraWaysRouter from "./modules/cyclist-infra/ways";
+
+import trafficCrashesSummaryRouter from "./modules/traffic-crashes/summary.js";
+import trafficCrashesGeojsonRouter from "./modules/traffic-crashes/geojson";
+import trafficCrashesVehiclesRouter from "./modules/traffic-crashes/vehicles";
+import trafficCrashesStreetsSummaryRouter from "./modules/traffic-crashes/streets-summary";
 //import cyclistInfraUpdateRouter from "./modules/update/updater";
 
 const port = 8080; // Define the desired port for the API
@@ -30,6 +35,10 @@ app.use("/cyclist-infra/relations", cyclistInfraRelationsRouter);
 app.use("/cyclist-infra/relationsByCity", cyclistInfraRelationsByCityRouter);
 app.use("/cyclist-infra/relation", cyclistInfraRelationRouter);
 app.use("/cyclist-infra/ways", cyclistInfraWaysRouter);
+app.use("/traffic-crashes/summary", trafficCrashesSummaryRouter);
+app.use("/traffic-crashes/geojson", trafficCrashesGeojsonRouter);
+app.use("/traffic-crashes/vehicles", trafficCrashesVehiclesRouter);
+app.use("/traffic-crashes/streets-summary", trafficCrashesStreetsSummaryRouter);
 //app.use("/cyclist-infra/update", cyclistInfraUpdateRouter);
 
 // Rota para servir a página de listagem de rotas

@@ -22,7 +22,7 @@ services:
     env_file:
       - .env
     ports:
-      - '3000:3000'         # porta do express
+      - "8080:8080"   # <-- publica a porta 8080 do contêiner para 8080 no host
       - '4983:4983'         # adiciona o Studio
     volumes:
       - .:/app              # código no host espelhado no container
