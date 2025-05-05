@@ -8,39 +8,44 @@ import { sql } from "drizzle-orm";
 
 const router = express.Router();
 
+/**
+ * GET /api/crashes/streets-summary?year=YYYY
+ * Retorna lista de vias (prefeitura ou texto bruto) com totais de sinistros e sinistros fatais
+ */
 router.get("/", async (req: Request, res: Response) => {
   try {
-    // Parse optional year filter
     const yearParam = req.query.year;
     const year = yearParam ? parseInt(String(yearParam), 10) : null;
-
-    // Build WHERE clause dynamically (1=1 for no filter)
-    const whereClause = year
+    const whereYear = year
       ? sql`date_part('year', ${crashes.crashes.crash_date}) = ${year}`
       : sql`1=1`;
 
-    // Query aggregation per street
     const rows = await db
       .select({
         streetId: crashes.crashes.street_id,
-        name: streets.pref_street_names.nome_logradouro_concatenado,
-        totalSinistros: sql<number>`count(*)`,
-        totalFatais: sql<number>`sum(${crashes.crashes.vitimas_fat})`,
+        name: sql<string>`
+          COALESCE(
+            ${streets.pref_street_names.nome_logradouro_concatenado},
+            ${crashes.crashes.street_name}
+          )
+        `,
+        totalSinistros: sql<number>`COUNT(*)`,
+        totalFatais: sql<number>`SUM(${crashes.crashes.vitimas_fat})`,
       })
       .from(crashes.crashes)
-      .innerJoin(
+      .leftJoin(
         streets.pref_street_names,
         eq(crashes.crashes.street_id, streets.pref_street_names.id)
       )
-      .where(whereClause)
+      .where(whereYear)
       .groupBy(
         crashes.crashes.street_id,
-        streets.pref_street_names.nome_logradouro_concatenado
+        streets.pref_street_names.nome_logradouro_concatenado,
+        crashes.crashes.street_name
       )
-      .orderBy(sql`count(*) DESC`)
+      .orderBy(sql`COUNT(*) DESC`)
       .execute();
 
-    // Format response
     const result = rows.map((r) => ({
       streetId: r.streetId,
       name: r.name,

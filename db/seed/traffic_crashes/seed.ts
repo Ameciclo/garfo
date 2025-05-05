@@ -16,16 +16,13 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
   return chunks;
 }
 
-// tentativa muito simples de casar “AV NORTE” com logradouro oficial
 async function guessStreetId(rawStreet: string | undefined) {
   if (!rawStreet) return null;
-  const firstToken = rawStreet.split(/[ ,]/)[0]; // “AV”, “RUA”, etc.
+
   const match = await db
     .select({ id: pref_street_names.id })
     .from(pref_street_names)
-    .where(
-      ilike(pref_street_names.nome_logradouro_concatenado, `${firstToken}%`)
-    )
+    .where(ilike(pref_street_names.nome_logradouro_concatenado, rawStreet))
     .limit(1);
 
   return match[0]?.id ?? null;

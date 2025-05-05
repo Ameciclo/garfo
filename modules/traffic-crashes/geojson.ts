@@ -1,39 +1,46 @@
 // src/modules/traffic-crashes/geojson.ts
 import express, { Request, Response } from "express";
 import { db } from "../../db";
-import * as schema from "../../db/schemas/traffic_crashes";
 import { sql } from "drizzle-orm";
+import { crashes } from "../../db/schemas/traffic_crashes";
+import { pref_street_names } from "../../db/schemas/streets";
 
 const router = express.Router();
 
 router.get("/", async (_req: Request, res: Response) => {
+  console.log("Rodadno GEOJSON")
   try {
     const rows = await db
       .select({
-        id: schema.crashes.id,
-        date: schema.crashes.crash_date,
-        vitimas: schema.crashes.vitimas,
-        vitimasFat: schema.crashes.vitimas_fat,
-        geom: sql<string>`ST_AsGeoJSON(${schema.crashes.geom})`,
+        id: pref_street_names.id,
+        nome_oficial: pref_street_names.nome_oficial_logradouro,
+        total_colisoes: sql<number>`COUNT(${crashes.id})`,
+        total_vitimas: sql<number>`SUM(${crashes.vitimas})`,
+        geom: sql<string>`ST_AsGeoJSON(${pref_street_names.geom})`,
       })
-      .from(schema.crashes)
+      .from(pref_street_names)
+      .leftJoin(crashes, sql`${crashes.street_id} = ${pref_street_names.id}`)
+      .where(sql`${pref_street_names.geom} IS NOT NULL`)
+      .groupBy(pref_street_names.id)
       .execute();
 
-    const features = rows.map((row) => ({
-      type: "Feature",
-      geometry: JSON.parse(row.geom),
-      properties: {
-        id: row.id,
-        date: row.date,
-        vitimas: row.vitimas,
-        vitimasFat: row.vitimasFat,
-      },
-    }));
+    const features = rows
+      .filter((r) => r.geom)
+      .map((row) => ({
+        type: "Feature",
+        geometry: JSON.parse(row.geom),
+        properties: {
+          id: row.id,
+          nome: row.nome_oficial,
+          colisoes: Number(row.total_colisoes ?? 0),
+          vitimas: Number(row.total_vitimas ?? 0),
+        },
+      }));
 
     res.json({ type: "FeatureCollection", features });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Erro ao gerar GeoJSON:", err);
+    res.status(500).json({ error: "Erro interno ao gerar GeoJSON" });
   }
 });
 

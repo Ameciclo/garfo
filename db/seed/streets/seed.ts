@@ -3,6 +3,7 @@ import { db, readCsv } from "../utils";
 import fs from "fs/promises";
 import path from "path";
 import { sql } from "drizzle-orm";
+import { raw } from "express";
 
 type PrefStreetInsert = {
   codlogradouro: number;
@@ -63,7 +64,6 @@ async function seedStreetGeoms() {
     if (isNaN(code)) continue;
 
     const geometry = JSON.stringify(feature.geometry);
-
     await db.execute(
       sql`UPDATE ${schema.pref_street_names}
         SET geom = ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${geometry}), 4326))
