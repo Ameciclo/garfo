@@ -7,7 +7,7 @@ import {
   jsonb,
   date,
 } from "drizzle-orm/pg-core";
-import { cities } from "./public";
+import { cities } from "./global";
 
 export const ci = pgSchema("cyclist_infra");
 

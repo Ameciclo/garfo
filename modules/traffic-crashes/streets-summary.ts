@@ -1,7 +1,7 @@
 // src/modules/traffic-crashes/streets-summary.ts
 import express, { Request, Response } from "express";
 import { db } from "../../db";
-import * as crashes from "../../db/schemas/traffic_crashes";
+import * as crashes from "../../db/schemas/traffic_casualties";
 import * as streets from "../../db/schemas/streets";
 import { eq } from "drizzle-orm";
 import { sql } from "drizzle-orm";

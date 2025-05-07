@@ -1,7 +1,7 @@
 // src/modules/traffic-crashes/vehicles.ts
 import express, { Request, Response } from "express";
 import { db } from "../../db";
-import * as schema from "../../db/schemas/traffic_crashes";
+import * as schema from "../../db/schemas/traffic_casualties";
 import { sql } from "drizzle-orm";
 
 const router = express.Router();

@@ -6,7 +6,8 @@ import {
   timestamp,
   geometry,
 } from "drizzle-orm/pg-core";
-import { cities, coordinates } from "./public";
+import { coordinates } from "./public";
+import { cities } from "./global";
 
 export const cc = pgSchema("cyclist_count");
 

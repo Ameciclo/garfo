@@ -1,6 +1,6 @@
 {
-  "id": "6c84248b-8ba4-4fcb-954b-63903054250f",
-  "prevId": "a88368fe-2aa3-4f3e-a244-7c6e2b606541",
+  "id": "ec44de05-eb8a-4289-b240-2b5feaea8335",
+  "prevId": "e59d9165-0b6b-4eef-80b3-6f21c611f269",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -769,9 +769,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "traffic.crashes": {
-      "name": "crashes",
-      "schema": "traffic",
+    "traffic_casualties.cttu_crashes": {
+      "name": "cttu_crashes",
+      "schema": "traffic_casualties",
       "columns": {
         "id": {
           "name": "id",
@@ -785,24 +785,30 @@
           "primaryKey": false,
           "notNull": true
         },
-        "crash_date": {
-          "name": "crash_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "crash_time": {
-          "name": "crash_time",
-          "type": "time",
-          "primaryKey": false,
-          "notNull": true
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "street_id": {
+          "name": "street_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hora": {
+          "name": "hora",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
         },
         "natureza": {
           "name": "natureza",
@@ -834,27 +840,21 @@
           "primaryKey": false,
           "notNull": false
         },
-        "street_name": {
-          "name": "street_name",
+        "endereco": {
+          "name": "endereco",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "street_num": {
-          "name": "street_num",
+        "numero": {
+          "name": "numero",
           "type": "varchar(15)",
           "primaryKey": false,
           "notNull": false
         },
-        "cross_st": {
-          "name": "cross_st",
+        "endereco_cruzamento": {
+          "name": "endereco_cruzamento",
           "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "street_id": {
-          "name": "street_id",
-          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
@@ -933,9 +933,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "crashes_street_id_pref_street_names_id_fk": {
-          "name": "crashes_street_id_pref_street_names_id_fk",
-          "tableFrom": "crashes",
+        "cttu_crashes_street_id_pref_street_names_id_fk": {
+          "name": "cttu_crashes_street_id_pref_street_names_id_fk",
+          "tableFrom": "cttu_crashes",
           "columnsFrom": [
             "street_id"
           ],
@@ -950,14 +950,251 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "crashes_row_hash_unique": {
-          "name": "crashes_row_hash_unique",
+        "cttu_crashes_row_hash_unique": {
+          "name": "cttu_crashes_row_hash_unique",
           "columns": [
             "row_hash"
           ],
           "nullsNotDistinct": false
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "traffic_casualties.traffic_datasus_deaths": {
+      "name": "traffic_datasus_deaths",
+      "schema": "traffic_casualties",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "contador": {
+          "name": "contador",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "origem": {
+          "name": "origem",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo_bito": {
+          "name": "tipo_bito",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dtobito": {
+          "name": "dtobito",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "horaobito": {
+          "name": "horaobito",
+          "type": "varchar(6)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "natural": {
+          "name": "natural",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lococor": {
+          "name": "lococor",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "circo_bito": {
+          "name": "circo_bito",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dtnasc": {
+          "name": "dtnasc",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "idade": {
+          "name": "idade",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sexo": {
+          "name": "sexo",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "racacor": {
+          "name": "racacor",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "estciv": {
+          "name": "estciv",
+          "type": "varchar(2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "esc2010": {
+          "name": "esc2010",
+          "type": "varchar(2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "seriescfal": {
+          "name": "seriescfal",
+          "type": "varchar(4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ocup": {
+          "name": "ocup",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "codmunocor": {
+          "name": "codmunocor",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "codmunres": {
+          "name": "codmunres",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "acidtrab": {
+          "name": "acidtrab",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dtinvest": {
+          "name": "dtinvest",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fonte": {
+          "name": "fonte",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linhaa": {
+          "name": "linhaa",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linhab": {
+          "name": "linhab",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linhac": {
+          "name": "linhac",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linhad": {
+          "name": "linhad",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linhaii": {
+          "name": "linhaii",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "causa_bas": {
+          "name": "causa_bas",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "datasus_deaths_contador_unique": {
+          "name": "datasus_deaths_contador_unique",
+          "columns": [
+            {
+              "expression": "contador",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "dtobito",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "traffic_datasus_deaths_codmunocor_cities_id_fk": {
+          "name": "traffic_datasus_deaths_codmunocor_cities_id_fk",
+          "tableFrom": "traffic_datasus_deaths",
+          "columnsFrom": [
+            "codmunocor"
+          ],
+          "tableTo": "cities",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "traffic_datasus_deaths_codmunres_cities_id_fk": {
+          "name": "traffic_datasus_deaths_codmunres_cities_id_fk",
+          "tableFrom": "traffic_datasus_deaths",
+          "columnsFrom": [
+            "codmunres"
+          ],
+          "tableTo": "cities",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -968,7 +1205,7 @@
     "cyclist_count": "cyclist_count",
     "cyclist_infra": "cyclist_infra",
     "streets": "streets",
-    "traffic": "traffic"
+    "traffic_casualties": "traffic_casualties"
   },
   "views": {},
   "sequences": {},

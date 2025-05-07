@@ -2,7 +2,7 @@ import { seedPublic } from "./public/seed";
 import { seedCyclistInfra } from "./cyclist_infra/seed";
 import { seedCyclistCount } from "./cyclist_count/seed";
 import { seedAllStreets } from "./streets/seed";
-import { seedCrashes } from "./traffic_crashes/seed";
+import { seedCrashes } from "./traffic_casualties/seed";
 
 async function runAll() {
   console.log("▶️ Starting all seeds...");
