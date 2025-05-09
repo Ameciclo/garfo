@@ -1,12 +1,13 @@
 // db/seed/traffic_crashes/seed.ts
 import path from "node:path";
 import glob from "fast-glob";
-import { ilike } from "drizzle-orm";
+import { ilike, sql } from "drizzle-orm";
 import crypto from "node:crypto";
 
 import * as schema from "../../schemas/traffic_casualties";
 import { db, readCsv } from "../utils";
 import { pref_street_names } from "../../schemas/streets";
+import { cities } from "../../schemas/global";
 
 // helper igual ao seed de streets
 function chunkArray<T>(arr: T[], size: number): T[][] {
@@ -32,7 +33,7 @@ type RawCSV = Record<string, string>;
 
 export async function seedCrashes() {
   // pega TODOS os csv sinistrosXXXX.csv
-  const files = await glob("./db/seed/traffic_crashes/sinistros*.csv");
+  const files = await glob("./db/seed/traffic_casualties/sinistros*.csv");
   for (const file of files) {
     const csvRows = await readCsv<RawCSV>(file);
 
@@ -113,7 +114,6 @@ export async function seedCrashes() {
 // permite rodar isolado com: `tsx db/seed/traffic_crashes/seed.ts`
 if (require.main === module) seedCrashes();
 
-
 function parseDate(d: string): string | undefined {
   if (!d || d.length !== 8) return undefined;
   // CSV dado como DDMMYYYY
@@ -122,41 +122,83 @@ function parseDate(d: string): string | undefined {
 
 type RawDeath = Record<string, string>;
 
+async function guessCityId6(
+  raw: string | undefined
+): Promise<number | undefined> {
+  if (!raw) return undefined;
+  const code6 = Number(raw);
+  if (isNaN(code6)) return undefined;
+  const match = await db
+    .select({ id: cities.id })
+    .from(cities)
+    .where(sql`((${cities.id} / 10)::integer) = ${code6}`)
+    .limit(1)
+    .execute();
+  return match[0]?.id;
+}
+
 export async function seedDatasusDeaths() {
-  const files = ["mortes_transito_2011.csv", /* ... até 2023 */];
+  const files = [
+    "mortes_transito_2011.csv",
+    "mortes_transito_2012.csv",
+    "mortes_transito_2013.csv",
+    "mortes_transito_2014.csv",
+    "mortes_transito_2015.csv",
+    "mortes_transito_2016.csv",
+    "mortes_transito_2017.csv",
+    "mortes_transito_2018.csv",
+    "mortes_transito_2019.csv",
+    "mortes_transito_2020.csv",
+    "mortes_transito_2021.csv",
+    "mortes_transito_2022.csv",
+    "mortes_transito_2023.csv",
+  ];
   for (const fname of files) {
     const full = path.resolve(__dirname, fname);
     const rows = await readCsv<RawDeath>(full);
 
-    const inserts = rows.map((r) => ({
-      contador: Number(r.CONTADOR),
-      origem: r.ORIGEM,
-      tipo_bito: r.TIPOBITO,
-      dtobito: parseDate(r.DTOBITO)!,      
-      horaobito: r.HORAOBITO,
-      natural: r.NATURAL,
-      lococor: r.LOCOCOR,
-      circo_bito: r.CIRCOBITU,
-      dtnasc: parseDate(r.DTNASC),
-      idade: Number(r.IDADE) || undefined,
-      sexo: r.SEXO,
-      racacor: r.RACACOR,
-      estciv: r.ESTCIV,
-      esc2010: r.ESC2010,
-      seriescfal: r.SERIESCFAL,
-      ocup: r.OCUP,
-      codmunocor: Number(r.CODMUNOCOR) || undefined,
-      codmunres: Number(r.CODMUNRES) || undefined,
-      acidtrab: r.ACIDTRAB,
-      dtinvest: parseDate(r.DTINVESTIG),
-      fonte: r.FONTE,
-      linhaa: r.LINHAA,
-      linhab: r.LINHAB,
-      linhac: r.LINHAC,
-      linhad: r.LINHAD,
-      linhaii: r.LINHAII,
-      causa_bas: r.CAUSABAS,
-    }));
+    const inserts = await Promise.all(
+      rows.map(async (r) => {
+        const codmunnatu = await guessCityId6(r.CODMUNNATU);
+        const codmunocor = await guessCityId6(r.CODMUNOCOR);
+        const codmunres = await guessCityId6(r.CODMUNRES);
+
+        return {
+          contador: Number(r.CONTADOR),
+          tipobito: r.TIPOBITO,
+          dtobito: parseDate(r.DTOBITO)!,
+          horaobito: r.HORAOBITO,
+          natural: r.NATURAL,
+          codmunnatu,
+          dtnasc: parseDate(r.DTNASC),
+          idade: Number(r.IDADE) || undefined,
+          sexo: r.SEXO,
+          racacor: r.RACACOR,
+          estciv: r.ESTCIV,
+          esc2010: r.ESC2010,
+          seriescfal: r.SERIESCFAL,
+          ocup: r.OCUP,
+          codmunres,
+          lococor: r.LOCOCOR,
+          codmunocor,
+          linhaa: r.LINHAA,
+          linhab: r.LINHAB,
+          linhac: r.LINHAC,
+          linhad: r.LINHAD,
+          linhaii: r.LINHAII,
+          circobito: r.CIRCOBITU,
+          acidtrab: r.ACIDTRAB,
+          fonte: r.FONTE,
+          origem: r.ORIGEM,
+          esc: r.ESC,
+          exame: r.EXAME,
+          cirurgia: r.CIRURGIA,
+          dtinvestig: parseDate(r.DTINVESTIG),
+          causabas_o: r.CAUSABAS_O,
+          causa_bas: r.CAUSABAS,
+        };
+      })
+    );
 
     for (const batch of chunkArray(inserts, 1000)) {
       await db

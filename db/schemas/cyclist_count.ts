@@ -6,7 +6,6 @@ import {
   timestamp,
   geometry,
 } from "drizzle-orm/pg-core";
-import { coordinates } from "./public";
 import { cities } from "./global";
 
 export const cc = pgSchema("cyclist_count");
@@ -19,9 +18,6 @@ export const cyclist_count_edition = cc.table("edition", {
   name: varchar("name").notNull(),
   date: date("date").notNull(),
   geom: geometry("geom", { type: "Point", srid: 4326 }).notNull(),
-  coordinatesId: integer("coordinates_id")
-    .references(() => coordinates.id)
-    .notNull(),
 });
 
 export const cyclist_count_session = cc.table("session", {

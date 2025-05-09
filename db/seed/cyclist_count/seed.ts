@@ -47,7 +47,6 @@ export async function seedCyclistCount() {
     cityId: parseInt(r.city_id, 10),
     name: r.name,
     date: r.date, // string YYYY-MM-DD funciona no Drizzle
-    coordinatesId: parseInt(r.coordinates_id, 10),
     // injeta o SQL para montar o Point PostGIS
     geom: sql`ST_SetSRID(
       ST_MakePoint(${parseFloat(r.longitude)}, ${parseFloat(r.latitude)}),

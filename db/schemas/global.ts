@@ -1,5 +1,4 @@
 import {
-  pgTable,
   varchar,
   integer,
   pgSchema,
@@ -9,7 +8,7 @@ import {
 
 export const global = pgSchema("global");
 
-export const cities = pgTable("cities", {
+export const cities = global.table("cities", {
   id: integer("id").primaryKey(),
   name: varchar("name").notNull(),
   state: varchar("state", { length: 2 }).notNull(),

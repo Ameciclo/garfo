@@ -1,93 +1,9 @@
 {
-  "id": "e59d9165-0b6b-4eef-80b3-6f21c611f269",
-  "prevId": "8ba0afc4-cb22-4b93-b060-5c259f66ea27",
+  "id": "d2e4b4dd-f38d-496a-85bc-842e4d4c0981",
+  "prevId": "b4a7a28c-102b-4346-ac06-ca388e62a29e",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.cities": {
-      "name": "cities",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "state": {
-          "name": "state",
-          "type": "varchar(2)",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "name_state_idx": {
-          "name": "name_state_idx",
-          "columns": [
-            {
-              "expression": "name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "state",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.coordinates": {
-      "name": "coordinates",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "point": {
-          "name": "point",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "type": {
-          "name": "type",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "cyclist_count.characteristics": {
       "name": "characteristics",
       "schema": "cyclist_count",
@@ -224,12 +140,6 @@
           "type": "geometry(point)",
           "primaryKey": false,
           "notNull": true
-        },
-        "coordinates_id": {
-          "name": "coordinates_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
         }
       },
       "indexes": {},
@@ -238,21 +148,9 @@
           "name": "edition_city_id_cities_id_fk",
           "tableFrom": "edition",
           "tableTo": "cities",
+          "schemaTo": "global",
           "columnsFrom": [
             "city_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "edition_coordinates_id_coordinates_id_fk": {
-          "name": "edition_coordinates_id_coordinates_id_fk",
-          "tableFrom": "edition",
-          "tableTo": "coordinates",
-          "columnsFrom": [
-            "coordinates_id"
           ],
           "columnsTo": [
             "id"
@@ -465,6 +363,7 @@
           "name": "relation_cities_cities_id_cities_id_fk",
           "tableFrom": "relation_cities",
           "tableTo": "cities",
+          "schemaTo": "global",
           "columnsFrom": [
             "cities_id"
           ],
@@ -976,16 +875,10 @@
           "name": "contador",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
-        },
-        "origem": {
-          "name": "origem",
-          "type": "varchar(1)",
-          "primaryKey": false,
           "notNull": false
         },
-        "tipo_bito": {
-          "name": "tipo_bito",
+        "tipobito": {
+          "name": "tipobito",
           "type": "varchar(1)",
           "primaryKey": false,
           "notNull": false
@@ -998,7 +891,7 @@
         },
         "horaobito": {
           "name": "horaobito",
-          "type": "varchar(6)",
+          "type": "varchar(5)",
           "primaryKey": false,
           "notNull": false
         },
@@ -1008,15 +901,9 @@
           "primaryKey": false,
           "notNull": false
         },
-        "lococor": {
-          "name": "lococor",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "circo_bito": {
-          "name": "circo_bito",
-          "type": "varchar(3)",
+        "codmunnat": {
+          "name": "codmunnat",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
@@ -1046,31 +933,25 @@
         },
         "estciv": {
           "name": "estciv",
-          "type": "varchar(2)",
+          "type": "varchar(1)",
           "primaryKey": false,
           "notNull": false
         },
         "esc2010": {
           "name": "esc2010",
-          "type": "varchar(2)",
+          "type": "varchar(1)",
           "primaryKey": false,
           "notNull": false
         },
         "seriescfal": {
           "name": "seriescfal",
-          "type": "varchar(4)",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
         "ocup": {
           "name": "ocup",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "codmunocor": {
-          "name": "codmunocor",
-          "type": "integer",
+          "type": "varchar(6)",
           "primaryKey": false,
           "notNull": false
         },
@@ -1080,56 +961,104 @@
           "primaryKey": false,
           "notNull": false
         },
+        "lococor": {
+          "name": "lococor",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "codmunocor": {
+          "name": "codmunocor",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linhaa": {
+          "name": "linhaa",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linhab": {
+          "name": "linhab",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linhac": {
+          "name": "linhac",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linhad": {
+          "name": "linhad",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linhaii": {
+          "name": "linhaii",
+          "type": "varchar(45)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "circobito": {
+          "name": "circobito",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "acidtrab": {
           "name": "acidtrab",
           "type": "varchar(1)",
           "primaryKey": false,
           "notNull": false
         },
-        "dtinvest": {
-          "name": "dtinvest",
+        "fonte": {
+          "name": "fonte",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "origem": {
+          "name": "origem",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "esc": {
+          "name": "esc",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "exame": {
+          "name": "exame",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cirurgia": {
+          "name": "cirurgia",
+          "type": "varchar(1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dtinvestig": {
+          "name": "dtinvestig",
           "type": "date",
           "primaryKey": false,
           "notNull": false
         },
-        "fonte": {
-          "name": "fonte",
-          "type": "varchar(20)",
+        "causabas_o": {
+          "name": "causabas_o",
+          "type": "varchar(4)",
           "primaryKey": false,
           "notNull": false
         },
-        "linhaa": {
-          "name": "linhaa",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "linhab": {
-          "name": "linhab",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "linhac": {
-          "name": "linhac",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "linhad": {
-          "name": "linhad",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "linhaii": {
-          "name": "linhaii",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "causa_bas": {
-          "name": "causa_bas",
+        "causabas": {
+          "name": "causabas",
           "type": "varchar(7)",
           "primaryKey": false,
           "notNull": false
@@ -1166,12 +1095,13 @@
         }
       },
       "foreignKeys": {
-        "traffic_datasus_deaths_codmunocor_cities_id_fk": {
-          "name": "traffic_datasus_deaths_codmunocor_cities_id_fk",
+        "traffic_datasus_deaths_codmunnat_cities_id_fk": {
+          "name": "traffic_datasus_deaths_codmunnat_cities_id_fk",
           "tableFrom": "traffic_datasus_deaths",
           "tableTo": "cities",
+          "schemaTo": "global",
           "columnsFrom": [
-            "codmunocor"
+            "codmunnat"
           ],
           "columnsTo": [
             "id"
@@ -1183,8 +1113,23 @@
           "name": "traffic_datasus_deaths_codmunres_cities_id_fk",
           "tableFrom": "traffic_datasus_deaths",
           "tableTo": "cities",
+          "schemaTo": "global",
           "columnsFrom": [
             "codmunres"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "traffic_datasus_deaths_codmunocor_cities_id_fk": {
+          "name": "traffic_datasus_deaths_codmunocor_cities_id_fk",
+          "tableFrom": "traffic_datasus_deaths",
+          "tableTo": "cities",
+          "schemaTo": "global",
+          "columnsFrom": [
+            "codmunocor"
           ],
           "columnsTo": [
             "id"
@@ -1198,6 +1143,55 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
+    },
+    "global.cities": {
+      "name": "cities",
+      "schema": "global",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "state": {
+          "name": "state",
+          "type": "varchar(2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "full_state": {
+          "name": "full_state",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rmr": {
+          "name": "rmr",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "geom": {
+          "name": "geom",
+          "type": "geometry(point)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {},
@@ -1205,7 +1199,8 @@
     "cyclist_count": "cyclist_count",
     "cyclist_infra": "cyclist_infra",
     "streets": "streets",
-    "traffic_casualties": "traffic_casualties"
+    "traffic_casualties": "traffic_casualties",
+    "global": "global"
   },
   "sequences": {},
   "roles": {},
