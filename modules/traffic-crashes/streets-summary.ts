@@ -1,7 +1,7 @@
 // src/modules/traffic-crashes/streets-summary.ts
 import express, { Request, Response } from "express";
 import { db } from "../../db";
-import * as crashes from "../../db/schemas/traffic_casualties";
+import { cttu_crashes } from "../../db/modules/casualties/table_cttu_crashes";
 import * as streets from "../../db/modules/global/table_pcr_street_names";
 import { eq } from "drizzle-orm";
 import { sql } from "drizzle-orm";
@@ -17,31 +17,31 @@ router.get("/", async (req: Request, res: Response) => {
     const yearParam = req.query.year;
     const year = yearParam ? parseInt(String(yearParam), 10) : null;
     const whereYear = year
-      ? sql`date_part('year', ${crashes.crashes.crash_date}) = ${year}`
+      ? sql`date_part('year', ${cttu_crashes.data}) = ${year}`
       : sql`1=1`;
 
     const rows = await db
       .select({
-        streetId: crashes.crashes.street_id,
+        streetId: cttu_crashes.street_id,
         name: sql<string>`
           COALESCE(
-            ${streets.pref_street_names.nome_logradouro_concatenado},
-            ${crashes.crashes.street_name}
+            ${streets.pcr_street_names.nome_logradouro_concatenado},
+            ${cttu_crashes.endereco}
           )
         `,
         totalSinistros: sql<number>`COUNT(*)`,
-        totalFatais: sql<number>`SUM(${crashes.crashes.vitimas_fat})`,
+        totalFatais: sql<number>`SUM(${cttu_crashes.vitimas_fat})`,
       })
-      .from(crashes.crashes)
+      .from(cttu_crashes)
       .leftJoin(
-        streets.pref_street_names,
-        eq(crashes.crashes.street_id, streets.pref_street_names.id)
+        streets.pcr_street_names,
+        eq(cttu_crashes.street_id, streets.pcr_street_names.id)
       )
       .where(whereYear)
       .groupBy(
-        crashes.crashes.street_id,
-        streets.pref_street_names.nome_logradouro_concatenado,
-        crashes.crashes.street_name
+        cttu_crashes.street_id,
+        streets.pcr_street_names.nome_logradouro_concatenado,
+        cttu_crashes.endereco
       )
       .orderBy(sql`COUNT(*) DESC`)
       .execute();

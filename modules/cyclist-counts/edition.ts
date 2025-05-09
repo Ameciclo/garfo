@@ -61,7 +61,7 @@ router.get("/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Edition not found" });
     }
 
-    const { id, cityId, name, date, coordinatesId } = editionData;
+    const { id, cityId, name, date, geom } = editionData;
 
     // FAZ O SLUG DA CONTAGEM
 
@@ -80,17 +80,9 @@ router.get("/:id", async (req: Request, res: Response) => {
       where: eq(schema.cities.id, cityId!),
     });
 
-    // Obter coordenadas relacionadas a esta edição
-    const coordinatesData = await db.query.coordinates.findFirst({
-      where: eq(schema.coordinates.id, coordinatesId!),
-    });
-
     // Converter a string de coordenadas para o formato da interface
-    const coordParts = coordinatesData!.point
-      .toString()
-      .split(", ")
-      .map(Number);
-    const coordinates: CountEditionCoordinates[] = [] 
+    const coordParts = geom.toString().split(", ").map(Number);
+    const coordinates: CountEditionCoordinates[] = [];
     coordinates.push({
       point: {
         x: coordParts[0],

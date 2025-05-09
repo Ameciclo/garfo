@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import fs from "fs/promises";
 
-import citiesRouter from "./modules/cities/cities";
+import citiesRouter from "./modules/global/cities";
 
 import cyclistCountsRouter from "./modules/cyclist-counts/summary";
 import cyclistCountsEditionsRouter from "./modules/cyclist-counts/edition";

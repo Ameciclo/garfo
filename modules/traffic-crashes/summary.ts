@@ -1,7 +1,7 @@
 // src/modules/traffic-crashes/summary.ts
 import express, { Request, Response } from "express";
 import { db } from "../../db";
-import * as schema from "../../db/schemas/traffic_casualties";
+import { cttu_crashes } from "../../db/modules/casualties/table_cttu_crashes";
 import { sql } from "drizzle-orm";
 
 const router = express.Router();
@@ -11,17 +11,17 @@ router.get("/", async (_req: Request, res: Response) => {
     // Total de sinistros
     const totalRes = await db
       .select({ total: sql<number>`count(*)` })
-      .from(schema.crashes)
+      .from(cttu_crashes)
       .execute();
     const totalSinistros = Number(totalRes[0].total);
 
     // Somas de vítimas
     const vitRes = await db
       .select({
-        vitimas: sql<number>`sum(${schema.crashes.vitimas})`,
-        vitimasFat: sql<number>`sum(${schema.crashes.vitimas_fat})`,
+        vitimas: sql<number>`sum(${cttu_crashes.vitimas})`,
+        vitimasFat: sql<number>`sum(${cttu_crashes.vitimas_fat})`,
       })
-      .from(schema.crashes)
+      .from(cttu_crashes)
       .execute();
     const totalVitimas = Number(vitRes[0].vitimas);
     const totalVitimasFatais = Number(vitRes[0].vitimasFat);
@@ -29,12 +29,12 @@ router.get("/", async (_req: Request, res: Response) => {
     // Estatísticas por ano
     const yearData = await db
       .select({
-        year: sql<number>`date_part('year', ${schema.crashes.crash_date})`,
+        year: sql<number>`date_part('year', ${cttu_crashes.data})`,
         count: sql<number>`count(*)`,
       })
-      .from(schema.crashes)
-      .where(sql`date_part('year', ${schema.crashes.crash_date}) >= 2016`)
-      .groupBy(sql`date_part('year', ${schema.crashes.crash_date})`)
+      .from(cttu_crashes)
+      .where(sql`date_part('year', ${cttu_crashes.data}) >= 2016`)
+      .groupBy(sql`date_part('year', ${cttu_crashes.data})`)
       .execute();
 
     const years = yearData.length;

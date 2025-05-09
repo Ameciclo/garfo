@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import * as schemaCount from "../../schema";
-import { db, readCsv } from "../utils";
+import { db, readCsv } from "../../utils";
 
 interface EditionRaw {
   id: string;

@@ -14,7 +14,7 @@ export interface CountEdition {
   slug: string;
   name: string;
   date: string;
-  coordinates: CountEditionCoordinates;
+  coordinates?: CountEditionCoordinates;
   city: city;
   total_cyclists: number;
 }
@@ -28,7 +28,7 @@ export interface CountEditionCoordinates {
 
 export interface MaxCountedDetails {
   slug: string;
-  coordinates: CountEditionCoordinates;
+  coordinates?: CountEditionCoordinates;
   total_cyclists: number;
   date: string;
 }
@@ -76,16 +76,11 @@ router.get("/", async (req: Request, res: Response) => {
 
     // Extrair IDs únicos de cidades e coordenadas
     const citiesIds = new Set(editions.map((edition) => edition.cityId));
-    const coordinatesIds = new Set(
-      editions.map((edition) => edition.coordinatesId)
-    );
+    const coordinatesIds = new Set(editions.map((edition) => edition.geom));
 
     // Criar condições para buscar cidades e coordenadas
     const cityConditions = Array.from(citiesIds).map((id) =>
       eq(schema.cities.id, id)
-    );
-    const coordinatesConditions = Array.from(coordinatesIds).map((id) =>
-      eq(schema.coordinates.id, id)
     );
 
     // Buscar cidades e coordenadas
@@ -97,14 +92,6 @@ router.get("/", async (req: Request, res: Response) => {
             .where(or(...cityConditions))
             .execute()
         : [];
-    const coordinates =
-      coordinatesConditions.length > 0
-        ? await db
-            .select()
-            .from(schema.coordinates)
-            .where(or(...coordinatesConditions))
-            .execute()
-        : [];
 
     // Mapeamento para cidades
     const cityMapping: Record<number, city> = cities.reduce(
@@ -112,17 +99,11 @@ router.get("/", async (req: Request, res: Response) => {
       {}
     );
 
-    // Mapeamento para coordenadas
-    const coordinatesMapping: Record<number, string> = coordinates.reduce(
-      (acc, coord) => ({ ...acc, [coord.id]: coord.point }),
-      {}
-    );
-
     let total_cyclists;
 
     // Para cada edição, calcular o total de ciclistas
     for (const edition of editions) {
-      const { id, cityId, name, date, coordinatesId } = edition;
+      const { id, cityId, name, date, geom } = edition;
 
       const totalCyclistsResult = await db
         .select({
@@ -151,21 +132,9 @@ router.get("/", async (req: Request, res: Response) => {
       const slugDate = new Date(date!).toISOString().slice(0, 10);
       const slug = `${id}-${slugDate}-${slugName}`;
 
-      // Converter a string de coordenadas para o formato da interface
-      const coordParts = coordinatesMapping[coordinatesId]
-        .split(", ")
-        .map(Number);
-      const coordinates: CountEditionCoordinates = {
-        x: coordParts[0],
-        y: coordParts[1],
-        type: "Point",
-        name: name,
-      };
-
       if (total_cyclists > where_max_count.total_cyclists) {
         where_max_count = {
           slug,
-          coordinates,
           total_cyclists,
           date,
         };
@@ -176,7 +145,6 @@ router.get("/", async (req: Request, res: Response) => {
         slug: slug,
         name: name,
         date: new Date(date!).toISOString(),
-        coordinates,
         city: cityMapping[cityId],
         total_cyclists,
       });

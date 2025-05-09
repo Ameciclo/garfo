@@ -1,7 +1,6 @@
 // db/seed/seedCyclistInfra.ts
-import * as schemaInfra from "../../schemas/cyclist_infra";
+import * as schemaInfra from "./schema_cyclist_infra";
 import { db, readCsv } from "../../utils";
-import { sql } from "drizzle-orm";
 
 // Tipo bruto para ler do CSV
 interface RawRelation {

@@ -3,11 +3,11 @@ import path from "node:path";
 import glob from "fast-glob";
 import { ilike, sql } from "drizzle-orm";
 import crypto from "node:crypto";
-
-import * as schema from "./casualties_schema";
 import { db, readCsv } from "../../utils";
 import { pcr_street_names } from "../global/table_pcr_street_names";
 import { cities } from "../global/table_cities";
+import { cttu_crashes } from "./table_cttu_crashes";
+import { datasus_deaths } from "./table_datasus_deaths";
 
 // helper igual ao seed de streets
 function chunkArray<T>(arr: T[], size: number): T[][] {
@@ -105,7 +105,7 @@ export async function seedCrashes() {
     );
 
     for (const batch of chunkArray(inserts, 2000)) {
-      await db.insert(schema.cttu_crashes).values(batch).onConflictDoNothing();
+      await db.insert(cttu_crashes).values(batch).onConflictDoNothing();
       console.log(`✅ ${path.basename(file)} → +${batch.length} linhas`);
     }
   }
@@ -202,7 +202,7 @@ export async function seedDatasusDeaths() {
 
     for (const batch of chunkArray(inserts, 1000)) {
       await db
-        .insert(schema.traffic_datasus_deaths)
+        .insert(datasus_deaths)
         .values(batch)
         .onConflictDoNothing()
         .execute();

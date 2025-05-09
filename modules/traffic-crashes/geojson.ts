@@ -2,26 +2,29 @@
 import express, { Request, Response } from "express";
 import { db } from "../../db";
 import { sql } from "drizzle-orm";
-import { crashes } from "../../db/schemas/traffic_casualties";
-import { pref_street_names } from "../../db/modules/global/table_pcr_street_names";
+import { cttu_crashes } from "../../db/schema";
+import { pcr_street_names } from "../../db/modules/global/table_pcr_street_names";
 
 const router = express.Router();
 
 router.get("/", async (_req: Request, res: Response) => {
-  console.log("Rodadno GEOJSON")
+  console.log("Rodadno GEOJSON");
   try {
     const rows = await db
       .select({
-        id: pref_street_names.id,
-        nome_oficial: pref_street_names.nome_oficial_logradouro,
-        total_colisoes: sql<number>`COUNT(${crashes.id})`,
-        total_vitimas: sql<number>`SUM(${crashes.vitimas})`,
-        geom: sql<string>`ST_AsGeoJSON(${pref_street_names.geom})`,
+        id: pcr_street_names.id,
+        nome_oficial: pcr_street_names.nome_oficial_logradouro,
+        total_colisoes: sql<number>`COUNT(${cttu_crashes.id})`,
+        total_vitimas: sql<number>`SUM(${cttu_crashes.vitimas})`,
+        geom: sql<string>`ST_AsGeoJSON(${pcr_street_names.geom})`,
       })
-      .from(pref_street_names)
-      .leftJoin(crashes, sql`${crashes.street_id} = ${pref_street_names.id}`)
-      .where(sql`${pref_street_names.geom} IS NOT NULL`)
-      .groupBy(pref_street_names.id)
+      .from(pcr_street_names)
+      .leftJoin(
+        cttu_crashes,
+        sql`${cttu_crashes.street_id} = ${pcr_street_names.id}`
+      )
+      .where(sql`${pcr_street_names.geom} IS NOT NULL`)
+      .groupBy(pcr_street_names.id)
       .execute();
 
     const features = rows

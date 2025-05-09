@@ -1,7 +1,7 @@
 // src/modules/traffic-crashes/vehicles.ts
 import express, { Request, Response } from "express";
 import { db } from "../../db";
-import * as schema from "../../db/schemas/traffic_casualties";
+import { cttu_crashes } from "../../db/modules/casualties/table_cttu_crashes";
 import { sql } from "drizzle-orm";
 
 const router = express.Router();
@@ -10,17 +10,17 @@ router.get("/", async (_req: Request, res: Response) => {
   try {
     const sums = await db
       .select({
-        auto: sql<number>`sum(${schema.crashes.auto})`,
-        moto: sql<number>`sum(${schema.crashes.moto})`,
-        ciclom: sql<number>`sum(${schema.crashes.ciclom})`,
-        ciclista: sql<number>`sum(${schema.crashes.ciclista})`,
-        pedestre: sql<number>`sum(${schema.crashes.pedestre})`,
-        onibus: sql<number>`sum(${schema.crashes.onibus})`,
-        caminhao: sql<number>`sum(${schema.crashes.caminhao})`,
-        viatura: sql<number>`sum(${schema.crashes.viatura})`,
-        outros: sql<number>`sum(${schema.crashes.outros})`,
+        auto: sql<number>`sum(${cttu_crashes.auto})`,
+        moto: sql<number>`sum(${cttu_crashes.moto})`,
+        ciclom: sql<number>`sum(${cttu_crashes.ciclom})`,
+        ciclista: sql<number>`sum(${cttu_crashes.ciclista})`,
+        pedestre: sql<number>`sum(${cttu_crashes.pedestre})`,
+        onibus: sql<number>`sum(${cttu_crashes.onibus})`,
+        caminhao: sql<number>`sum(${cttu_crashes.caminhao})`,
+        viatura: sql<number>`sum(${cttu_crashes.viatura})`,
+        outros: sql<number>`sum(${cttu_crashes.outros})`,
       })
-      .from(schema.crashes)
+      .from(cttu_crashes)
       .execute();
 
     const row = sums[0];
