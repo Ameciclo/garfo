@@ -1,15 +1,15 @@
-import { seedCyclistInfra } from "./cyclist_infra/seed";
+import { seedCyclistInfra } from "./modules/cyclist_infra/seed";
 import { seedCyclistCount } from "./cyclist_count/seed";
-import { seedAllStreets } from "./streets/seed";
-import { seedCrashes, seedDatasusDeaths } from "./traffic_casualties/seed";
-import { seedGlobal } from "./global/seed";
+import { seedPCRStreets } from "./modules/global/seed_pcr_streets";
+import { seedCrashes, seedDatasusDeaths } from "./modules/casualties/casusalties_seed";
+import { seedCities } from "./modules/global/seed_cities";
 
 async function runAll() {
   console.log("▶️ Starting all seeds...");
-  await seedGlobal();
+  await seedCities();
   await seedCyclistInfra();
   await seedCyclistCount();
-  await seedAllStreets();
+  await seedPCRStreets();
   await seedCrashes();
   await seedDatasusDeaths();
   console.log("🎉 All seeds completed.");

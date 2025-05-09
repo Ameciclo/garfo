@@ -2,7 +2,7 @@
 import express, { Request, Response } from "express";
 import { db } from "../../db";
 import * as crashes from "../../db/schemas/traffic_casualties";
-import * as streets from "../../db/schemas/streets";
+import * as streets from "../../db/modules/global/table_pcr_street_names";
 import { eq } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 

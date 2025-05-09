@@ -1,5 +1,4 @@
 import {
-  pgSchema,
   serial,
   text,
   varchar,
@@ -8,10 +7,10 @@ import {
   geometry,
 } from "drizzle-orm/pg-core";
 
-export const streets = pgSchema("streets");
+import { global } from "./schema_global";
 
-export const pref_street_names = streets.table(
-  "pref_street_names",
+export const pcr_street_names = global.table(
+  "pcr_street_names",
   {
     id: serial("id").primaryKey(),
     codlogradouro: integer("codlogradouro").notNull().unique(),

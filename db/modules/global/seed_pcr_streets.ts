@@ -1,9 +1,8 @@
-import * as schema from "../../schemas/streets";
-import { db, readCsv } from "../utils";
+import * as schema from "./table_pcr_street_names";
+import { db, readCsv } from "../../utils";
 import fs from "fs/promises";
 import path from "path";
 import { sql } from "drizzle-orm";
-import { raw } from "express";
 
 type PrefStreetInsert = {
   codlogradouro: number;
@@ -26,7 +25,7 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
   return chunks;
 }
 
-async function seedPrefStreets() {
+async function seedPCRStreetNames() {
   const data = await readCsv<PrefStreetInsert>(
     "./db/seed/streets/trechoslogradouro.csv"
   );
@@ -42,7 +41,7 @@ async function seedPrefStreets() {
   const batches = chunkArray(valid, 1000);
   for (const batch of batches) {
     await db
-      .insert(schema.pref_street_names)
+      .insert(schema.pcr_street_names)
       .values(batch)
       .onConflictDoNothing()
       .execute();
@@ -65,7 +64,7 @@ async function seedStreetGeoms() {
 
     const geometry = JSON.stringify(feature.geometry);
     await db.execute(
-      sql`UPDATE ${schema.pref_street_names}
+      sql`UPDATE ${schema.pcr_street_names}
         SET geom = ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${geometry}), 4326))
         WHERE codlogradouro = ${code}`
     );
@@ -75,14 +74,14 @@ async function seedStreetGeoms() {
 }
 
 // Orquestra as duas etapas de seed
-export async function seedAllStreets() {
-  await seedPrefStreets();
+export async function seedPCRStreets() {
+  await seedPCRStreetNames();
   await seedStreetGeoms();
 }
 
 // Se executado diretamente
 if (require.main === module) {
-  seedAllStreets()
+  seedPCRStreets()
     .then(() => process.exit(0))
     .catch((err) => {
       console.error(err);

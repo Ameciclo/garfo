@@ -11,8 +11,8 @@ import {
   geometry,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { pref_street_names } from "./streets";
-import { cities } from "./global";
+import { pcr_street_names } from "../global/table_pcr_street_names";
+import { cities } from "../global/table_cities";
 
 export const traffic_casualties = pgSchema("traffic_casualties");
 
@@ -22,7 +22,7 @@ export const cttu_crashes = traffic_casualties.table("cttu_crashes", {
   created_at: timestamp("created_at").defaultNow(), // facilita auditoria
 
   /**––– Vínculo opcional ao logradouro oficial ––––––––*/
-  street_id: integer("street_id").references(() => pref_street_names.id, {
+  street_id: integer("street_id").references(() => pcr_street_names.id, {
     onDelete: "set null",
   }),
 

@@ -1,12 +1,5 @@
-import {
-  varchar,
-  integer,
-  pgSchema,
-  geometry,
-  boolean,
-} from "drizzle-orm/pg-core";
-
-export const global = pgSchema("global");
+import { varchar, integer, geometry, boolean } from "drizzle-orm/pg-core";
+import { global } from "./schema_global";
 
 export const cities = global.table("cities", {
   id: integer("id").primaryKey(),

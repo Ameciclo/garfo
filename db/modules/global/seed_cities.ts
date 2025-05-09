@@ -1,6 +1,6 @@
 // db/seed/global/seed.ts
-import * as schema from "../../schemas/global";
-import { db, readCsv } from "../utils";
+import * as schema from "./table_cities";
+import { db, readCsv } from "../../utils";
 import fs from "fs/promises";
 import path from "path";
 import { sql } from "drizzle-orm";
@@ -14,7 +14,7 @@ type CityCsv = {
   rmr: string;
 };
 
-export async function seedGlobal() {
+export async function seedCities() {
   // 1) Seed text fields from CSV
   const csvPath = path.resolve(__dirname, "cities.csv");
   const rows = await readCsv<CityCsv>(csvPath);
@@ -53,7 +53,7 @@ export async function seedGlobal() {
 
 // If run directly: `tsx db/seed/global/seed.ts`
 if (require.main === module) {
-  seedGlobal().catch((err) => {
+  seedCities().catch((err) => {
     console.error(err);
     process.exit(1);
   });

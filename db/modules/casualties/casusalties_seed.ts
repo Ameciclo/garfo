@@ -4,10 +4,10 @@ import glob from "fast-glob";
 import { ilike, sql } from "drizzle-orm";
 import crypto from "node:crypto";
 
-import * as schema from "../../schemas/traffic_casualties";
-import { db, readCsv } from "../utils";
-import { pref_street_names } from "../../schemas/streets";
-import { cities } from "../../schemas/global";
+import * as schema from "./casualties_schema";
+import { db, readCsv } from "../../utils";
+import { pcr_street_names } from "../global/table_pcr_street_names";
+import { cities } from "../global/table_cities";
 
 // helper igual ao seed de streets
 function chunkArray<T>(arr: T[], size: number): T[][] {
@@ -21,9 +21,9 @@ async function guessStreetId(rawStreet: string | undefined) {
   if (!rawStreet) return null;
 
   const match = await db
-    .select({ id: pref_street_names.id })
-    .from(pref_street_names)
-    .where(ilike(pref_street_names.nome_logradouro_concatenado, rawStreet))
+    .select({ id: pcr_street_names.id })
+    .from(pcr_street_names)
+    .where(ilike(pcr_street_names.nome_logradouro_concatenado, rawStreet))
     .limit(1);
 
   return match[0]?.id ?? null;

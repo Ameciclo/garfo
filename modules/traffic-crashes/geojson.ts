@@ -3,7 +3,7 @@ import express, { Request, Response } from "express";
 import { db } from "../../db";
 import { sql } from "drizzle-orm";
 import { crashes } from "../../db/schemas/traffic_casualties";
-import { pref_street_names } from "../../db/schemas/streets";
+import { pref_street_names } from "../../db/modules/global/table_pcr_street_names";
 
 const router = express.Router();
 
