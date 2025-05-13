@@ -1,6 +1,6 @@
 import { seedCities } from "./modules/global/seed_cities";
-import { seedCyclistCount } from "./modules/cyclist_count/seed";
-import { seedCyclistInfra } from "./modules/cyclist_infra/seed";
+import { seedCyclistCount } from "./modules/cyclist_count/seed_cyclist_count";
+import { seedCyclistInfra } from "./modules/cyclist_infra/seed_cyclist_infra";
 import { seedPCRStreets } from "./modules/global/seed_pcr_streets";
 import { seedCrashes, seedDatasusDeaths } from "./modules/casualties/casusalties_seed";
 

@@ -1,1 +1,0 @@
-ALTER TABLE "traffic_casualties"."traffic_datasus_deaths" ALTER COLUMN "causabas" SET DATA TYPE varchar(7);

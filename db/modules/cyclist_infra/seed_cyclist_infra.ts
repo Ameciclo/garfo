@@ -1,6 +1,7 @@
 // db/seed/seedCyclistInfra.ts
 import * as schemaInfra from "./schema_cyclist_infra";
 import { db, readCsv } from "../../utils";
+import path from "path";
 
 // Tipo bruto para ler do CSV
 interface RawRelation {
@@ -37,7 +38,7 @@ interface RawWay {
 export async function seedCyclistInfra() {
   // Relations
   const relsRaw = await readCsv<RawRelation>(
-    "./db/seed/cyclist_infra/relations.csv"
+    path.resolve(__dirname, "relations.csv")
   );
   const rels = relsRaw.map((r) => ({
     id: parseInt(r.id, 10),
@@ -59,7 +60,7 @@ export async function seedCyclistInfra() {
 
   // Relation Cities
   const relCitiesRaw = await readCsv<RawRelCity>(
-    "./db/seed/cyclist_infra/relations_cities.csv"
+    path.resolve(__dirname, "relations_cities.csv")
   );
   const relCities = relCitiesRaw.map((rc) => ({
     relationId: parseInt(rc.relation_id, 10),
@@ -72,7 +73,7 @@ export async function seedCyclistInfra() {
   console.log("✅ cyclist_infra_relationCities seeded");
 
   // Ways: filtrar apenas osm_id válido
-  const waysRaw = await readCsv<RawWay>("./db/seed/cyclist_infra/ways.csv");
+  const waysRaw = await readCsv<RawWay>(path.resolve(__dirname, "ways.csv"));
   const ways = waysRaw
     .filter((w) => w.osm_id && w.osm_id.trim() !== "")
     .map((w) => ({

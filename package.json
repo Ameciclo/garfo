@@ -10,7 +10,7 @@
     "test": "// Sem testes por enquanto",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
-    "db:seed": "tsx watch -r dotenv/config db/seed/seed.ts"
+    "db:seed": "tsx watch -r dotenv/config db/seed.ts"
   },
   "repository": {
     "type": "git",

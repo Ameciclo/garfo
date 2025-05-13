@@ -1,7 +1,7 @@
 -- Custom SQL migration file, put your code below! --
 CREATE EXTENSION IF NOT EXISTS postgis;
 
-ALTER TABLE streets.pref_street_names
+ALTER TABLE global.pcr_street_names
   -- 1) Define o novo tipo e SRID
   ALTER COLUMN geom
     TYPE geometry(MULTILINESTRING, 4326)

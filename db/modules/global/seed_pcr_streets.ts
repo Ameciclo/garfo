@@ -27,7 +27,7 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
 
 async function seedPCRStreetNames() {
   const data = await readCsv<PrefStreetInsert>(
-    "./db/seed/streets/trechoslogradouro.csv"
+    path.resolve(__dirname, "trechoslogradouro.csv")
   );
 
   const valid = data.filter(

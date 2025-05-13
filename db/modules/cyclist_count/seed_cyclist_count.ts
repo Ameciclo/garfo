@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import * as schemaCount from "../../schema";
 import { db, readCsv } from "../../utils";
+import path from "path";
 
 interface EditionRaw {
   id: string;
@@ -40,7 +41,7 @@ interface CharCountRaw {
 
 export async function seedCyclistCount() {
   const rawEditions = await readCsv<EditionRaw>(
-    "./db/seed/cyclist_count/count_edition.csv"
+    path.resolve(__dirname, "count_edition.csv")
   );
   const editions = rawEditions.map((r) => ({
     id: parseInt(r.id, 10),
@@ -61,7 +62,7 @@ export async function seedCyclistCount() {
   console.log("✅ cyclist_count_edition seeded");
 
   const sessionsRaw = await readCsv<SessionRaw>(
-    "./db/seed/cyclist_count/count_session.csv"
+    path.resolve(__dirname, "count_session.csv")
   );
   const sessions = sessionsRaw.map((s) => ({
     id: parseInt(s.id, 10),
@@ -76,7 +77,7 @@ export async function seedCyclistCount() {
   console.log("✅ cyclist_count_session seeded");
 
   const dirsRaw = await readCsv<DirInsertRaw>(
-    "./db/seed/cyclist_count/directions.csv"
+    path.resolve(__dirname, "directions.csv")
   );
   const dirs = dirsRaw.map((d) => ({
     id: parseInt(d.id, 10),
@@ -89,7 +90,7 @@ export async function seedCyclistCount() {
   console.log("✅ directions seeded");
 
   const dirCountsRaw = await readCsv<DirCountRaw>(
-    "./db/seed/cyclist_count/direction_count.csv"
+    path.resolve(__dirname, "direction_count.csv")
   );
   const dirCounts = dirCountsRaw.map((d) => ({
     id: parseInt(d.id, 10),
@@ -105,7 +106,7 @@ export async function seedCyclistCount() {
 
   // characteristics and counts
   const charsRaw = await readCsv<CharRaw>(
-    "./db/seed/cyclist_count/characteristics.csv"
+    path.resolve(__dirname, "characteristics.csv")
   );
   const chars = charsRaw.map((c) => ({
     id: parseInt(c.id, 10),
@@ -120,7 +121,7 @@ export async function seedCyclistCount() {
   console.log("✅ characteristics seeded");
 
   const charCountsRaw = await readCsv<CharCountRaw>(
-    "./db/seed/cyclist_count/characteristics_count.csv"
+    path.resolve(__dirname, "characteristics_count.csv")
   );
   const charCounts = charCountsRaw.map((c) => ({
     id: parseInt(c.id, 10),
