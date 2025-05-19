@@ -33,10 +33,9 @@ type RawCSV = Record<string, string>;
 
 export async function seedCrashes() {
   // pega TODOS os csv sinistrosXXXX.csv
-  const files = await glob("./db/seed/traffic_casualties/sinistros*.csv");
+  const files = await glob("./db/modules/casualties/sinistros*.csv");
   for (const file of files) {
     const csvRows = await readCsv<RawCSV>(file);
-
     // normalização mínima → adequar conforme necessidade
     const inserts = await Promise.all(
       csvRows.map(async (r) => {

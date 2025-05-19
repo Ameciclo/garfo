@@ -59,7 +59,7 @@ while true; do
       docker compose exec app npx drizzle-kit drop
       ;;
    10)
-      docker compose exec app npx drizzle-kit studio --host 0.0.0.0 --port 4983
+      docker compose exec app npx drizzle-kit studio --host localhost --port 4983
       ;;
    11)
       echo "Saindo..."
