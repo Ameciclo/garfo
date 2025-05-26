@@ -15,6 +15,20 @@
       "when": 1746893152201,
       "tag": "0001_aromatic_whizzer",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1747624590877,
+      "tag": "0002_damp_arclight",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1747624594268,
+      "tag": "0003_simple_echo",
+      "breakpoints": true
     }
   ]
 }
