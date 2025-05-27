@@ -15,8 +15,16 @@ interface CityYearData {
   yearData: Record<string, number>;
 }
 
-router.get("/", async (_req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
+    // Verificar se é por local de residência ou ocorrência
+    const tipoLocal = req.query.tipo === 'residencia' ? 'residencia' : 'ocorrencia';
+    const campoLocal = tipoLocal === 'residencia' ? datasus_deaths.codmunres : datasus_deaths.codmunocor;
+    
+    // Obtém o ano atual para calcular os últimos 10 anos
+    const currentYear = new Date().getFullYear();
+    const startYear = currentYear - config.periodos.anosRetroativos;
+    
     // Buscar cidades da RMR diretamente da tabela cities
     const rmrCities = await db
       .select({ id: cities.id })
@@ -31,21 +39,21 @@ router.get("/", async (_req: Request, res: Response) => {
     // Construir a consulta para cada cidade individualmente
     let whereClause = sql`false`;
     for (const city of rmrCities) {
-      whereClause = sql`${whereClause} OR ${datasus_deaths.codmunocor} = ${city.id}`;
+      whereClause = sql`${whereClause} OR ${campoLocal} = ${city.id}`;
     }
     
     // Consulta para obter mortes por cidade e ano
     const result = await db
       .select({
-        cityId: datasus_deaths.codmunocor,
+        cityId: campoLocal,
         cityName: cities.name,
         year: sql<number>`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`,
         count: sql<number>`count(*)`,
       })
       .from(datasus_deaths)
-      .leftJoin(cities, sql`${datasus_deaths.codmunocor} = ${cities.id}`)
-      .where(sql`(${whereClause})`)
-      .groupBy(datasus_deaths.codmunocor, cities.name, sql`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`)
+      .leftJoin(cities, sql`${campoLocal} = ${cities.id}`)
+      .where(sql`(${whereClause}) AND EXTRACT(YEAR FROM ${datasus_deaths.dtobito}) >= ${startYear}`)
+      .groupBy(campoLocal, cities.name, sql`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`)
       .orderBy(cities.name, sql`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`)
       .execute();
 
@@ -79,6 +87,7 @@ router.get("/", async (_req: Request, res: Response) => {
     
     // Formatar a resposta final
     const response = {
+      tipo: tipoLocal === 'residencia' ? 'Local de Residência' : 'Local de Ocorrência',
       anos: sortedYears.map(year => parseInt(year)),
       cidades: Array.from(cityYearMap.values()).map(city => {
         const yearValues: Record<string, number> = {};
