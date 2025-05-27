@@ -181,12 +181,17 @@ router.get("/", async (req: Request, res: Response) => {
     if (filtros.modoTransporte && filtros.modoTransporte.length > 0) {
       let modoClause = sql`false`;
       for (const modo of filtros.modoTransporte) {
+        // Verificar se o modo começa com V seguido de um número (V0, V1, V2, etc.)
+        const modoBase = modo.substring(0, 2); // Pega apenas V0, V1, V2, etc.
+        
+        // Buscar por padrões como V4, V40, V41, V42, etc.
         modoClause = sql`${modoClause} OR 
-          ${datasus_deaths.linhaa} LIKE ${modo + '%'} OR 
-          ${datasus_deaths.linhab} LIKE ${modo + '%'} OR 
-          ${datasus_deaths.linhac} LIKE ${modo + '%'} OR 
-          ${datasus_deaths.linhad} LIKE ${modo + '%'} OR
-          ${datasus_deaths.causabas} LIKE ${modo + '%'}`;
+          ${datasus_deaths.causabas} LIKE ${modoBase + '%'} OR
+          ${datasus_deaths.causabas_o} LIKE ${modoBase + '%'} OR
+          ${datasus_deaths.linhaa} LIKE ${modoBase + '%'} OR 
+          ${datasus_deaths.linhab} LIKE ${modoBase + '%'} OR 
+          ${datasus_deaths.linhac} LIKE ${modoBase + '%'} OR 
+          ${datasus_deaths.linhad} LIKE ${modoBase + '%'}`;
       }
       whereClause = sql`${whereClause} AND (${modoClause})`;
     }
@@ -205,7 +210,8 @@ router.get("/", async (req: Request, res: Response) => {
         linhab: datasus_deaths.linhab,
         linhac: datasus_deaths.linhac,
         linhad: datasus_deaths.linhad,
-        causabas: datasus_deaths.causabas
+        causabas: datasus_deaths.causabas,
+        causabas_o: datasus_deaths.causabas_o
       })
       .from(datasus_deaths)
       .leftJoin(cities, sql`${campoLocal} = ${cities.id}`)
@@ -221,7 +227,8 @@ router.get("/", async (req: Request, res: Response) => {
         datasus_deaths.linhab,
         datasus_deaths.linhac,
         datasus_deaths.linhad,
-        datasus_deaths.causabas
+        datasus_deaths.causabas,
+        datasus_deaths.causabas_o
       )
       .orderBy(sql`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`)
       .execute();
@@ -241,52 +248,71 @@ router.get("/", async (req: Request, res: Response) => {
       let codigoModo = '';
       
       // Verificar em todas as colunas relevantes
-      const colunas = [row.causabas, row.linhaa, row.linhab, row.linhac, row.linhad];
+      const colunas = [row.causabas, row.causabas_o, row.linhaa, row.linhab, row.linhac, row.linhad];
       for (const coluna of colunas) {
         if (!coluna) continue;
         
-        // Extrair os primeiros 2 caracteres para identificar o modo de transporte
-        const prefixo = coluna.substring(0, 2);
-        if (prefixo === 'V0') {
-          modoTransporte = 'Pedestre';
-          codigoModo = 'V0';
-          break;
-        } else if (prefixo === 'V1') {
-          modoTransporte = 'Ciclista';
-          codigoModo = 'V1';
-          break;
-        } else if (prefixo === 'V2') {
-          modoTransporte = 'Motociclista';
-          codigoModo = 'V2';
-          break;
-        } else if (prefixo === 'V3') {
-          modoTransporte = 'Ocupante de triciclo';
-          codigoModo = 'V3';
-          break;
-        } else if (prefixo === 'V4') {
-          modoTransporte = 'Ocupante de automóvel';
-          codigoModo = 'V4';
-          break;
-        } else if (prefixo === 'V5') {
-          modoTransporte = 'Ocupante de caminhonete';
-          codigoModo = 'V5';
-          break;
-        } else if (prefixo === 'V6') {
-          modoTransporte = 'Ocupante de veículo pesado';
-          codigoModo = 'V6';
-          break;
-        } else if (prefixo === 'V7') {
-          modoTransporte = 'Ocupante de ônibus';
-          codigoModo = 'V7';
-          break;
-        } else if (prefixo === 'V8') {
-          modoTransporte = 'Outros modos';
-          codigoModo = 'V8';
-          break;
-        } else if (prefixo === 'V9') {
-          modoTransporte = 'Não especificado';
-          codigoModo = 'V9';
-          break;
+        // Verificar se o valor começa com V seguido de um número
+        if (coluna.match(/^V[0-9]/)) {
+          const prefixo = coluna.substring(0, 2);
+          
+          switch (prefixo) {
+            case 'V0':
+              modoTransporte = 'Pedestre';
+              codigoModo = 'V0';
+              break;
+            case 'V1':
+              modoTransporte = 'Ciclista';
+              codigoModo = 'V1';
+              break;
+            case 'V2':
+              modoTransporte = 'Motociclista';
+              codigoModo = 'V2';
+              break;
+            case 'V3':
+              modoTransporte = 'Ocupante de triciclo';
+              codigoModo = 'V3';
+              break;
+            case 'V4':
+              modoTransporte = 'Ocupante de automóvel';
+              codigoModo = 'V4';
+              break;
+            case 'V5':
+              modoTransporte = 'Ocupante de caminhonete';
+              codigoModo = 'V5';
+              break;
+            case 'V6':
+              modoTransporte = 'Ocupante de veículo pesado';
+              codigoModo = 'V6';
+              break;
+            case 'V7':
+              modoTransporte = 'Ocupante de ônibus';
+              codigoModo = 'V7';
+              break;
+            case 'V8':
+              modoTransporte = 'Outros modos';
+              codigoModo = 'V8';
+              break;
+            case 'V9':
+              modoTransporte = 'Não especificado';
+              codigoModo = 'V9';
+              break;
+            default:
+              // Se começar com V mas não for um dos códigos acima
+              if (coluna.startsWith('V4')) {
+                modoTransporte = 'Ocupante de automóvel';
+                codigoModo = 'V4';
+              } else if (coluna.startsWith('V2')) {
+                modoTransporte = 'Motociclista';
+                codigoModo = 'V2';
+              } else {
+                modoTransporte = 'Outro modo de transporte';
+                codigoModo = coluna.substring(0, 2);
+              }
+          }
+          
+          // Se encontrou um modo de transporte, interrompe a busca
+          if (codigoModo) break;
         }
       }
       
@@ -310,6 +336,14 @@ router.get("/", async (req: Request, res: Response) => {
         modoTransporte: {
           codigo: codigoModo,
           descricao: modoTransporte
+        },
+        causas: {
+          causabas: row.causabas,
+          causabas_o: row.causabas_o,
+          linhaa: row.linhaa,
+          linhab: row.linhab,
+          linhac: row.linhac,
+          linhad: row.linhad
         },
         total: Number(row.total)
       };
