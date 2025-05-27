@@ -177,21 +177,15 @@ router.get("/", async (req: Request, res: Response) => {
       )`;
     }
     
-    // Filtro de modo de transporte - Verificar em todas as colunas relevantes
+    // Filtro de modo de transporte - Verificar apenas no campo causabas_o
     if (filtros.modoTransporte && filtros.modoTransporte.length > 0) {
       let modoClause = sql`false`;
       for (const modo of filtros.modoTransporte) {
         // Verificar se o modo começa com V seguido de um número (V0, V1, V2, etc.)
         const modoBase = modo.substring(0, 2); // Pega apenas V0, V1, V2, etc.
         
-        // Buscar por padrões como V4, V40, V41, V42, etc.
-        modoClause = sql`${modoClause} OR 
-          ${datasus_deaths.causabas} LIKE ${modoBase + '%'} OR
-          ${datasus_deaths.causabas_o} LIKE ${modoBase + '%'} OR
-          ${datasus_deaths.linhaa} LIKE ${modoBase + '%'} OR 
-          ${datasus_deaths.linhab} LIKE ${modoBase + '%'} OR 
-          ${datasus_deaths.linhac} LIKE ${modoBase + '%'} OR 
-          ${datasus_deaths.linhad} LIKE ${modoBase + '%'}`;
+        // Buscar por padrões como V4, V40, V41, V42, etc. apenas em causabas_o
+        modoClause = sql`${modoClause} OR ${datasus_deaths.causabas_o} LIKE ${modoBase + '%'}`;
       }
       whereClause = sql`${whereClause} AND (${modoClause})`;
     }
@@ -206,11 +200,6 @@ router.get("/", async (req: Request, res: Response) => {
         idade: datasus_deaths.idade,
         municipio: campoLocal,
         municipioNome: cities.name,
-        linhaa: datasus_deaths.linhaa,
-        linhab: datasus_deaths.linhab,
-        linhac: datasus_deaths.linhac,
-        linhad: datasus_deaths.linhad,
-        causabas: datasus_deaths.causabas,
         causabas_o: datasus_deaths.causabas_o
       })
       .from(datasus_deaths)
@@ -223,11 +212,6 @@ router.get("/", async (req: Request, res: Response) => {
         datasus_deaths.idade, 
         campoLocal, 
         cities.name,
-        datasus_deaths.linhaa,
-        datasus_deaths.linhab,
-        datasus_deaths.linhac,
-        datasus_deaths.linhad,
-        datasus_deaths.causabas,
         datasus_deaths.causabas_o
       )
       .orderBy(sql`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`)
@@ -247,8 +231,8 @@ router.get("/", async (req: Request, res: Response) => {
       let modoTransporte = 'Não identificado';
       let codigoModo = '';
       
-      // Verificar em todas as colunas relevantes
-      const colunas = [row.causabas, row.causabas_o, row.linhaa, row.linhab, row.linhac, row.linhad];
+      // Verificar apenas no campo causabas_o
+      const colunas = [row.causabas_o];
       for (const coluna of colunas) {
         if (!coluna) continue;
         
@@ -337,14 +321,7 @@ router.get("/", async (req: Request, res: Response) => {
           codigo: codigoModo,
           descricao: modoTransporte
         },
-        causas: {
-          causabas: row.causabas,
-          causabas_o: row.causabas_o,
-          linhaa: row.linhaa,
-          linhab: row.linhab,
-          linhac: row.linhac,
-          linhad: row.linhad
-        },
+        causabas_o: row.causabas_o,
         total: Number(row.total)
       };
     });
