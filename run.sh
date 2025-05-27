@@ -19,7 +19,8 @@ Selecione uma opção:
  8) Popular banco (db:seed)
  9) Drop migrations (drizzle-kit drop)
 10) Abrir Drizzle Studio
-11) Sair
+11) Reiniciar Docker
+x) Sair
 EOF
 }
 
@@ -29,6 +30,7 @@ while true; do
   echo
   case "$opt" in
     1)
+      npm run build
       docker compose up -d --build
       ;;
     2)
@@ -62,6 +64,10 @@ while true; do
       docker compose exec app npx drizzle-kit studio --host localhost --port 4983
       ;;
    11)
+      npm run build
+      docker compose restart app
+      ;;
+   x)
       echo "Saindo..."
       exit 0
       ;;
