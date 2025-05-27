@@ -20,6 +20,34 @@ interface FiltroParams {
   modoTransporte?: string[];
 }
 
+// Função para converter o código de idade do DATASUS para idade em anos
+function converterIdadeParaAnos(idadeCodigo: number | null): number {
+  if (idadeCodigo === null) return 0;
+  
+  const idadeStr = String(idadeCodigo);
+  if (idadeStr.length < 3) return 0;
+  
+  const unidade = Number(idadeStr[0]);
+  const quantidade = Number(idadeStr.substring(1));
+  
+  switch (unidade) {
+    case 0: // Horas
+      return 0;
+    case 1: // Horas
+      return 0;
+    case 2: // Dias
+      return 0;
+    case 3: // Meses
+      return Math.floor(quantidade / 12);
+    case 4: // Anos
+      return quantidade;
+    case 5: // Anos (mais de 100)
+      return 100 + quantidade;
+    default:
+      return 0;
+  }
+}
+
 router.get("/", async (req: Request, res: Response) => {
   try {
     // Extrair parâmetros de filtro da requisição
@@ -127,20 +155,38 @@ router.get("/", async (req: Request, res: Response) => {
       whereClause = sql`${whereClause} AND (${racacorClause})`;
     }
     
-    // Filtro de faixa etária
+    // Filtro de faixa etária - Adaptado para o formato específico do DATASUS
     if (filtros.faixaEtariaMin !== undefined) {
-      whereClause = sql`${whereClause} AND ${datasus_deaths.idade} >= ${filtros.faixaEtariaMin}`;
+      // Para idade em anos (código começa com 4), verificamos se o valor após o primeiro dígito é >= min
+      whereClause = sql`${whereClause} AND (
+        (${datasus_deaths.idade} >= 400 AND ${datasus_deaths.idade} < 500 AND 
+         CAST(SUBSTRING(CAST(${datasus_deaths.idade} AS VARCHAR), 2, 2) AS INTEGER) >= ${filtros.faixaEtariaMin})
+        OR
+        (${datasus_deaths.idade} >= 500)
+      )`;
     }
     
     if (filtros.faixaEtariaMax !== undefined) {
-      whereClause = sql`${whereClause} AND ${datasus_deaths.idade} <= ${filtros.faixaEtariaMax}`;
+      // Para idade em anos (código começa com 4), verificamos se o valor após o primeiro dígito é <= max
+      whereClause = sql`${whereClause} AND (
+        (${datasus_deaths.idade} >= 400 AND ${datasus_deaths.idade} < 500 AND 
+         CAST(SUBSTRING(CAST(${datasus_deaths.idade} AS VARCHAR), 2, 2) AS INTEGER) <= ${filtros.faixaEtariaMax})
+        OR
+        (${datasus_deaths.idade} >= 500 AND 
+         CAST(SUBSTRING(CAST(${datasus_deaths.idade} AS VARCHAR), 2, 2) AS INTEGER) + 100 <= ${filtros.faixaEtariaMax})
+      )`;
     }
     
-    // Filtro de modo de transporte (baseado no início do código CID-10 na linhaa)
+    // Filtro de modo de transporte - Verificar em todas as colunas relevantes
     if (filtros.modoTransporte && filtros.modoTransporte.length > 0) {
       let modoClause = sql`false`;
       for (const modo of filtros.modoTransporte) {
-        modoClause = sql`${modoClause} OR ${datasus_deaths.linhaa} LIKE ${modo + '%'}`;
+        modoClause = sql`${modoClause} OR 
+          ${datasus_deaths.linhaa} LIKE ${modo + '%'} OR 
+          ${datasus_deaths.linhab} LIKE ${modo + '%'} OR 
+          ${datasus_deaths.linhac} LIKE ${modo + '%'} OR 
+          ${datasus_deaths.linhad} LIKE ${modo + '%'} OR
+          ${datasus_deaths.causabas} LIKE ${modo + '%'}`;
       }
       whereClause = sql`${whereClause} AND (${modoClause})`;
     }
@@ -154,22 +200,95 @@ router.get("/", async (req: Request, res: Response) => {
         racacor: datasus_deaths.racacor,
         idade: datasus_deaths.idade,
         municipio: campoLocal,
-        municipioNome: cities.name
+        municipioNome: cities.name,
+        linhaa: datasus_deaths.linhaa,
+        linhab: datasus_deaths.linhab,
+        linhac: datasus_deaths.linhac,
+        linhad: datasus_deaths.linhad,
+        causabas: datasus_deaths.causabas
       })
       .from(datasus_deaths)
       .leftJoin(cities, sql`${campoLocal} = ${cities.id}`)
       .where(whereClause)
-      .groupBy(sql`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`, datasus_deaths.sexo, datasus_deaths.racacor, datasus_deaths.idade, campoLocal, cities.name)
+      .groupBy(
+        sql`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`, 
+        datasus_deaths.sexo, 
+        datasus_deaths.racacor, 
+        datasus_deaths.idade, 
+        campoLocal, 
+        cities.name,
+        datasus_deaths.linhaa,
+        datasus_deaths.linhab,
+        datasus_deaths.linhac,
+        datasus_deaths.linhad,
+        datasus_deaths.causabas
+      )
       .orderBy(sql`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`)
       .execute();
     
     // Processar resultados para formato mais amigável
     const processedResults = result.map(row => {
-      // Determinar faixa etária
-      const idade = row.idade !== null ? Number(row.idade) : 0;
+      // Converter idade do formato DATASUS para anos
+      const idadeEmAnos = converterIdadeParaAnos(row.idade);
+      
+      // Determinar faixa etária com base na idade convertida
       const faixaEtaria = config.mapeamentos.faixasEtarias.find(
-        faixa => idade >= faixa.min && idade <= faixa.max
+        faixa => idadeEmAnos >= faixa.min && idadeEmAnos <= faixa.max
       )?.label || 'Não informado';
+      
+      // Determinar modo de transporte
+      let modoTransporte = 'Não identificado';
+      let codigoModo = '';
+      
+      // Verificar em todas as colunas relevantes
+      const colunas = [row.causabas, row.linhaa, row.linhab, row.linhac, row.linhad];
+      for (const coluna of colunas) {
+        if (!coluna) continue;
+        
+        // Extrair os primeiros 2 caracteres para identificar o modo de transporte
+        const prefixo = coluna.substring(0, 2);
+        if (prefixo === 'V0') {
+          modoTransporte = 'Pedestre';
+          codigoModo = 'V0';
+          break;
+        } else if (prefixo === 'V1') {
+          modoTransporte = 'Ciclista';
+          codigoModo = 'V1';
+          break;
+        } else if (prefixo === 'V2') {
+          modoTransporte = 'Motociclista';
+          codigoModo = 'V2';
+          break;
+        } else if (prefixo === 'V3') {
+          modoTransporte = 'Ocupante de triciclo';
+          codigoModo = 'V3';
+          break;
+        } else if (prefixo === 'V4') {
+          modoTransporte = 'Ocupante de automóvel';
+          codigoModo = 'V4';
+          break;
+        } else if (prefixo === 'V5') {
+          modoTransporte = 'Ocupante de caminhonete';
+          codigoModo = 'V5';
+          break;
+        } else if (prefixo === 'V6') {
+          modoTransporte = 'Ocupante de veículo pesado';
+          codigoModo = 'V6';
+          break;
+        } else if (prefixo === 'V7') {
+          modoTransporte = 'Ocupante de ônibus';
+          codigoModo = 'V7';
+          break;
+        } else if (prefixo === 'V8') {
+          modoTransporte = 'Outros modos';
+          codigoModo = 'V8';
+          break;
+        } else if (prefixo === 'V9') {
+          modoTransporte = 'Não especificado';
+          codigoModo = 'V9';
+          break;
+        }
+      }
       
       return {
         ano: Number(row.ano),
@@ -185,8 +304,13 @@ router.get("/", async (req: Request, res: Response) => {
           codigo: row.racacor,
           descricao: row.racacor ? config.mapeamentos.racacor[row.racacor as keyof typeof config.mapeamentos.racacor] || 'Não informado' : 'Não informado'
         },
-        idade,
+        idade: idadeEmAnos,
+        idadeOriginal: row.idade,
         faixaEtaria,
+        modoTransporte: {
+          codigo: codigoModo,
+          descricao: modoTransporte
+        },
         total: Number(row.total)
       };
     });
@@ -244,6 +368,16 @@ router.get("/", async (req: Request, res: Response) => {
       return acc;
     }, {} as Record<string, number>);
     
+    // Agrupar por modo de transporte
+    const porModoTransporte = processedResults.reduce((acc, item) => {
+      const modo = item.modoTransporte.descricao;
+      if (!acc[modo]) {
+        acc[modo] = 0;
+      }
+      acc[modo] += item.total;
+      return acc;
+    }, {} as Record<string, number>);
+    
     // Resposta final
     res.json({
       filtrosAplicados: filtros,
@@ -253,7 +387,8 @@ router.get("/", async (req: Request, res: Response) => {
         porSexo,
         porRacaCor,
         porFaixaEtaria,
-        porMunicipio
+        porMunicipio,
+        porModoTransporte
       },
       dados: processedResults
     });
