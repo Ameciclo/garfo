@@ -177,15 +177,15 @@ router.get("/", async (req: Request, res: Response) => {
       )`;
     }
     
-    // Filtro de modo de transporte - Verificar apenas no campo causabas_o
+    // Filtro de modo de transporte - Verificar apenas no campo causabas
     if (filtros.modoTransporte && filtros.modoTransporte.length > 0) {
       let modoClause = sql`false`;
       for (const modo of filtros.modoTransporte) {
         // Verificar se o modo começa com V seguido de um número (V0, V1, V2, etc.)
         const modoBase = modo.substring(0, 2); // Pega apenas V0, V1, V2, etc.
         
-        // Buscar por padrões como V4, V40, V41, V42, etc. apenas em causabas_o
-        modoClause = sql`${modoClause} OR ${datasus_deaths.causabas_o} LIKE ${modoBase + '%'}`;
+        // Buscar por padrões como V4, V40, V41, V42, etc. apenas em causabas
+        modoClause = sql`${modoClause} OR ${datasus_deaths.causabas} LIKE ${modoBase + '%'}`;
       }
       whereClause = sql`${whereClause} AND (${modoClause})`;
     }
@@ -200,7 +200,7 @@ router.get("/", async (req: Request, res: Response) => {
         idade: datasus_deaths.idade,
         municipio: campoLocal,
         municipioNome: cities.name,
-        causabas_o: datasus_deaths.causabas_o
+        causabas: datasus_deaths.causabas
       })
       .from(datasus_deaths)
       .leftJoin(cities, sql`${campoLocal} = ${cities.id}`)
@@ -212,7 +212,7 @@ router.get("/", async (req: Request, res: Response) => {
         datasus_deaths.idade, 
         campoLocal, 
         cities.name,
-        datasus_deaths.causabas_o
+        datasus_deaths.causabas
       )
       .orderBy(sql`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`)
       .execute();
@@ -231,8 +231,8 @@ router.get("/", async (req: Request, res: Response) => {
       let modoTransporte = 'Não identificado';
       let codigoModo = '';
       
-      // Verificar apenas no campo causabas_o
-      const colunas = [row.causabas_o];
+      // Verificar apenas no campo causabas
+      const colunas = [row.causabas];
       for (const coluna of colunas) {
         if (!coluna) continue;
         
@@ -321,7 +321,7 @@ router.get("/", async (req: Request, res: Response) => {
           codigo: codigoModo,
           descricao: modoTransporte
         },
-        causabas_o: row.causabas_o,
+        causabas: row.causabas,
         total: Number(row.total)
       };
     });
