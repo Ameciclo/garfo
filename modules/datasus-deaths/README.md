@@ -217,6 +217,6 @@ GET http://localhost:8080/datasus-deaths/filtros?municipio=2611606&tipoLocal=res
    - Os dois dígitos seguintes indicam a quantidade nessa unidade
    - Exemplo: `424` = 4 (anos) + 24 (quantidade) = 24 anos
 
-2. **Modo de Transporte**: Os códigos de modo de transporte são baseados na Classificação Internacional de Doenças (CID-10) e são armazenados no campo `causabas_o`.
+2. **Modo de Transporte**: Os códigos de modo de transporte são baseados na Classificação Internacional de Doenças (CID-10) e são armazenados no campo `causabas`.
 
 3. **Municípios da RMR**: A API considera apenas os municípios da Região Metropolitana do Recife, identificados pelo campo `rmr = true` na tabela de cidades.
