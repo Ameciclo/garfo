@@ -19,7 +19,7 @@ export const datasus_deaths = casualties.table(
     dtobito: date("dtobito").notNull(),
     horaobito: varchar("horaobito", { length: 5 }),
     natural: varchar("natural"),
-    codmunnat: integer("codmunnat").references(() => cities.id),
+    codmunnatu: integer("codmunnatu").references(() => cities.id),
     dtnasc: date("dtnasc"),
     idade: integer("idade"),
     sexo: varchar("sexo"),

@@ -29,6 +29,13 @@
       "when": 1747624594268,
       "tag": "0003_simple_echo",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1748877455527,
+      "tag": "0004_little_scorpion",
+      "breakpoints": true
     }
   ]
 }

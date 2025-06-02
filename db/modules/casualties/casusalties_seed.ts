@@ -194,7 +194,7 @@ export async function seedDatasusDeaths() {
           cirurgia: r.CIRURGIA,
           dtinvestig: parseDate(r.DTINVESTIG),
           causabas_o: r.CAUSABAS_O,
-          causa_bas: r.CAUSABAS,
+          causabas: r.CAUSABAS,
         };
       })
     );

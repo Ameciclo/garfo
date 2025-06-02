@@ -10,12 +10,12 @@ import { seedSpeedPlates } from "./modules/global/seed_speed_plates";
 
 async function runAll() {
   console.log("▶️ Starting all seeds...");
-  /*  await seedCities();
+  await seedCities();
   await seedCyclistInfra();
   await seedCyclistCount();
   await seedPCRStreets();
   await seedCrashes();
-  await seedDatasusDeaths();*/
+  await seedDatasusDeaths();
   await seedSpeedPlates();
   console.log("🎉 All seeds completed.");
   process.exit(0);
