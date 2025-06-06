@@ -10,103 +10,244 @@ const router = express.Router();
 
 // Mapeamento de códigos CID para tipos de vítimas e contrapartes
 const victimTypeMap: Record<string, string> = {
-  // Pedestres (V01-V09)
-  "V01": "pedestre", "V02": "pedestre", "V03": "pedestre", "V04": "pedestre",
-  "V05": "pedestre", "V06": "pedestre", "V09": "pedestre",
-  
+  // Pedestres (V01-V09) - não tem 07 e 08
+  V01: "pedestre",
+  V02: "pedestre",
+  V03: "pedestre",
+  V04: "pedestre",
+  V05: "pedestre",
+  V06: "pedestre",
+  V09: "pedestre",
+
   // Ciclistas (V10-V19)
-  "V10": "ciclista", "V11": "ciclista", "V12": "ciclista", "V13": "ciclista",
-  "V14": "ciclista", "V15": "ciclista", "V16": "ciclista", "V17": "ciclista",
-  "V18": "ciclista", "V19": "ciclista",
-  
+  V10: "ciclista",
+  V11: "ciclista",
+  V12: "ciclista",
+  V13: "ciclista",
+  V14: "ciclista",
+  V15: "ciclista",
+  V16: "ciclista",
+  V17: "ciclista",
+  V18: "ciclista",
+  V19: "ciclista",
+
   // Motociclistas (V20-V29)
-  "V20": "motociclista", "V21": "motociclista", "V22": "motociclista", "V23": "motociclista",
-  "V24": "motociclista", "V25": "motociclista", "V26": "motociclista", "V27": "motociclista",
-  "V28": "motociclista", "V29": "motociclista",
-  
+  V20: "motociclista",
+  V21: "motociclista",
+  V22: "motociclista",
+  V23: "motociclista",
+  V24: "motociclista",
+  V25: "motociclista",
+  V26: "motociclista",
+  V27: "motociclista",
+  V28: "motociclista",
+  V29: "motociclista",
+
+  // Ocupantes de triciclo motorizado (V30-V39) - serão consideradas outros
+  V30: "outros",
+  V31: "outros",
+  V32: "outros",
+  V33: "outros",
+  V34: "outros",
+  V35: "outros",
+  V36: "outros",
+  V37: "outros",
+  V38: "outros",
+  V39: "outros",
+
   // Ocupantes de automóveis (V40-V49)
-  "V40": "ocupante_automovel", "V41": "ocupante_automovel", "V42": "ocupante_automovel", 
-  "V43": "ocupante_automovel", "V44": "ocupante_automovel", "V45": "ocupante_automovel", 
-  "V46": "ocupante_automovel", "V47": "ocupante_automovel", "V48": "ocupante_automovel", 
-  "V49": "ocupante_automovel",
-  
-  // Ocupantes de veículos pesados (V50-V59)
-  "V50": "ocupante_veiculo_pesado", "V51": "ocupante_veiculo_pesado", "V52": "ocupante_veiculo_pesado",
-  "V53": "ocupante_veiculo_pesado", "V54": "ocupante_veiculo_pesado", "V55": "ocupante_veiculo_pesado",
-  "V56": "ocupante_veiculo_pesado", "V57": "ocupante_veiculo_pesado", "V58": "ocupante_veiculo_pesado",
-  "V59": "ocupante_veiculo_pesado",
-  
+  V40: "ocupante_automovel",
+  V41: "ocupante_automovel",
+  V42: "ocupante_automovel",
+  V43: "ocupante_automovel",
+  V44: "ocupante_automovel",
+  V45: "ocupante_automovel",
+  V46: "ocupante_automovel",
+  V47: "ocupante_automovel",
+  V48: "ocupante_automovel",
+  V49: "ocupante_automovel",
+
+  // Ocupantes de caminhonetes (V50-V59) - serão consideradas automóveis
+  V50: "ocupante_automovel",
+  V51: "ocupante_automovel",
+  V52: "ocupante_automovel",
+  V53: "ocupante_automovel",
+  V54: "ocupante_automovel",
+  V55: "ocupante_automovel",
+  V56: "ocupante_automovel",
+  V57: "ocupante_automovel",
+  V58: "ocupante_automovel",
+  V59: "ocupante_automovel",
+
+  // Ocupantes de veículos pesadso (V60-V69) - serão considerados outros
+  V60: "outros",
+  V61: "outros",
+  V62: "outros",
+  V63: "outros",
+  V64: "outros",
+  V65: "outros",
+  V66: "outros",
+  V67: "outros",
+  V68: "outros",
+  V69: "outros",
+
   // Ocupantes de ônibus (V70-V79)
-  "V70": "ocupante_onibus", "V71": "ocupante_onibus", "V72": "ocupante_onibus", "V73": "ocupante_onibus",
-  "V74": "ocupante_onibus", "V75": "ocupante_onibus", "V76": "ocupante_onibus", "V77": "ocupante_onibus",
-  "V78": "ocupante_onibus", "V79": "ocupante_onibus",
+  V70: "ocupante_onibus",
+  V71: "ocupante_onibus",
+  V72: "ocupante_onibus",
+  V73: "ocupante_onibus",
+  V74: "ocupante_onibus",
+  V75: "ocupante_onibus",
+  V76: "ocupante_onibus",
+  V77: "ocupante_onibus",
+  V78: "ocupante_onibus",
+  V79: "ocupante_onibus",
+
+  // Outros veículos (V80-V89)
+  V80: "outros",
+  V81: "outros",
+  V82: "outros",
+  V83: "outros",
+  V84: "outros",
+  V85: "outros",
+  V86: "outros",
+  V87: "outros",
+  V88: "outros",
+  V89: "outros",
 };
 
 // Mapeamento de códigos CID para contrapartes
 const counterpartMap: Record<string, string> = {
   // Contrapartes para pedestres (V01-V09)
-  "V01": "ciclista",                // Pedestre x Veículo a pedal
-  "V02": "motociclista",            // Pedestre x Veículo a motor de duas ou três rodas
-  "V03": "automovel",               // Pedestre x Automóvel
-  "V04": "veiculo_pesado_onibus",   // Pedestre x Veículo pesado ou ônibus
-  "V05": "trem",                    // Pedestre x Trem
-  "V06": "outro_nao_motorizado",    // Pedestre x Outro veículo não-motorizado
-  "V09": "nao_especificado",        // Pedestre x Não especificado
-  
+  V01: "ciclista", // Pedestre x Veículo a pedal
+  V02: "motociclista", // Pedestre x Veículo a motor de duas ou três rodas
+  V03: "automovel", // Pedestre x Automóvel
+  V04: "ônibus", // Pedestre x Veículo pesado ou ônibus
+  V05: "outros", // Pedestre x Trem
+  V06: "ciclista", // Pedestre x Outro veículo não-motorizado
+  V09: "nao_especificado", // Pedestre x Não especificado
+
   // Contrapartes para ciclistas (V10-V19)
-  "V10": "pedestre",                // Ciclista x Pedestre
-  "V11": "ciclista",                // Ciclista x Outro ciclista
-  "V12": "motociclista",            // Ciclista x Veículo a motor de duas ou três rodas
-  "V13": "automovel",               // Ciclista x Automóvel
-  "V14": "veiculo_pesado_onibus",   // Ciclista x Veículo pesado ou ônibus
-  "V15": "trem",                    // Ciclista x Trem
-  "V16": "outro_nao_motorizado",    // Ciclista x Outro veículo não-motorizado
-  "V17": "objeto_fixo",             // Ciclista x Objeto fixo
-  "V18": "sem_colisao",             // Ciclista x Sem colisão
-  "V19": "nao_especificado",        // Ciclista x Não especificado
-  
+  V10: "pedestre", // Ciclista x Pedestre
+  V11: "ciclista", // Ciclista x Outro ciclista
+  V12: "motociclista", // Ciclista x Veículo a motor de duas ou três rodas
+  V13: "automovel", // Ciclista x Automóvel
+  V14: "ônibus", // Ciclista x Veículo pesado ou ônibus
+  V15: "outros", // Ciclista x Trem
+  V16: "ciclista", // Ciclista x Outro veículo não-motorizado
+  V17: "objeto_fixo", // Ciclista x Objeto fixo
+  V18: "sem_colisao", // Ciclista x Sem colisão
+  V19: "nao_especificado", // Ciclista x Não especificado
+
   // Contrapartes para motociclistas (V20-V29) - seguindo o mesmo padrão
-  "V20": "pedestre",                // Motociclista x Pedestre
-  "V21": "ciclista",                // Motociclista x Ciclista
-  "V22": "motociclista",            // Motociclista x Outro motociclista
-  "V23": "automovel",               // Motociclista x Automóvel
-  "V24": "veiculo_pesado_onibus",   // Motociclista x Veículo pesado ou ônibus
-  "V25": "trem",                    // Motociclista x Trem
-  "V26": "outro_nao_motorizado",    // Motociclista x Outro veículo não-motorizado
-  "V27": "objeto_fixo",             // Motociclista x Objeto fixo
-  "V28": "sem_colisao",             // Motociclista x Sem colisão
-  "V29": "nao_especificado",        // Motociclista x Não especificado
-  
+  V20: "pedestre", // Motociclista x Pedestre
+  V21: "ciclista", // Motociclista x Ciclista
+  V22: "motociclista", // Motociclista x Outro motociclista
+  V23: "automovel", // Motociclista x Automóvel
+  V24: "ônibus", // Motociclista x Veículo pesado ou ônibus
+  V25: "outros", // Motociclista x Trem
+  V26: "ciclista", // Motociclista x Outro veículo não-motorizado
+  V27: "objeto_fixo", // Motociclista x Objeto fixo
+  V28: "sem_colisao", // Motociclista x Sem colisão
+  V29: "nao_especificado", // Motociclista x Não especificado
+
+  // Contrapartes para  triciclo motorizado (V30-V39) - serão consideradas outros
+  V30: "pedestre", // triciclo motorizado x Pedestre
+  V31: "ciclista", // triciclo motorizado x Ciclista
+  V32: "motociclista", // triciclo motorizado x Outro motociclista
+  V33: "automovel", // triciclo motorizado x Automóvel
+  V34: "ônibus", // triciclo motorizado x Veículo pesado ou ônibus
+  V35: "outros", // triciclo motorizado x Trem
+  V36: "ciclista", // triciclo motorizado x Outro veículo não-motorizado
+  V37: "objeto_fixo", // triciclo motorizado x Objeto fixo
+  V38: "sem_colisao", // triciclo motorizado x Sem colisão
+  V39: "nao_especificado", // triciclo motorizado x Não especificado
+
   // Contrapartes para ocupantes de automóveis (V40-V49)
-  "V40": "pedestre",                // Automóvel x Pedestre
-  "V41": "ciclista",                // Automóvel x Ciclista
-  "V42": "motociclista",            // Automóvel x Motociclista
-  "V43": "automovel",               // Automóvel x Outro automóvel
-  "V44": "veiculo_pesado_onibus",   // Automóvel x Veículo pesado ou ônibus
-  "V45": "trem",                    // Automóvel x Trem
-  "V46": "outro_nao_motorizado",    // Automóvel x Outro veículo não-motorizado
-  "V47": "objeto_fixo",             // Automóvel x Objeto fixo
-  "V48": "sem_colisao",             // Automóvel x Sem colisão
-  "V49": "nao_especificado",        // Automóvel x Não especificado
+  V40: "pedestre", // Automóvel x Pedestre
+  V41: "ciclista", // Automóvel x Ciclista
+  V42: "motociclista", // Automóvel x Motociclista
+  V43: "automovel", // Automóvel x Outro automóvel
+  V44: "ônibus", // Automóvel x Veículo pesado ou ônibus
+  V45: "outros", // Automóvel x Trem
+  V46: "ciclista", // Automóvel x Outro veículo não-motorizado
+  V47: "objeto_fixo", // Automóvel x Objeto fixo
+  V48: "sem_colisao", // Automóvel x Sem colisão
+  V49: "nao_especificado", // Automóvel x Não especificado
+
+  // Contrapartes para ocupantes de caminhonetes (V50-V59) - serão considerados automóveis
+  V50: "pedestre", // caminhonetes x Pedestre
+  V51: "ciclista", // caminhonetes x Ciclista
+  V52: "motociclista", // caminhonetes x Motociclista
+  V53: "automovel", // caminhonetes x Outro automóvel
+  V54: "ônibus", // caminhonetes x Veículo pesado ou ônibus
+  V55: "outros", // caminhonetes x Trem
+  V56: "ciclista", // caminhonetes x Outro veículo não-motorizado
+  V57: "objeto_fixo", // caminhonetes x Objeto fixo
+  V58: "sem_colisao", // caminhonetes x Sem colisão
+  V59: "nao_especificado", // caminhonetes x Não especificado
+
+  // Contrapartes para ocupantes de veículos pesados (V60-V69) - serão considerados outros
+  V60: "pedestre", // ocupantes de veículos pesados x Pedestre
+  V61: "ciclista", // ocupantes de veículos pesados x Ciclista
+  V62: "motociclista", // ocupantes de veículos pesados x Motociclista
+  V63: "automovel", // ocupantes de veículos pesados x Outro automóvel
+  V64: "ônibus", // ocupantes de veículos pesados x Veículo pesado ou ônibus
+  V65: "outros", // ocupantes de veículos pesados x Trem
+  V66: "ciclista", // ocupantes de veículos pesados x Outro veículo não-motorizado
+  V67: "objeto_fixo", // ocupantes de veículos pesados x Objeto fixo
+  V68: "sem_colisao", // ocupantes de veículos pesados x Sem colisão
+  V69: "nao_especificado", // ocupantes de veículos pesados x Não especificado
+
+  // Contrapartes para ocupantes de ônibus (V70-V79)
+  V70: "pedestre", // ocupantes de ônibus x Pedestre
+  V71: "ciclista", // ocupantes de ônibus x Ciclista
+  V72: "motociclista", // ocupantes de ônibus x Motociclista
+  V73: "automovel", // ocupantes de ônibus x Outro automóvel
+  V74: "ônibus", // ocupantes de ônibus x Veículo pesado ou ônibus
+  V75: "outros", // ocupantes de ônibus x Trem
+  V76: "ciclista", // ocupantes de ônibus x Outro veículo não-motorizado
+  V77: "objeto_fixo", // ocupantes de ônibus x Objeto fixo
+  V78: "sem_colisao", // ocupantes de ônibus x Sem colisão
+  V79: "nao_especificado", // ocupantes de ônibus x Não especificado
+
+  // Contrapartes para outros veículos (V80-V89)
+  V80: "pedestre", // outros veículos x Pedestre
+  V81: "ciclista", // outros veículos x Ciclista
+  V82: "motociclista", // outros veículos x Motociclista
+  V83: "automovel", // outros veículos x Outro automóvel
+  V84: "ônibus", // outros veículos x Veículo pesado ou ônibus
+  V85: "outros", // outros veículos x Trem
+  V86: "ciclista", // outros veículos x Outro veículo não-motorizado
+  V87: "objeto_fixo", // outros veículos x Objeto fixo
+  V88: "sem_colisao", // outros veículos x Sem colisão
+  V89: "nao_especificado", // outros veículos x Não especificado
 };
 
 // Função para obter a matriz de colisão para uma cidade ou RMR
-async function getCollisionMatrix(cityId?: number, startYear?: number, endYear?: number, byResidence: boolean = false) {
+async function getCollisionMatrix(
+  cityId?: number,
+  startYear?: number,
+  endYear?: number,
+  byResidence: boolean = false
+) {
   try {
     // Definir período padrão se não especificado
     const currentYear = new Date().getFullYear();
     const defaultStartYear = currentYear - config.periodos.anosRetroativos;
-    
+
     // Usar valores padrão se não fornecidos
     const fromYear = startYear || defaultStartYear;
     const toYear = endYear || currentYear;
-    
+
     // Determinar qual campo usar com base no parâmetro byResidence
-    const locationField = byResidence ? datasus_deaths.codmunres : datasus_deaths.codmunocor;
-    
+    const locationField = byResidence
+      ? datasus_deaths.codmunres
+      : datasus_deaths.codmunocor;
+
     // Construir a cláusula WHERE para filtrar por cidade ou RMR
     let whereClause;
-    
+
     if (cityId) {
       // Filtrar por cidade específica
       whereClause = sql`${locationField} = ${cityId} AND 
@@ -118,32 +259,32 @@ async function getCollisionMatrix(cityId?: number, startYear?: number, endYear?:
         .from(cities)
         .where(sql`${cities.rmr} = true`)
         .execute();
-      
+
       if (rmrCities.length === 0) {
         throw new Error("Nenhuma cidade da RMR encontrada");
       }
-      
+
       // Construir a cláusula WHERE para incluir todas as cidades da RMR
       let rmrWhereClause = sql`false`;
       for (const city of rmrCities) {
         rmrWhereClause = sql`${rmrWhereClause} OR ${locationField} = ${city.id}`;
       }
-      
+
       whereClause = sql`(${rmrWhereClause}) AND 
                         EXTRACT(YEAR FROM ${datasus_deaths.dtobito}) BETWEEN ${fromYear} AND ${toYear}`;
     }
-    
+
     // Buscar os dados de mortes por CID
     const deathsByCID = await db
       .select({
         causabas: datasus_deaths.causabas,
-        count: sql<number>`count(*)`
+        count: sql<number>`count(*)`,
       })
       .from(datasus_deaths)
       .where(whereClause)
       .groupBy(datasus_deaths.causabas)
       .execute();
-    
+
     // Definir tipos para a matriz de colisão
     type CounterpartType = {
       pedestre: number;
@@ -158,7 +299,7 @@ async function getCollisionMatrix(cityId?: number, startYear?: number, endYear?:
       nao_especificado: number;
       total: number;
     };
-    
+
     type CollisionMatrixType = {
       pedestre: CounterpartType;
       ciclista: CounterpartType;
@@ -168,7 +309,7 @@ async function getCollisionMatrix(cityId?: number, startYear?: number, endYear?:
       ocupante_onibus: CounterpartType;
       total: CounterpartType;
     };
-    
+
     // Inicializar a matriz de colisão
     const collisionMatrix: CollisionMatrixType = {
       pedestre: {
@@ -182,7 +323,7 @@ async function getCollisionMatrix(cityId?: number, startYear?: number, endYear?:
         objeto_fixo: 0,
         sem_colisao: 0,
         nao_especificado: 0,
-        total: 0
+        total: 0,
       },
       ciclista: {
         pedestre: 0,
@@ -195,7 +336,7 @@ async function getCollisionMatrix(cityId?: number, startYear?: number, endYear?:
         objeto_fixo: 0,
         sem_colisao: 0,
         nao_especificado: 0,
-        total: 0
+        total: 0,
       },
       motociclista: {
         pedestre: 0,
@@ -208,7 +349,7 @@ async function getCollisionMatrix(cityId?: number, startYear?: number, endYear?:
         objeto_fixo: 0,
         sem_colisao: 0,
         nao_especificado: 0,
-        total: 0
+        total: 0,
       },
       ocupante_automovel: {
         pedestre: 0,
@@ -221,7 +362,7 @@ async function getCollisionMatrix(cityId?: number, startYear?: number, endYear?:
         objeto_fixo: 0,
         sem_colisao: 0,
         nao_especificado: 0,
-        total: 0
+        total: 0,
       },
       ocupante_veiculo_pesado: {
         pedestre: 0,
@@ -234,7 +375,7 @@ async function getCollisionMatrix(cityId?: number, startYear?: number, endYear?:
         objeto_fixo: 0,
         sem_colisao: 0,
         nao_especificado: 0,
-        total: 0
+        total: 0,
       },
       ocupante_onibus: {
         pedestre: 0,
@@ -247,7 +388,7 @@ async function getCollisionMatrix(cityId?: number, startYear?: number, endYear?:
         objeto_fixo: 0,
         sem_colisao: 0,
         nao_especificado: 0,
-        total: 0
+        total: 0,
       },
       total: {
         pedestre: 0,
@@ -260,30 +401,35 @@ async function getCollisionMatrix(cityId?: number, startYear?: number, endYear?:
         objeto_fixo: 0,
         sem_colisao: 0,
         nao_especificado: 0,
-        total: 0
-      }
+        total: 0,
+      },
     };
-    
+
     // Preencher a matriz com os dados
     for (const death of deathsByCID) {
       const cid = death.causabas?.substring(0, 3);
       if (!cid) continue;
-      
+
       const victimType = victimTypeMap[cid];
       const counterpartType = counterpartMap[cid];
-      
-      if (victimType && counterpartType && collisionMatrix[victimType as keyof typeof collisionMatrix]) {
+
+      if (
+        victimType &&
+        counterpartType &&
+        collisionMatrix[victimType as keyof typeof collisionMatrix]
+      ) {
         const count = Number(death.count) || 0;
         const victim = victimType as keyof typeof collisionMatrix;
-        const counterpart = counterpartType as keyof typeof collisionMatrix.pedestre;
-        
+        const counterpart =
+          counterpartType as keyof typeof collisionMatrix.pedestre;
+
         collisionMatrix[victim][counterpart] += count;
         collisionMatrix[victim].total += count;
         collisionMatrix.total[counterpart] += count;
         collisionMatrix.total.total += count;
       }
     }
-    
+
     return collisionMatrix;
   } catch (error) {
     console.error("Erro ao obter matriz de colisão:", error);
@@ -295,12 +441,19 @@ async function getCollisionMatrix(cityId?: number, startYear?: number, endYear?:
 router.get("/", async (req: Request, res: Response) => {
   try {
     const cityId = req.query.cityId ? Number(req.query.cityId) : undefined;
-    const startYear = req.query.startYear ? Number(req.query.startYear) : undefined;
+    const startYear = req.query.startYear
+      ? Number(req.query.startYear)
+      : undefined;
     const endYear = req.query.endYear ? Number(req.query.endYear) : undefined;
-    const byResidence = req.query.byResidence === 'true';
-    
-    const matrix = await getCollisionMatrix(cityId, startYear, endYear, byResidence);
-    
+    const byResidence = req.query.byResidence === "true";
+
+    const matrix = await getCollisionMatrix(
+      cityId,
+      startYear,
+      endYear,
+      byResidence
+    );
+
     res.json({
       matrix,
       metadata: {
@@ -308,15 +461,18 @@ router.get("/", async (req: Request, res: Response) => {
         startYear,
         endYear,
         byResidence,
-        locationType: byResidence ? "Local de Residência" : "Local de Ocorrência",
-        description: "Matriz de colisão mostrando o número de mortes por tipo de vítima e contraparte"
-      }
+        locationType: byResidence
+          ? "Local de Residência"
+          : "Local de Ocorrência",
+        description:
+          "Matriz de colisão mostrando o número de mortes por tipo de vítima e contraparte",
+      },
     });
   } catch (error) {
     console.error("Erro no endpoint matrix:", error);
-    res.status(500).json({ 
-      error: "Erro interno do servidor", 
-      message: error instanceof Error ? error.message : "Erro desconhecido" 
+    res.status(500).json({
+      error: "Erro interno do servidor",
+      message: error instanceof Error ? error.message : "Erro desconhecido",
     });
   }
 });
