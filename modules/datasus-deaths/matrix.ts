@@ -291,9 +291,8 @@ async function getCollisionMatrix(
       ciclista: number;
       motociclista: number;
       automovel: number;
-      veiculo_pesado_onibus: number;
-      trem: number;
-      outro_nao_motorizado: number;
+      ônibus: number;
+      outros: number;
       objeto_fixo: number;
       sem_colisao: number;
       nao_especificado: number;
@@ -305,8 +304,8 @@ async function getCollisionMatrix(
       ciclista: CounterpartType;
       motociclista: CounterpartType;
       ocupante_automovel: CounterpartType;
-      ocupante_veiculo_pesado: CounterpartType;
       ocupante_onibus: CounterpartType;
+      outros: CounterpartType;
       total: CounterpartType;
     };
 
@@ -317,9 +316,8 @@ async function getCollisionMatrix(
         ciclista: 0,
         motociclista: 0,
         automovel: 0,
-        veiculo_pesado_onibus: 0,
-        trem: 0,
-        outro_nao_motorizado: 0,
+        ônibus: 0,
+        outros: 0,
         objeto_fixo: 0,
         sem_colisao: 0,
         nao_especificado: 0,
@@ -330,9 +328,8 @@ async function getCollisionMatrix(
         ciclista: 0,
         motociclista: 0,
         automovel: 0,
-        veiculo_pesado_onibus: 0,
-        trem: 0,
-        outro_nao_motorizado: 0,
+        ônibus: 0,
+        outros: 0,
         objeto_fixo: 0,
         sem_colisao: 0,
         nao_especificado: 0,
@@ -343,9 +340,8 @@ async function getCollisionMatrix(
         ciclista: 0,
         motociclista: 0,
         automovel: 0,
-        veiculo_pesado_onibus: 0,
-        trem: 0,
-        outro_nao_motorizado: 0,
+        ônibus: 0,
+        outros: 0,
         objeto_fixo: 0,
         sem_colisao: 0,
         nao_especificado: 0,
@@ -356,22 +352,8 @@ async function getCollisionMatrix(
         ciclista: 0,
         motociclista: 0,
         automovel: 0,
-        veiculo_pesado_onibus: 0,
-        trem: 0,
-        outro_nao_motorizado: 0,
-        objeto_fixo: 0,
-        sem_colisao: 0,
-        nao_especificado: 0,
-        total: 0,
-      },
-      ocupante_veiculo_pesado: {
-        pedestre: 0,
-        ciclista: 0,
-        motociclista: 0,
-        automovel: 0,
-        veiculo_pesado_onibus: 0,
-        trem: 0,
-        outro_nao_motorizado: 0,
+        ônibus: 0,
+        outros: 0,
         objeto_fixo: 0,
         sem_colisao: 0,
         nao_especificado: 0,
@@ -382,9 +364,20 @@ async function getCollisionMatrix(
         ciclista: 0,
         motociclista: 0,
         automovel: 0,
-        veiculo_pesado_onibus: 0,
-        trem: 0,
-        outro_nao_motorizado: 0,
+        ônibus: 0,
+        outros: 0,
+        objeto_fixo: 0,
+        sem_colisao: 0,
+        nao_especificado: 0,
+        total: 0,
+      },
+      outros: {
+        pedestre: 0,
+        ciclista: 0,
+        motociclista: 0,
+        automovel: 0,
+        ônibus: 0,
+        outros: 0,
         objeto_fixo: 0,
         sem_colisao: 0,
         nao_especificado: 0,
@@ -395,9 +388,8 @@ async function getCollisionMatrix(
         ciclista: 0,
         motociclista: 0,
         automovel: 0,
-        veiculo_pesado_onibus: 0,
-        trem: 0,
-        outro_nao_motorizado: 0,
+        ônibus: 0,
+        outros: 0,
         objeto_fixo: 0,
         sem_colisao: 0,
         nao_especificado: 0,
