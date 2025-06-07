@@ -56,28 +56,28 @@ const victimTypeMap: Record<string, string> = {
   V39: "outros",
 
   // Ocupantes de automóveis (V40-V49)
-  V40: "ocupante_automovel",
-  V41: "ocupante_automovel",
-  V42: "ocupante_automovel",
-  V43: "ocupante_automovel",
-  V44: "ocupante_automovel",
-  V45: "ocupante_automovel",
-  V46: "ocupante_automovel",
-  V47: "ocupante_automovel",
-  V48: "ocupante_automovel",
-  V49: "ocupante_automovel",
+  V40: "automovel",
+  V41: "automovel",
+  V42: "automovel",
+  V43: "automovel",
+  V44: "automovel",
+  V45: "automovel",
+  V46: "automovel",
+  V47: "automovel",
+  V48: "automovel",
+  V49: "automovel",
 
   // Ocupantes de caminhonetes (V50-V59) - serão consideradas automóveis
-  V50: "ocupante_automovel",
-  V51: "ocupante_automovel",
-  V52: "ocupante_automovel",
-  V53: "ocupante_automovel",
-  V54: "ocupante_automovel",
-  V55: "ocupante_automovel",
-  V56: "ocupante_automovel",
-  V57: "ocupante_automovel",
-  V58: "ocupante_automovel",
-  V59: "ocupante_automovel",
+  V50: "automovel",
+  V51: "automovel",
+  V52: "automovel",
+  V53: "automovel",
+  V54: "automovel",
+  V55: "automovel",
+  V56: "automovel",
+  V57: "automovel",
+  V58: "automovel",
+  V59: "automovel",
 
   // Ocupantes de veículos pesadso (V60-V69) - serão considerados outros
   V60: "outros",
@@ -91,17 +91,17 @@ const victimTypeMap: Record<string, string> = {
   V68: "outros",
   V69: "outros",
 
-  // Ocupantes de ônibus (V70-V79)
-  V70: "ocupante_onibus",
-  V71: "ocupante_onibus",
-  V72: "ocupante_onibus",
-  V73: "ocupante_onibus",
-  V74: "ocupante_onibus",
-  V75: "ocupante_onibus",
-  V76: "ocupante_onibus",
-  V77: "ocupante_onibus",
-  V78: "ocupante_onibus",
-  V79: "ocupante_onibus",
+  // Ocupantes de onibus (V70-V79)
+  V70: "onibus",
+  V71: "onibus",
+  V72: "onibus",
+  V73: "onibus",
+  V74: "onibus",
+  V75: "onibus",
+  V76: "onibus",
+  V77: "onibus",
+  V78: "onibus",
+  V79: "onibus",
 
   // Outros veículos (V80-V89)
   V80: "outros",
@@ -122,7 +122,7 @@ const counterpartMap: Record<string, string> = {
   V01: "ciclista", // Pedestre x Veículo a pedal
   V02: "motociclista", // Pedestre x Veículo a motor de duas ou três rodas
   V03: "automovel", // Pedestre x Automóvel
-  V04: "ônibus", // Pedestre x Veículo pesado ou ônibus
+  V04: "onibus", // Pedestre x Veículo pesado ou onibus
   V05: "outros", // Pedestre x Trem
   V06: "ciclista", // Pedestre x Outro veículo não-motorizado
   V09: "nao_especificado", // Pedestre x Não especificado
@@ -132,7 +132,7 @@ const counterpartMap: Record<string, string> = {
   V11: "ciclista", // Ciclista x Outro ciclista
   V12: "motociclista", // Ciclista x Veículo a motor de duas ou três rodas
   V13: "automovel", // Ciclista x Automóvel
-  V14: "ônibus", // Ciclista x Veículo pesado ou ônibus
+  V14: "onibus", // Ciclista x Veículo pesado ou onibus
   V15: "outros", // Ciclista x Trem
   V16: "ciclista", // Ciclista x Outro veículo não-motorizado
   V17: "objeto_fixo", // Ciclista x Objeto fixo
@@ -144,7 +144,7 @@ const counterpartMap: Record<string, string> = {
   V21: "ciclista", // Motociclista x Ciclista
   V22: "motociclista", // Motociclista x Outro motociclista
   V23: "automovel", // Motociclista x Automóvel
-  V24: "ônibus", // Motociclista x Veículo pesado ou ônibus
+  V24: "onibus", // Motociclista x Veículo pesado ou onibus
   V25: "outros", // Motociclista x Trem
   V26: "ciclista", // Motociclista x Outro veículo não-motorizado
   V27: "objeto_fixo", // Motociclista x Objeto fixo
@@ -156,7 +156,7 @@ const counterpartMap: Record<string, string> = {
   V31: "ciclista", // triciclo motorizado x Ciclista
   V32: "motociclista", // triciclo motorizado x Outro motociclista
   V33: "automovel", // triciclo motorizado x Automóvel
-  V34: "ônibus", // triciclo motorizado x Veículo pesado ou ônibus
+  V34: "onibus", // triciclo motorizado x Veículo pesado ou onibus
   V35: "outros", // triciclo motorizado x Trem
   V36: "ciclista", // triciclo motorizado x Outro veículo não-motorizado
   V37: "objeto_fixo", // triciclo motorizado x Objeto fixo
@@ -168,7 +168,7 @@ const counterpartMap: Record<string, string> = {
   V41: "ciclista", // Automóvel x Ciclista
   V42: "motociclista", // Automóvel x Motociclista
   V43: "automovel", // Automóvel x Outro automóvel
-  V44: "ônibus", // Automóvel x Veículo pesado ou ônibus
+  V44: "onibus", // Automóvel x Veículo pesado ou onibus
   V45: "outros", // Automóvel x Trem
   V46: "ciclista", // Automóvel x Outro veículo não-motorizado
   V47: "objeto_fixo", // Automóvel x Objeto fixo
@@ -180,7 +180,7 @@ const counterpartMap: Record<string, string> = {
   V51: "ciclista", // caminhonetes x Ciclista
   V52: "motociclista", // caminhonetes x Motociclista
   V53: "automovel", // caminhonetes x Outro automóvel
-  V54: "ônibus", // caminhonetes x Veículo pesado ou ônibus
+  V54: "onibus", // caminhonetes x Veículo pesado ou onibus
   V55: "outros", // caminhonetes x Trem
   V56: "ciclista", // caminhonetes x Outro veículo não-motorizado
   V57: "objeto_fixo", // caminhonetes x Objeto fixo
@@ -192,31 +192,31 @@ const counterpartMap: Record<string, string> = {
   V61: "ciclista", // ocupantes de veículos pesados x Ciclista
   V62: "motociclista", // ocupantes de veículos pesados x Motociclista
   V63: "automovel", // ocupantes de veículos pesados x Outro automóvel
-  V64: "ônibus", // ocupantes de veículos pesados x Veículo pesado ou ônibus
+  V64: "onibus", // ocupantes de veículos pesados x Veículo pesado ou onibus
   V65: "outros", // ocupantes de veículos pesados x Trem
   V66: "ciclista", // ocupantes de veículos pesados x Outro veículo não-motorizado
   V67: "objeto_fixo", // ocupantes de veículos pesados x Objeto fixo
   V68: "sem_colisao", // ocupantes de veículos pesados x Sem colisão
   V69: "nao_especificado", // ocupantes de veículos pesados x Não especificado
 
-  // Contrapartes para ocupantes de ônibus (V70-V79)
-  V70: "pedestre", // ocupantes de ônibus x Pedestre
-  V71: "ciclista", // ocupantes de ônibus x Ciclista
-  V72: "motociclista", // ocupantes de ônibus x Motociclista
-  V73: "automovel", // ocupantes de ônibus x Outro automóvel
-  V74: "ônibus", // ocupantes de ônibus x Veículo pesado ou ônibus
-  V75: "outros", // ocupantes de ônibus x Trem
-  V76: "ciclista", // ocupantes de ônibus x Outro veículo não-motorizado
-  V77: "objeto_fixo", // ocupantes de ônibus x Objeto fixo
-  V78: "sem_colisao", // ocupantes de ônibus x Sem colisão
-  V79: "nao_especificado", // ocupantes de ônibus x Não especificado
+  // Contrapartes para ocupantes de onibus (V70-V79)
+  V70: "pedestre", // ocupantes de onibus x Pedestre
+  V71: "ciclista", // ocupantes de onibus x Ciclista
+  V72: "motociclista", // ocupantes de onibus x Motociclista
+  V73: "automovel", // ocupantes de onibus x Outro automóvel
+  V74: "onibus", // ocupantes de onibus x Veículo pesado ou onibus
+  V75: "outros", // ocupantes de onibus x Trem
+  V76: "ciclista", // ocupantes de onibus x Outro veículo não-motorizado
+  V77: "objeto_fixo", // ocupantes de onibus x Objeto fixo
+  V78: "sem_colisao", // ocupantes de onibus x Sem colisão
+  V79: "nao_especificado", // ocupantes de onibus x Não especificado
 
   // Contrapartes para outros veículos (V80-V89)
   V80: "pedestre", // outros veículos x Pedestre
   V81: "ciclista", // outros veículos x Ciclista
   V82: "motociclista", // outros veículos x Motociclista
   V83: "automovel", // outros veículos x Outro automóvel
-  V84: "ônibus", // outros veículos x Veículo pesado ou ônibus
+  V84: "onibus", // outros veículos x Veículo pesado ou onibus
   V85: "outros", // outros veículos x Trem
   V86: "ciclista", // outros veículos x Outro veículo não-motorizado
   V87: "objeto_fixo", // outros veículos x Objeto fixo
@@ -291,7 +291,7 @@ async function getCollisionMatrix(
       ciclista: number;
       motociclista: number;
       automovel: number;
-      ônibus: number;
+      onibus: number;
       outros: number;
       objeto_fixo: number;
       sem_colisao: number;
@@ -303,8 +303,8 @@ async function getCollisionMatrix(
       pedestre: CounterpartType;
       ciclista: CounterpartType;
       motociclista: CounterpartType;
-      ocupante_automovel: CounterpartType;
-      ocupante_onibus: CounterpartType;
+      automovel: CounterpartType;
+      onibus: CounterpartType;
       outros: CounterpartType;
       total: CounterpartType;
     };
@@ -316,7 +316,7 @@ async function getCollisionMatrix(
         ciclista: 0,
         motociclista: 0,
         automovel: 0,
-        ônibus: 0,
+        onibus: 0,
         outros: 0,
         objeto_fixo: 0,
         sem_colisao: 0,
@@ -328,7 +328,7 @@ async function getCollisionMatrix(
         ciclista: 0,
         motociclista: 0,
         automovel: 0,
-        ônibus: 0,
+        onibus: 0,
         outros: 0,
         objeto_fixo: 0,
         sem_colisao: 0,
@@ -340,31 +340,31 @@ async function getCollisionMatrix(
         ciclista: 0,
         motociclista: 0,
         automovel: 0,
-        ônibus: 0,
+        onibus: 0,
         outros: 0,
         objeto_fixo: 0,
         sem_colisao: 0,
         nao_especificado: 0,
         total: 0,
       },
-      ocupante_automovel: {
+      automovel: {
         pedestre: 0,
         ciclista: 0,
         motociclista: 0,
         automovel: 0,
-        ônibus: 0,
+        onibus: 0,
         outros: 0,
         objeto_fixo: 0,
         sem_colisao: 0,
         nao_especificado: 0,
         total: 0,
       },
-      ocupante_onibus: {
+      onibus: {
         pedestre: 0,
         ciclista: 0,
         motociclista: 0,
         automovel: 0,
-        ônibus: 0,
+        onibus: 0,
         outros: 0,
         objeto_fixo: 0,
         sem_colisao: 0,
@@ -376,7 +376,7 @@ async function getCollisionMatrix(
         ciclista: 0,
         motociclista: 0,
         automovel: 0,
-        ônibus: 0,
+        onibus: 0,
         outros: 0,
         objeto_fixo: 0,
         sem_colisao: 0,
@@ -388,7 +388,7 @@ async function getCollisionMatrix(
         ciclista: 0,
         motociclista: 0,
         automovel: 0,
-        ônibus: 0,
+        onibus: 0,
         outros: 0,
         objeto_fixo: 0,
         sem_colisao: 0,

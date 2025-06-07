@@ -240,8 +240,8 @@ GET http://localhost:8080/datasus-deaths/matrix?cityId=2611606&startYear=2018&en
       "pedestre": 0,
       "ciclista": 5,
       "motociclista": 25,
-      "automovel": 120,
-      "ônibus": 30,
+      "ocupanete_automovel": 120,
+      "onibus": 30,
       "outros": 3,
       "objeto_fixo": 0,
       "sem_colisao": 0,
@@ -252,8 +252,8 @@ GET http://localhost:8080/datasus-deaths/matrix?cityId=2611606&startYear=2018&en
       "pedestre": 2,
       "ciclista": 3,
       "motociclista": 8,
-      "automovel": 45,
-      "ônibus": 12,
+      "ocupanete_automovel": 45,
+      "onibus": 12,
       "outros": 1,
       "objeto_fixo": 10,
       "sem_colisao": 15,
@@ -265,8 +265,8 @@ GET http://localhost:8080/datasus-deaths/matrix?cityId=2611606&startYear=2018&en
       "pedestre": 5,
       "ciclista": 10,
       "motociclista": 50,
-      "automovel": 280,
-      "ônibus": 60,
+      "ocupanete_automovel": 280,
+      "onibus": 60,
       "outros": 15,
       "objeto_fixo": 70,
       "sem_colisao": 50,
@@ -293,6 +293,7 @@ GET http://localhost:8080/datasus-deaths/matrix?cityId=2611606&startYear=2018&en
 
 **Parâmetros:**
 - `tipo` (opcional): Tipo de local a considerar (`ocorrencia` ou `residencia`). Padrão: `ocorrencia`.
+- `localOcorrenciaObito` (opcional): Código do local de ocorrência do óbito (1 = hospital, 2 = outros estabelecimentos de saúde, 3 = domicílio, 4 = via pública, 5 = outros, 9 = ignorado).
 
 **Descrição:** Retorna dados de mortes por cidade da RMR, divididos por ano.
 
@@ -300,12 +301,18 @@ GET http://localhost:8080/datasus-deaths/matrix?cityId=2611606&startYear=2018&en
 ```
 GET http://localhost:8080/datasus-deaths/cities-by-year
 GET http://localhost:8080/datasus-deaths/cities-by-year?tipo=residencia
+GET http://localhost:8080/datasus-deaths/cities-by-year?localOcorrenciaObito=4
+GET http://localhost:8080/datasus-deaths/cities-by-year?tipo=ocorrencia&localOcorrenciaObito=4
 ```
 
 **Resposta:**
 ```json
 {
   "tipo": "Local de Ocorrência",
+  "localOcorrenciaObito": {
+    "valor": "4",
+    "descricao": "Via pública"
+  },
   "anos": [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022],
   "cidades": [
     {

@@ -15,11 +15,27 @@ interface CityYearData {
   yearData: Record<string, number>;
 }
 
+// Função para obter a descrição do local de ocorrência do óbito
+function getLocalOcorrenciaDescricao(codigo: string): string {
+  switch (codigo) {
+    case '1': return 'Hospital';
+    case '2': return 'Outros estabelecimentos de saúde';
+    case '3': return 'Domicílio';
+    case '4': return 'Via pública';
+    case '5': return 'Outros';
+    case '9': return 'Ignorado';
+    default: return 'Desconhecido';
+  }
+}
+
 router.get("/", async (req: Request, res: Response) => {
   try {
     // Verificar se é por local de residência ou ocorrência
     const tipoLocal = req.query.tipo === 'residencia' ? 'residencia' : 'ocorrencia';
     const campoLocal = tipoLocal === 'residencia' ? datasus_deaths.codmunres : datasus_deaths.codmunocor;
+    
+    // Verificar se há filtro por local de ocorrência do óbito
+    const localOcorrenciaObito = req.query.localOcorrenciaObito ? String(req.query.localOcorrenciaObito) : null;
     
     // Obtém o ano atual para calcular os últimos 10 anos
     const currentYear = new Date().getFullYear();
@@ -42,6 +58,13 @@ router.get("/", async (req: Request, res: Response) => {
       whereClause = sql`${whereClause} OR ${campoLocal} = ${city.id}`;
     }
     
+    // Adicionar filtro por local de ocorrência do óbito se especificado
+    let finalWhereClause = sql`(${whereClause}) AND EXTRACT(YEAR FROM ${datasus_deaths.dtobito}) >= ${startYear}`;
+    
+    if (localOcorrenciaObito) {
+      finalWhereClause = sql`${finalWhereClause} AND ${datasus_deaths.lococor} = ${localOcorrenciaObito}`;
+    }
+    
     // Consulta para obter mortes por cidade e ano
     const result = await db
       .select({
@@ -52,7 +75,7 @@ router.get("/", async (req: Request, res: Response) => {
       })
       .from(datasus_deaths)
       .leftJoin(cities, sql`${campoLocal} = ${cities.id}`)
-      .where(sql`(${whereClause}) AND EXTRACT(YEAR FROM ${datasus_deaths.dtobito}) >= ${startYear}`)
+      .where(finalWhereClause)
       .groupBy(campoLocal, cities.name, sql`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`)
       .orderBy(cities.name, sql`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`)
       .execute();
@@ -88,6 +111,10 @@ router.get("/", async (req: Request, res: Response) => {
     // Formatar a resposta final
     const response = {
       tipo: tipoLocal === 'residencia' ? 'Local de Residência' : 'Local de Ocorrência',
+      localOcorrenciaObito: req.query.localOcorrenciaObito ? {
+        valor: req.query.localOcorrenciaObito,
+        descricao: getLocalOcorrenciaDescricao(String(req.query.localOcorrenciaObito))
+      } : null,
       anos: sortedYears.map(year => parseInt(year)),
       cidades: Array.from(cityYearMap.values()).map(city => {
         const yearValues: Record<string, number> = {};
