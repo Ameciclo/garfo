@@ -173,31 +173,60 @@ router.get("/", async (req: Request, res: Response) => {
       linhaii: {}
     };
     
+    // Função para simplificar o código CID (pegar apenas a letra e os dois primeiros dígitos)
+    const simplificarCodigo = (codigo: string): string | null => {
+      if (!codigo || codigo === "NA") return null;
+      
+      // Remover asteriscos ou outros caracteres não alfanuméricos do início
+      let codigoLimpo = codigo.replace(/^[^a-zA-Z0-9]+/, "");
+      
+      // Se não tiver pelo menos uma letra seguida de números, retorna null
+      if (!/^[a-zA-Z][0-9]{1,2}/.test(codigoLimpo)) return null;
+      
+      // Pega a letra e os dois primeiros dígitos (ou um se só tiver um)
+      return codigoLimpo.substring(0, Math.min(3, codigoLimpo.length));
+    };
+    
     // Processar os resultados
     result.forEach(row => {
       // Processar linha A
       if (row.linhaa) {
-        causasSecundarias.linhaa[row.linhaa] = (causasSecundarias.linhaa[row.linhaa] || 0) + Number(row.count);
+        const codigoSimplificado = simplificarCodigo(row.linhaa);
+        if (codigoSimplificado) {
+          causasSecundarias.linhaa[codigoSimplificado] = (causasSecundarias.linhaa[codigoSimplificado] || 0) + Number(row.count);
+        }
       }
       
       // Processar linha B
       if (row.linhab) {
-        causasSecundarias.linhab[row.linhab] = (causasSecundarias.linhab[row.linhab] || 0) + Number(row.count);
+        const codigoSimplificado = simplificarCodigo(row.linhab);
+        if (codigoSimplificado) {
+          causasSecundarias.linhab[codigoSimplificado] = (causasSecundarias.linhab[codigoSimplificado] || 0) + Number(row.count);
+        }
       }
       
       // Processar linha C
       if (row.linhac) {
-        causasSecundarias.linhac[row.linhac] = (causasSecundarias.linhac[row.linhac] || 0) + Number(row.count);
+        const codigoSimplificado = simplificarCodigo(row.linhac);
+        if (codigoSimplificado) {
+          causasSecundarias.linhac[codigoSimplificado] = (causasSecundarias.linhac[codigoSimplificado] || 0) + Number(row.count);
+        }
       }
       
       // Processar linha D
       if (row.linhad) {
-        causasSecundarias.linhad[row.linhad] = (causasSecundarias.linhad[row.linhad] || 0) + Number(row.count);
+        const codigoSimplificado = simplificarCodigo(row.linhad);
+        if (codigoSimplificado) {
+          causasSecundarias.linhad[codigoSimplificado] = (causasSecundarias.linhad[codigoSimplificado] || 0) + Number(row.count);
+        }
       }
       
       // Processar linha II
       if (row.linhaii) {
-        causasSecundarias.linhaii[row.linhaii] = (causasSecundarias.linhaii[row.linhaii] || 0) + Number(row.count);
+        const codigoSimplificado = simplificarCodigo(row.linhaii);
+        if (codigoSimplificado) {
+          causasSecundarias.linhaii[codigoSimplificado] = (causasSecundarias.linhaii[codigoSimplificado] || 0) + Number(row.count);
+        }
       }
     });
     
