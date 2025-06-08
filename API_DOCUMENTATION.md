@@ -345,6 +345,88 @@ GET http://localhost:8080/datasus-deaths/cities-by-year?tipo=ocorrencia&localOco
 - `faixaEtariaMax` (opcional): Idade máxima
 - `modoTransporte` (opcional): Código do modo de transporte (V0 = Pedestre, V2 = Motociclista, V4 = Ocupante de automóvel, etc.)
 
+### Causas Secundárias
+
+**Endpoint:** `/datasus-deaths/causas-secundarias`
+
+**Método:** GET
+
+**Parâmetros:**
+- `cityId` (opcional): ID do município específico (se não informado, usa todos da RMR)
+- `tipoLocal` (opcional): `residencia` ou `ocorrencia` (padrão: `ocorrencia`)
+- `startYear` (opcional): Ano inicial para filtrar (padrão: últimos 10 anos)
+- `endYear` (opcional): Ano final para filtrar (padrão: ano atual)
+- `idadeMin` (opcional): Idade mínima para filtrar
+- `idadeMax` (opcional): Idade máxima para filtrar
+- `sexo` (opcional): Código do sexo (1 = Masculino, 2 = Feminino)
+- `modoTransporte` (opcional): Código do modo de transporte (V0 = Pedestre, V2 = Motociclista, etc.)
+- `localOcorrenciaObito` (opcional): Código do local de ocorrência do óbito (1 = hospital, 2 = outros estabelecimentos de saúde, 3 = domicílio, 4 = via pública, 5 = outros, 9 = ignorado)
+
+**Descrição:** Retorna as causas secundárias das mortes por sinistro de trânsito, agrupadas por linhas da declaração de óbito (A, B, C, D e II).
+
+**Exemplos de Uso:**
+```
+# Todas as causas secundárias na RMR
+GET http://localhost:8080/datasus-deaths/causas-secundarias
+
+# Causas secundárias para óbitos em via pública
+GET http://localhost:8080/datasus-deaths/causas-secundarias?localOcorrenciaObito=4
+
+# Causas secundárias para motociclistas
+GET http://localhost:8080/datasus-deaths/causas-secundarias?modoTransporte=V2
+
+# Causas secundárias para homens entre 20 e 29 anos
+GET http://localhost:8080/datasus-deaths/causas-secundarias?sexo=1&idadeMin=20&idadeMax=29
+
+# Combinação de filtros
+GET http://localhost:8080/datasus-deaths/causas-secundarias?cityId=2611606&startYear=2018&endYear=2022&modoTransporte=V2&localOcorrenciaObito=4
+```
+
+**Resposta:**
+```json
+{
+  "filtrosAplicados": {
+    "cidade": 2611606,
+    "tipoLocal": "ocorrencia",
+    "periodoAnos": {
+      "inicio": 2018,
+      "fim": 2022
+    },
+    "modoTransporte": {
+      "codigo": "V2",
+      "descricao": "Motociclista"
+    },
+    "localOcorrenciaObito": {
+      "codigo": "4",
+      "descricao": "Via pública"
+    }
+  },
+  "totalRegistros": 150,
+  "causasSecundarias": {
+    "linhaa": [
+      { "codigo": "S06.9", "count": 45 },
+      { "codigo": "S27.9", "count": 30 },
+      { "codigo": "T07", "count": 25 },
+      // ...
+    ],
+    "linhab": [
+      { "codigo": "T14.9", "count": 40 },
+      { "codigo": "S36.9", "count": 35 },
+      // ...
+    ],
+    "linhac": [
+      // ...
+    ],
+    "linhad": [
+      // ...
+    ],
+    "linhaii": [
+      // ...
+    ]
+  },
+  "descricao": "Causas secundárias das mortes por sinistro de trânsito"
+}
+
 **Descrição:** Permite filtrar os dados de mortes no trânsito por diversos critérios.
 
 **Exemplos de Uso:**
