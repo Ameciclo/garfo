@@ -349,6 +349,7 @@ GET http://localhost:8080/datasus-deaths/cities-by-year?tipo=ocorrencia&localOco
 - `faixaEtariaMin` (opcional): Idade mínima
 - `faixaEtariaMax` (opcional): Idade máxima
 - `modoTransporte` (opcional): Código do modo de transporte (V0 = Pedestre, V2 = Motociclista, V4 = Ocupante de automóvel, etc.)
+- `localOcorrenciaObito` (opcional): Código do local de ocorrência do óbito (1 = hospital, 2 = outros estabelecimentos de saúde, 3 = domicílio, 4 = via pública, 5 = outros, 9 = ignorado)
 
 ### Causas Secundárias
 
@@ -459,6 +460,12 @@ GET http://localhost:8080/datasus-deaths/filtros?modoTransporte=V2&sexo=1
 
 # Combinação: Óbitos em Recife por local de residência entre 2018 e 2022
 GET http://localhost:8080/datasus-deaths/filtros?municipio=2611606&tipoLocal=residencia&anoInicio=2018&anoFim=2022
+
+# Óbitos ocorridos em via pública
+GET http://localhost:8080/datasus-deaths/filtros?localOcorrenciaObito=4
+
+# Combinação: Motociclistas com óbito em via pública
+GET http://localhost:8080/datasus-deaths/filtros?modoTransporte=V2&localOcorrenciaObito=4
 ```
 
 **Resposta:**
@@ -498,6 +505,11 @@ GET http://localhost:8080/datasus-deaths/filtros?municipio=2611606&tipoLocal=res
     },
     "porModoTransporte": {
       "Motociclista": 456
+    },
+    "porLocalOcorrenciaObito": {
+      "Via pública": 300,
+      "Hospital": 120,
+      "Outros": 36
     }
   },
   "dados": [

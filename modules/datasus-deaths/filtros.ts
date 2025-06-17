@@ -18,6 +18,7 @@ interface FiltroParams {
   faixaEtariaMin?: number;
   faixaEtariaMax?: number;
   modoTransporte?: string[];
+  localOcorrenciaObito?: string;
 }
 
 // Função para converter o código de idade do DATASUS para idade em anos
@@ -101,6 +102,11 @@ router.get("/", async (req: Request, res: Response) => {
       filtros.modoTransporte = Array.isArray(req.query.modoTransporte) 
         ? req.query.modoTransporte as string[] 
         : [req.query.modoTransporte as string];
+    }
+    
+    // Local de ocorrência do óbito
+    if (req.query.localOcorrenciaObito) {
+      filtros.localOcorrenciaObito = req.query.localOcorrenciaObito as string;
     }
     
     // Construir a consulta SQL com base nos filtros
@@ -190,6 +196,11 @@ router.get("/", async (req: Request, res: Response) => {
       whereClause = sql`${whereClause} AND (${modoClause})`;
     }
     
+    // Filtro por local de ocorrência do óbito
+    if (filtros.localOcorrenciaObito) {
+      whereClause = sql`${whereClause} AND ${datasus_deaths.lococor} = ${filtros.localOcorrenciaObito}`;
+    }
+    
     // Consulta principal
     const result = await db
       .select({
@@ -200,7 +211,8 @@ router.get("/", async (req: Request, res: Response) => {
         idade: datasus_deaths.idade,
         municipio: campoLocal,
         municipioNome: cities.name,
-        causabas: datasus_deaths.causabas
+        causabas: datasus_deaths.causabas,
+        lococor: datasus_deaths.lococor
       })
       .from(datasus_deaths)
       .leftJoin(cities, sql`${campoLocal} = ${cities.id}`)
@@ -212,7 +224,8 @@ router.get("/", async (req: Request, res: Response) => {
         datasus_deaths.idade, 
         campoLocal, 
         cities.name,
-        datasus_deaths.causabas
+        datasus_deaths.causabas,
+        datasus_deaths.lococor
       )
       .orderBy(sql`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`)
       .execute();
@@ -321,6 +334,10 @@ router.get("/", async (req: Request, res: Response) => {
           codigo: codigoModo,
           descricao: modoTransporte
         },
+        localOcorrenciaObito: {
+          codigo: row.lococor,
+          descricao: row.lococor ? config.mapeamentos.localOcorrencia[row.lococor as keyof typeof config.mapeamentos.localOcorrencia] || 'Não informado' : 'Não informado'
+        },
         causabas: row.causabas,
         total: Number(row.total)
       };
@@ -389,6 +406,16 @@ router.get("/", async (req: Request, res: Response) => {
       return acc;
     }, {} as Record<string, number>);
     
+    // Agrupar por local de ocorrência do óbito
+    const porLocalOcorrenciaObito = processedResults.reduce((acc, item) => {
+      const local = item.localOcorrenciaObito.descricao;
+      if (!acc[local]) {
+        acc[local] = 0;
+      }
+      acc[local] += item.total;
+      return acc;
+    }, {} as Record<string, number>);
+    
     // Resposta final
     res.json({
       filtrosAplicados: filtros,
@@ -399,7 +426,8 @@ router.get("/", async (req: Request, res: Response) => {
         porRacaCor,
         porFaixaEtaria,
         porMunicipio,
-        porModoTransporte
+        porModoTransporte,
+        porLocalOcorrenciaObito
       },
       dados: processedResults
     });
