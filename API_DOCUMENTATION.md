@@ -214,6 +214,7 @@ GET http://localhost:8080/datasus-deaths/summary
 - `startYear` (opcional): Ano inicial para filtrar (padrão: últimos 10 anos)
 - `endYear` (opcional): Ano final para filtrar (padrão: ano atual)
 - `byResidence` (opcional): Se `true`, usa local de residência; se `false` ou não informado, usa local de ocorrência
+- `deathLocation` (opcional): Código do local de ocorrência do óbito (1 = hospital, 2 = outros estabelecimentos de saúde, 3 = domicílio, 4 = via pública, 5 = outros, 9 = ignorado)
 
 **Descrição:** Retorna uma matriz de colisão mostrando o número de mortes por tipo de vítima e contraparte.
 
@@ -230,6 +231,9 @@ GET http://localhost:8080/datasus-deaths/matrix?byResidence=true
 
 # Matriz de colisão para o Recife entre 2018 e 2022 por local de residência
 GET http://localhost:8080/datasus-deaths/matrix?cityId=2611606&startYear=2018&endYear=2022&byResidence=true
+
+# Matriz de colisão para mortes ocorridas em via pública
+GET http://localhost:8080/datasus-deaths/matrix?deathLocation=4
 ```
 
 **Resposta:**
@@ -279,6 +283,7 @@ GET http://localhost:8080/datasus-deaths/matrix?cityId=2611606&startYear=2018&en
     "startYear": 2023,
     "endYear": 2023,
     "byResidence": false,
+    "deathLocation": "4",
     "locationType": "Local de Ocorrência",
     "description": "Matriz de colisão mostrando o número de mortes por tipo de vítima e contraparte"
   }

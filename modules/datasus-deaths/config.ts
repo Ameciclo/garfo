@@ -33,6 +33,14 @@ export const config = {
       '9': 'Ignorado',
       'NA': 'Não informado'
     },
+    localOcorrencia: {
+      '1': 'Hospital',
+      '2': 'Outro estabelecimento de saúde',
+      '3': 'Domicílio',
+      '4': 'Via pública',
+      '5': 'Outros',
+      '9': 'Ignorado'
+    },
     modosTransporte: {
       'V0': 'Pedestre',
       'V1': 'Ciclista',

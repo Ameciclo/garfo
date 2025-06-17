@@ -229,7 +229,8 @@ async function getCollisionMatrix(
   cityId?: number,
   startYear?: number,
   endYear?: number,
-  byResidence: boolean = false
+  byResidence: boolean = false,
+  deathLocation?: string
 ) {
   try {
     // Definir período padrão se não especificado
@@ -272,6 +273,11 @@ async function getCollisionMatrix(
 
       whereClause = sql`(${rmrWhereClause}) AND 
                         EXTRACT(YEAR FROM ${datasus_deaths.dtobito}) BETWEEN ${fromYear} AND ${toYear}`;
+    }
+    
+    // Adicionar filtro por local de morte (lococor) se especificado
+    if (deathLocation) {
+      whereClause = sql`${whereClause} AND ${datasus_deaths.lococor} = ${deathLocation}`;
     }
 
     // Buscar os dados de mortes por CID
@@ -438,12 +444,14 @@ router.get("/", async (req: Request, res: Response) => {
       : undefined;
     const endYear = req.query.endYear ? Number(req.query.endYear) : undefined;
     const byResidence = req.query.byResidence === "true";
+    const deathLocation = req.query.deathLocation ? String(req.query.deathLocation) : undefined;
 
     const matrix = await getCollisionMatrix(
       cityId,
       startYear,
       endYear,
-      byResidence
+      byResidence,
+      deathLocation
     );
 
     res.json({
@@ -453,6 +461,7 @@ router.get("/", async (req: Request, res: Response) => {
         startYear,
         endYear,
         byResidence,
+        deathLocation,
         locationType: byResidence
           ? "Local de Residência"
           : "Local de Ocorrência",
