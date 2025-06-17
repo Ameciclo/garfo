@@ -8,7 +8,9 @@ import { config } from "./config";
 
 const router = express.Router();
 
-router.get("/", async (_req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
+    // Verificar se há filtro por local de ocorrência do óbito
+    const localOcorrenciaObito = req.query.localOcorrenciaObito ? String(req.query.localOcorrenciaObito) : null;
   try {
     // Obtém o ano atual para calcular os últimos 10 anos
     const currentYear = new Date().getFullYear();

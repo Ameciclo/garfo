@@ -230,7 +230,7 @@ async function getCollisionMatrix(
   startYear?: number,
   endYear?: number,
   byResidence: boolean = false,
-  deathLocation?: string
+  deathLocation?: string | string[]
 ) {
   try {
     // Definir período padrão se não especificado
@@ -277,7 +277,20 @@ async function getCollisionMatrix(
     
     // Adicionar filtro por local de morte (lococor) se especificado
     if (deathLocation) {
-      whereClause = sql`${whereClause} AND ${datasus_deaths.lococor} = ${deathLocation}`;
+      // Converter para array se for string com valores separados por vírgula
+      const locations = Array.isArray(deathLocation) 
+        ? deathLocation 
+        : deathLocation.includes(',') 
+          ? deathLocation.split(',') 
+          : [deathLocation];
+      
+      if (locations.length > 0) {
+        let locationClause = sql`false`;
+        for (const loc of locations) {
+          locationClause = sql`${locationClause} OR ${datasus_deaths.lococor} = ${loc}`;
+        }
+        whereClause = sql`${whereClause} AND (${locationClause})`;
+      }
     }
 
     // Buscar os dados de mortes por CID
@@ -444,7 +457,14 @@ router.get("/", async (req: Request, res: Response) => {
       : undefined;
     const endYear = req.query.endYear ? Number(req.query.endYear) : undefined;
     const byResidence = req.query.byResidence === "true";
-    const deathLocation = req.query.deathLocation ? String(req.query.deathLocation) : undefined;
+    let deathLocation: string | string[] | undefined = undefined;
+    if (req.query.deathLocation) {
+      if (Array.isArray(req.query.deathLocation)) {
+        deathLocation = req.query.deathLocation as string[];
+      } else {
+        deathLocation = String(req.query.deathLocation);
+      }
+    }
 
     const matrix = await getCollisionMatrix(
       cityId,

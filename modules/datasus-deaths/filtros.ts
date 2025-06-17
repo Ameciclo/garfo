@@ -9,6 +9,18 @@ import { config } from "./config";
 const router = express.Router();
 
 interface FiltroParams {
+  cityId?: number;
+  locationType?: 'residence' | 'occurrence';
+  startYear?: number;
+  endYear?: number;
+  gender?: string[];
+  race?: string[];
+  ageMin?: number;
+  ageMax?: number;
+  transportMode?: string[];
+  deathLocation?: string[];
+  
+  // Campos antigos para compatibilidade
   municipio?: number;
   tipoLocal?: 'residencia' | 'ocorrencia';
   anoInicio?: number;
@@ -18,7 +30,7 @@ interface FiltroParams {
   faixaEtariaMin?: number;
   faixaEtariaMax?: number;
   modoTransporte?: string[];
-  localOcorrenciaObito?: string;
+  localOcorrenciaObito?: string[];
 }
 
 // Função para converter o código de idade do DATASUS para idade em anos
@@ -54,70 +66,109 @@ router.get("/", async (req: Request, res: Response) => {
     // Extrair parâmetros de filtro da requisição
     const filtros: FiltroParams = {};
     
-    // Município específico ou todos da RMR
-    if (req.query.municipio && !isNaN(Number(req.query.municipio))) {
-      filtros.municipio = Number(req.query.municipio);
+    // Município específico ou todos da RMR (cityId ou municipio)
+    if (req.query.cityId && !isNaN(Number(req.query.cityId))) {
+      filtros.cityId = Number(req.query.cityId);
+    } else if (req.query.municipio && !isNaN(Number(req.query.municipio))) {
+      filtros.cityId = Number(req.query.municipio);
     }
     
-    // Tipo de local (residência ou ocorrência)
-    filtros.tipoLocal = req.query.tipoLocal === 'residencia' ? 'residencia' : 'ocorrencia';
+    // Tipo de local (residência ou ocorrência) (locationType ou tipoLocal)
+    if (req.query.locationType === 'residence' || req.query.tipoLocal === 'residencia') {
+      filtros.locationType = 'residence';
+    } else {
+      filtros.locationType = 'occurrence';
+    }
     
-    // Anos
-    if (req.query.anoInicio && !isNaN(Number(req.query.anoInicio))) {
-      filtros.anoInicio = Number(req.query.anoInicio);
+    // Anos (startYear/endYear ou anoInicio/anoFim)
+    if (req.query.startYear && !isNaN(Number(req.query.startYear))) {
+      filtros.startYear = Number(req.query.startYear);
+    } else if (req.query.anoInicio && !isNaN(Number(req.query.anoInicio))) {
+      filtros.startYear = Number(req.query.anoInicio);
     } else {
       // Padrão: últimos 10 anos
-      filtros.anoInicio = new Date().getFullYear() - config.periodos.anosRetroativos;
+      filtros.startYear = new Date().getFullYear() - config.periodos.anosRetroativos;
     }
     
-    if (req.query.anoFim && !isNaN(Number(req.query.anoFim))) {
-      filtros.anoFim = Number(req.query.anoFim);
+    if (req.query.endYear && !isNaN(Number(req.query.endYear))) {
+      filtros.endYear = Number(req.query.endYear);
+    } else if (req.query.anoFim && !isNaN(Number(req.query.anoFim))) {
+      filtros.endYear = Number(req.query.anoFim);
     }
     
-    // Sexo
-    if (req.query.sexo) {
-      filtros.sexo = Array.isArray(req.query.sexo) 
+    // Sexo (gender ou sexo)
+    if (req.query.gender) {
+      filtros.gender = Array.isArray(req.query.gender) 
+        ? req.query.gender as string[] 
+        : [req.query.gender as string];
+    } else if (req.query.sexo) {
+      filtros.gender = Array.isArray(req.query.sexo) 
         ? req.query.sexo as string[] 
         : [req.query.sexo as string];
     }
     
-    // Raça/cor
-    if (req.query.racacor) {
-      filtros.racacor = Array.isArray(req.query.racacor) 
+    // Raça/cor (race ou racacor)
+    if (req.query.race) {
+      filtros.race = Array.isArray(req.query.race) 
+        ? req.query.race as string[] 
+        : [req.query.race as string];
+    } else if (req.query.racacor) {
+      filtros.race = Array.isArray(req.query.racacor) 
         ? req.query.racacor as string[] 
         : [req.query.racacor as string];
     }
     
-    // Faixa etária
-    if (req.query.faixaEtariaMin && !isNaN(Number(req.query.faixaEtariaMin))) {
-      filtros.faixaEtariaMin = Number(req.query.faixaEtariaMin);
+    // Faixa etária (ageMin/ageMax ou faixaEtariaMin/faixaEtariaMax)
+    if (req.query.ageMin && !isNaN(Number(req.query.ageMin))) {
+      filtros.ageMin = Number(req.query.ageMin);
+    } else if (req.query.faixaEtariaMin && !isNaN(Number(req.query.faixaEtariaMin))) {
+      filtros.ageMin = Number(req.query.faixaEtariaMin);
     }
     
-    if (req.query.faixaEtariaMax && !isNaN(Number(req.query.faixaEtariaMax))) {
-      filtros.faixaEtariaMax = Number(req.query.faixaEtariaMax);
+    if (req.query.ageMax && !isNaN(Number(req.query.ageMax))) {
+      filtros.ageMax = Number(req.query.ageMax);
+    } else if (req.query.faixaEtariaMax && !isNaN(Number(req.query.faixaEtariaMax))) {
+      filtros.ageMax = Number(req.query.faixaEtariaMax);
     }
     
-    // Modo de transporte
-    if (req.query.modoTransporte) {
-      filtros.modoTransporte = Array.isArray(req.query.modoTransporte) 
+    // Modo de transporte (transportMode ou modoTransporte)
+    if (req.query.transportMode) {
+      filtros.transportMode = Array.isArray(req.query.transportMode) 
+        ? req.query.transportMode as string[] 
+        : [req.query.transportMode as string];
+    } else if (req.query.modoTransporte) {
+      filtros.transportMode = Array.isArray(req.query.modoTransporte) 
         ? req.query.modoTransporte as string[] 
         : [req.query.modoTransporte as string];
     }
     
-    // Local de ocorrência do óbito
-    if (req.query.localOcorrenciaObito) {
-      filtros.localOcorrenciaObito = req.query.localOcorrenciaObito as string;
+    // Local de ocorrência do óbito (deathLocation ou localOcorrenciaObito)
+    const processDeathLocation = (param: string | string[] | undefined) => {
+      if (!param) return;
+      
+      if (Array.isArray(param)) {
+        return param;
+      } else {
+        // Se for uma string única, verifica se contém valores separados por vírgula
+        return param.includes(',') ? param.split(',') : [param];
+      }
+    };
+    
+    if (req.query.deathLocation) {
+      filtros.deathLocation = processDeathLocation(req.query.deathLocation as string | string[]);
+    } else if (req.query.localOcorrenciaObito) {
+      filtros.deathLocation = processDeathLocation(req.query.localOcorrenciaObito as string | string[]);
     }
     
     // Construir a consulta SQL com base nos filtros
     let whereClause = sql`true`;
     
     // Campo de localização (residência ou ocorrência)
-    const campoLocal = filtros.tipoLocal === 'residencia' ? datasus_deaths.codmunres : datasus_deaths.codmunocor;
+    const campoLocal = filtros.locationType === 'residence' ? datasus_deaths.codmunres : datasus_deaths.codmunocor;
     
     // Filtro de município
-    if (filtros.municipio) {
-      whereClause = sql`${whereClause} AND ${campoLocal} = ${filtros.municipio}`;
+    if (filtros.cityId) {
+      whereClause = sql`${whereClause} AND ${campoLocal} = ${filtros.cityId}`;
     } else {
       // Se não especificou município, filtra por todos da RMR
       const rmrCities = await db
@@ -127,7 +178,7 @@ router.get("/", async (req: Request, res: Response) => {
         .execute();
       
       if (rmrCities.length === 0) {
-        return res.status(404).json({ error: "Nenhuma cidade da RMR encontrada" });
+        return res.status(404).json({ error: "No RMR cities found" });
       }
       
       let cityClause = sql`false`;
@@ -138,55 +189,55 @@ router.get("/", async (req: Request, res: Response) => {
     }
     
     // Filtro de ano
-    whereClause = sql`${whereClause} AND EXTRACT(YEAR FROM ${datasus_deaths.dtobito}) >= ${filtros.anoInicio}`;
-    if (filtros.anoFim) {
-      whereClause = sql`${whereClause} AND EXTRACT(YEAR FROM ${datasus_deaths.dtobito}) <= ${filtros.anoFim}`;
+    whereClause = sql`${whereClause} AND EXTRACT(YEAR FROM ${datasus_deaths.dtobito}) >= ${filtros.startYear}`;
+    if (filtros.endYear) {
+      whereClause = sql`${whereClause} AND EXTRACT(YEAR FROM ${datasus_deaths.dtobito}) <= ${filtros.endYear}`;
     }
     
     // Filtro de sexo
-    if (filtros.sexo && filtros.sexo.length > 0) {
+    if (filtros.gender && filtros.gender.length > 0) {
       let sexoClause = sql`false`;
-      for (const sexo of filtros.sexo) {
+      for (const sexo of filtros.gender) {
         sexoClause = sql`${sexoClause} OR ${datasus_deaths.sexo} = ${sexo}`;
       }
       whereClause = sql`${whereClause} AND (${sexoClause})`;
     }
     
     // Filtro de raça/cor
-    if (filtros.racacor && filtros.racacor.length > 0) {
+    if (filtros.race && filtros.race.length > 0) {
       let racacorClause = sql`false`;
-      for (const racacor of filtros.racacor) {
+      for (const racacor of filtros.race) {
         racacorClause = sql`${racacorClause} OR ${datasus_deaths.racacor} = ${racacor}`;
       }
       whereClause = sql`${whereClause} AND (${racacorClause})`;
     }
     
     // Filtro de faixa etária - Adaptado para o formato específico do DATASUS
-    if (filtros.faixaEtariaMin !== undefined) {
+    if (filtros.ageMin !== undefined) {
       // Para idade em anos (código começa com 4), verificamos se o valor após o primeiro dígito é >= min
       whereClause = sql`${whereClause} AND (
         (${datasus_deaths.idade} >= 400 AND ${datasus_deaths.idade} < 500 AND 
-         CAST(SUBSTRING(CAST(${datasus_deaths.idade} AS VARCHAR), 2, 2) AS INTEGER) >= ${filtros.faixaEtariaMin})
+         CAST(SUBSTRING(CAST(${datasus_deaths.idade} AS VARCHAR), 2, 2) AS INTEGER) >= ${filtros.ageMin})
         OR
         (${datasus_deaths.idade} >= 500)
       )`;
     }
     
-    if (filtros.faixaEtariaMax !== undefined) {
+    if (filtros.ageMax !== undefined) {
       // Para idade em anos (código começa com 4), verificamos se o valor após o primeiro dígito é <= max
       whereClause = sql`${whereClause} AND (
         (${datasus_deaths.idade} >= 400 AND ${datasus_deaths.idade} < 500 AND 
-         CAST(SUBSTRING(CAST(${datasus_deaths.idade} AS VARCHAR), 2, 2) AS INTEGER) <= ${filtros.faixaEtariaMax})
+         CAST(SUBSTRING(CAST(${datasus_deaths.idade} AS VARCHAR), 2, 2) AS INTEGER) <= ${filtros.ageMax})
         OR
         (${datasus_deaths.idade} >= 500 AND 
-         CAST(SUBSTRING(CAST(${datasus_deaths.idade} AS VARCHAR), 2, 2) AS INTEGER) + 100 <= ${filtros.faixaEtariaMax})
+         CAST(SUBSTRING(CAST(${datasus_deaths.idade} AS VARCHAR), 2, 2) AS INTEGER) + 100 <= ${filtros.ageMax})
       )`;
     }
     
     // Filtro de modo de transporte - Verificar apenas no campo causabas
-    if (filtros.modoTransporte && filtros.modoTransporte.length > 0) {
+    if (filtros.transportMode && filtros.transportMode.length > 0) {
       let modoClause = sql`false`;
-      for (const modo of filtros.modoTransporte) {
+      for (const modo of filtros.transportMode) {
         // Verificar se o modo começa com V seguido de um número (V0, V1, V2, etc.)
         const modoBase = modo.substring(0, 2); // Pega apenas V0, V1, V2, etc.
         
@@ -197,8 +248,12 @@ router.get("/", async (req: Request, res: Response) => {
     }
     
     // Filtro por local de ocorrência do óbito
-    if (filtros.localOcorrenciaObito) {
-      whereClause = sql`${whereClause} AND ${datasus_deaths.lococor} = ${filtros.localOcorrenciaObito}`;
+    if (filtros.deathLocation && filtros.deathLocation.length > 0) {
+      let localClause = sql`false`;
+      for (const local of filtros.deathLocation) {
+        localClause = sql`${localClause} OR ${datasus_deaths.lococor} = ${local}`;
+      }
+      whereClause = sql`${whereClause} AND (${localClause})`;
     }
     
     // Consulta principal

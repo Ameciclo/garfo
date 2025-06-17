@@ -30,12 +30,34 @@ function getLocalOcorrenciaDescricao(codigo: string): string {
 
 router.get("/", async (req: Request, res: Response) => {
   try {
-    // Verificar se é por local de residência ou ocorrência
-    const tipoLocal = req.query.tipo === 'residencia' ? 'residencia' : 'ocorrencia';
-    const campoLocal = tipoLocal === 'residencia' ? datasus_deaths.codmunres : datasus_deaths.codmunocor;
+    // Verificar se é por local de residência ou ocorrência (type ou tipo)
+    let locationType: string;
+    if (req.query.type === 'residence' || req.query.tipo === 'residencia') {
+      locationType = 'residence';
+    } else {
+      locationType = 'occurrence';
+    }
+    const campoLocal = locationType === 'residence' ? datasus_deaths.codmunres : datasus_deaths.codmunocor;
     
-    // Verificar se há filtro por local de ocorrência do óbito
-    const localOcorrenciaObito = req.query.localOcorrenciaObito ? String(req.query.localOcorrenciaObito) : null;
+    // Verificar se há filtro por local de ocorrência do óbito (deathLocation ou localOcorrenciaObito)
+    let deathLocation: string | string[] | null = null;
+    
+    const processDeathLocation = (param: string | string[] | undefined) => {
+      if (!param) return null;
+      
+      if (Array.isArray(param)) {
+        return param;
+      } else {
+        // Se for uma string única, verifica se contém valores separados por vírgula
+        return param.includes(',') ? param.split(',') : param;
+      }
+    };
+    
+    if (req.query.deathLocation) {
+      deathLocation = processDeathLocation(req.query.deathLocation as string | string[]);
+    } else if (req.query.localOcorrenciaObito) {
+      deathLocation = processDeathLocation(req.query.localOcorrenciaObito as string | string[]);
+    }
     
     // Obtém o ano atual para calcular os últimos 10 anos
     const currentYear = new Date().getFullYear();
@@ -61,8 +83,16 @@ router.get("/", async (req: Request, res: Response) => {
     // Adicionar filtro por local de ocorrência do óbito se especificado
     let finalWhereClause = sql`(${whereClause}) AND EXTRACT(YEAR FROM ${datasus_deaths.dtobito}) >= ${startYear}`;
     
-    if (localOcorrenciaObito) {
-      finalWhereClause = sql`${finalWhereClause} AND ${datasus_deaths.lococor} = ${localOcorrenciaObito}`;
+    if (deathLocation) {
+      if (Array.isArray(deathLocation)) {
+        let localClause = sql`false`;
+        for (const local of deathLocation) {
+          localClause = sql`${localClause} OR ${datasus_deaths.lococor} = ${local}`;
+        }
+        finalWhereClause = sql`${finalWhereClause} AND (${localClause})`;
+      } else {
+        finalWhereClause = sql`${finalWhereClause} AND ${datasus_deaths.lococor} = ${deathLocation}`;
+      }
     }
     
     // Consulta para obter mortes por cidade e ano
@@ -110,10 +140,12 @@ router.get("/", async (req: Request, res: Response) => {
     
     // Formatar a resposta final
     const response = {
-      tipo: tipoLocal === 'residencia' ? 'Local de Residência' : 'Local de Ocorrência',
-      localOcorrenciaObito: req.query.localOcorrenciaObito ? {
-        valor: req.query.localOcorrenciaObito,
-        descricao: getLocalOcorrenciaDescricao(String(req.query.localOcorrenciaObito))
+      locationType: locationType === 'residence' ? 'Residence Location' : 'Occurrence Location',
+      deathLocation: deathLocation ? {
+        value: Array.isArray(deathLocation) ? deathLocation.join(',') : deathLocation,
+        description: Array.isArray(deathLocation) 
+          ? deathLocation.map(loc => getLocalOcorrenciaDescricao(loc)).join(', ')
+          : getLocalOcorrenciaDescricao(deathLocation)
       } : null,
       anos: sortedYears.map(year => parseInt(year)),
       cidades: Array.from(cityYearMap.values()).map(city => {

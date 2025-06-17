@@ -58,14 +58,70 @@ router.get("/", async (req: Request, res: Response) => {
   try {
     // Parâmetros de filtro
     const cityId = req.query.cityId ? Number(req.query.cityId) : undefined;
-    const startYear = req.query.startYear ? Number(req.query.startYear) : undefined;
-    const endYear = req.query.endYear ? Number(req.query.endYear) : undefined;
-    const idadeMin = req.query.idadeMin ? Number(req.query.idadeMin) : undefined;
-    const idadeMax = req.query.idadeMax ? Number(req.query.idadeMax) : undefined;
-    const sexo = req.query.sexo ? String(req.query.sexo) : undefined;
-    const modoTransporte = req.query.modoTransporte ? String(req.query.modoTransporte) : undefined;
-    const localOcorrenciaObito = req.query.localOcorrenciaObito ? String(req.query.localOcorrenciaObito) : undefined;
-    const tipoLocal = req.query.tipoLocal === 'residencia' ? 'residencia' : 'ocorrencia';
+    
+    const startYear = req.query.startYear 
+      ? Number(req.query.startYear) 
+      : req.query.anoInicio 
+        ? Number(req.query.anoInicio) 
+        : undefined;
+        
+    const endYear = req.query.endYear 
+      ? Number(req.query.endYear) 
+      : req.query.anoFim 
+        ? Number(req.query.anoFim) 
+        : undefined;
+        
+    const ageMin = req.query.ageMin 
+      ? Number(req.query.ageMin) 
+      : req.query.idadeMin 
+        ? Number(req.query.idadeMin) 
+        : undefined;
+        
+    const ageMax = req.query.ageMax 
+      ? Number(req.query.ageMax) 
+      : req.query.idadeMax 
+        ? Number(req.query.idadeMax) 
+        : undefined;
+        
+    const gender = req.query.gender 
+      ? String(req.query.gender) 
+      : req.query.sexo 
+        ? String(req.query.sexo) 
+        : undefined;
+        
+    const transportMode = req.query.transportMode 
+      ? String(req.query.transportMode) 
+      : req.query.modoTransporte 
+        ? String(req.query.modoTransporte) 
+        : undefined;
+    
+    // Processar deathLocation ou localOcorrenciaObito
+    let deathLocation: string | string[] | undefined = undefined;
+    
+    const processDeathLocation = (param: string | string[] | undefined) => {
+      if (!param) return undefined;
+      
+      if (Array.isArray(param)) {
+        return param;
+      } else {
+        // Se for uma string única, verifica se contém valores separados por vírgula
+        return param.includes(',') ? param.split(',') : param;
+      }
+    };
+    
+    if (req.query.deathLocation) {
+      deathLocation = processDeathLocation(req.query.deathLocation as string | string[]);
+    } else if (req.query.localOcorrenciaObito) {
+      deathLocation = processDeathLocation(req.query.localOcorrenciaObito as string | string[]);
+    }
+    
+    // Determinar locationType (residence ou occurrence)
+    let locationType: 'residence' | 'occurrence';
+    if (req.query.locationType === 'residence' || req.query.tipoLocal === 'residencia') {
+      locationType = 'residence';
+    } else {
+      locationType = 'occurrence';
+    }
     
     // Definir período padrão se não especificado
     const currentYear = new Date().getFullYear();
@@ -75,8 +131,8 @@ router.get("/", async (req: Request, res: Response) => {
     const fromYear = startYear || defaultStartYear;
     const toYear = endYear || currentYear;
     
-    // Determinar qual campo usar com base no parâmetro tipoLocal
-    const locationField = tipoLocal === 'residencia' ? datasus_deaths.codmunres : datasus_deaths.codmunocor;
+    // Determinar qual campo usar com base no parâmetro locationType
+    const locationField = locationType === 'residence' ? datasus_deaths.codmunres : datasus_deaths.codmunocor;
     
     // Construir a cláusula WHERE base
     let whereConditions = [
@@ -108,24 +164,32 @@ router.get("/", async (req: Request, res: Response) => {
     }
     
     // Adicionar filtros adicionais
-    if (idadeMin !== undefined) {
-      whereConditions.push(sql`${datasus_deaths.idade} >= ${idadeMin}`);
+    if (ageMin !== undefined) {
+      whereConditions.push(sql`${datasus_deaths.idade} >= ${ageMin}`);
     }
     
-    if (idadeMax !== undefined) {
-      whereConditions.push(sql`${datasus_deaths.idade} <= ${idadeMax}`);
+    if (ageMax !== undefined) {
+      whereConditions.push(sql`${datasus_deaths.idade} <= ${ageMax}`);
     }
     
-    if (sexo) {
-      whereConditions.push(sql`${datasus_deaths.sexo} = ${sexo}`);
+    if (gender) {
+      whereConditions.push(sql`${datasus_deaths.sexo} = ${gender}`);
     }
     
-    if (localOcorrenciaObito) {
-      whereConditions.push(sql`${datasus_deaths.lococor} = ${localOcorrenciaObito}`);
+    if (deathLocation) {
+      if (Array.isArray(deathLocation)) {
+        let localClause = sql`false`;
+        for (const local of deathLocation) {
+          localClause = sql`${localClause} OR ${datasus_deaths.lococor} = ${local}`;
+        }
+        whereConditions.push(sql`(${localClause})`);
+      } else {
+        whereConditions.push(sql`${datasus_deaths.lococor} = ${deathLocation}`);
+      }
     }
     
-    if (modoTransporte) {
-      whereConditions.push(sql`SUBSTRING(${datasus_deaths.causabas}, 1, 2) = ${modoTransporte}`);
+    if (transportMode) {
+      whereConditions.push(sql`SUBSTRING(${datasus_deaths.causabas}, 1, 2) = ${transportMode}`);
     }
     
     // Combinar todas as condições
@@ -250,39 +314,41 @@ router.get("/", async (req: Request, res: Response) => {
     
     // Preparar metadados dos filtros aplicados
     const filtrosAplicados: Record<string, any> = {
-      cidade: cityId,
-      tipoLocal,
-      periodoAnos: {
-        inicio: fromYear,
-        fim: toYear
+      city: cityId,
+      locationType,
+      yearPeriod: {
+        start: fromYear,
+        end: toYear
       }
     };
     
-    if (idadeMin !== undefined || idadeMax !== undefined) {
-      filtrosAplicados['faixaEtaria'] = {
-        min: idadeMin,
-        max: idadeMax
+    if (ageMin !== undefined || ageMax !== undefined) {
+      filtrosAplicados['ageRange'] = {
+        min: ageMin,
+        max: ageMax
       };
     }
     
-    if (sexo) {
-      filtrosAplicados['sexo'] = {
-        codigo: sexo,
-        descricao: getSexoDescricao(sexo)
+    if (gender) {
+      filtrosAplicados['gender'] = {
+        code: gender,
+        description: getSexoDescricao(gender)
       };
     }
     
-    if (modoTransporte) {
-      filtrosAplicados['modoTransporte'] = {
-        codigo: modoTransporte,
-        descricao: getModoTransporte(modoTransporte)
+    if (transportMode) {
+      filtrosAplicados['transportMode'] = {
+        code: transportMode,
+        description: getModoTransporte(transportMode)
       };
     }
     
-    if (localOcorrenciaObito) {
-      filtrosAplicados['localOcorrenciaObito'] = {
-        codigo: localOcorrenciaObito,
-        descricao: getLocalOcorrenciaDescricao(localOcorrenciaObito)
+    if (deathLocation) {
+      filtrosAplicados['deathLocation'] = {
+        code: Array.isArray(deathLocation) ? deathLocation.join(',') : deathLocation,
+        description: Array.isArray(deathLocation) 
+          ? deathLocation.map(loc => getLocalOcorrenciaDescricao(loc)).join(', ')
+          : getLocalOcorrenciaDescricao(deathLocation)
       };
     }
     
