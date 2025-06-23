@@ -13,6 +13,11 @@ interface CityYearData {
   cityId: number;
   cityName: string | null;
   yearData: Record<string, number>;
+  transportModeData: Record<string, Record<string, number>>;
+}
+
+interface TransportModeData {
+  [year: string]: Record<string, number>;
 }
 
 // Função para obter a descrição do local de ocorrência do óbito
@@ -95,48 +100,88 @@ router.get("/", async (req: Request, res: Response) => {
       }
     }
     
-    // Consulta para obter mortes por cidade e ano
+    // Consulta para obter mortes por cidade, ano e modo de transporte
     const result = await db
       .select({
         cityId: campoLocal,
         cityName: cities.name,
         year: sql<number>`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`,
+        causabas: datasus_deaths.causabas,
         count: sql<number>`count(*)`,
       })
       .from(datasus_deaths)
       .leftJoin(cities, sql`${campoLocal} = ${cities.id}`)
       .where(finalWhereClause)
-      .groupBy(campoLocal, cities.name, sql`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`)
+      .groupBy(campoLocal, cities.name, sql`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`, datasus_deaths.causabas)
       .orderBy(cities.name, sql`EXTRACT(YEAR FROM ${datasus_deaths.dtobito})`)
       .execute();
+
+    // Função para obter o modo de transporte a partir do CID
+    const getTransportMode = (cid: string | null): string => {
+      if (!cid) return 'Não identificado';
+      
+      const prefixo = cid.substring(0, 2);
+      switch (prefixo) {
+        case 'V0': return 'Pedestre';
+        case 'V1': return 'Ciclista';
+        case 'V2': return 'Motociclista';
+        case 'V3': return 'Ocupante de triciclo';
+        case 'V4': return 'Ocupante de automóvel';
+        case 'V5': return 'Ocupante de caminhonete';
+        case 'V6': return 'Ocupante de veículo pesado';
+        case 'V7': return 'Ocupante de ônibus';
+        case 'V8': return 'Outros modos';
+        case 'V9': return 'Não especificado';
+        default: return 'Não identificado';
+      }
+    };
 
     // Organizar os dados em formato de tabela cidade x ano
     const cityYearMap = new Map<number, CityYearData>();
     const years = new Set<string>();
+    const transportModes = new Set<string>();
     
-    // Coletar todos os anos e dados por cidade
+    // Coletar todos os anos, dados por cidade e modos de transporte
     result.forEach(row => {
       if (row.cityId === null) return;
       
       const year = String(row.year);
+      const transportMode = getTransportMode(row.causabas);
+      
       years.add(year);
+      transportModes.add(transportMode);
       
       if (!cityYearMap.has(row.cityId)) {
         cityYearMap.set(row.cityId, {
           cityId: row.cityId,
           cityName: row.cityName,
-          yearData: {}
+          yearData: {},
+          transportModeData: {}
         });
       }
       
       const cityData = cityYearMap.get(row.cityId);
       if (cityData) {
-        cityData.yearData[year] = Number(row.count);
+        // Dados por ano
+        if (!cityData.yearData[year]) {
+          cityData.yearData[year] = 0;
+        }
+        cityData.yearData[year] += Number(row.count);
+        
+        // Dados por modo de transporte e ano
+        if (!cityData.transportModeData[transportMode]) {
+          cityData.transportModeData[transportMode] = {};
+        }
+        if (!cityData.transportModeData[transportMode][year]) {
+          cityData.transportModeData[transportMode][year] = 0;
+        }
+        cityData.transportModeData[transportMode][year] += Number(row.count);
       }
     });
     
-    // Converter para array e ordenar anos
+    // Converter para array e ordenar anos e modos de transporte
     const sortedYears = Array.from(years).sort();
+    const sortedTransportModes = Array.from(transportModes).sort();
     
     // Formatar a resposta final
     const response = {
@@ -147,8 +192,9 @@ router.get("/", async (req: Request, res: Response) => {
           ? deathLocation.map(loc => getLocalOcorrenciaDescricao(loc)).join(', ')
           : getLocalOcorrenciaDescricao(deathLocation)
       } : null,
-      anos: sortedYears.map(year => parseInt(year)),
-      cidades: Array.from(cityYearMap.values()).map(city => {
+      years: sortedYears.map(year => parseInt(year)),
+      transportModes: sortedTransportModes,
+      cities: Array.from(cityYearMap.values()).map(city => {
         const yearValues: Record<string, number> = {};
         sortedYears.forEach(year => {
           yearValues[year] = city.yearData[year] || 0;
@@ -160,11 +206,31 @@ router.get("/", async (req: Request, res: Response) => {
           0
         );
         
+        // Dados por modo de transporte
+        const transportModeBreakdown: Record<string, any> = {};
+        sortedTransportModes.forEach(mode => {
+          const modeYearData: Record<string, number> = {};
+          sortedYears.forEach(year => {
+            modeYearData[year] = city.transportModeData[mode]?.[year] || 0;
+          });
+          
+          const modeTotal = Object.values(city.transportModeData[mode] || {}).reduce(
+            (sum, val) => sum + val, 
+            0
+          );
+          
+          transportModeBreakdown[mode] = {
+            ...modeYearData,
+            total: modeTotal
+          };
+        });
+        
         return {
           id: city.cityId,
-          nome: city.cityName,
+          name: city.cityName,
           ...yearValues,
-          total
+          total,
+          transportModes: transportModeBreakdown
         };
       })
     };
