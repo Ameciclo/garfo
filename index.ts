@@ -43,6 +43,11 @@ app.use("/traffic-crashes/streets-summary", trafficCrashesStreetsSummaryRouter);
 app.use("/datasus-deaths", datasusDeathsRouter);
 //app.use("/cyclist-infra/update", cyclistInfraUpdateRouter);
 
+// Rota raiz que redireciona para /api-routes
+app.get("/", (req, res) => {
+  res.redirect("/api-routes");
+});
+
 // Rota para servir a página de listagem de rotas
 app.get("/api-routes", async (req, res) => {
   try {
