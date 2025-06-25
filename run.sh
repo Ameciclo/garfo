@@ -20,6 +20,8 @@ Selecione uma opção:
  9) Drop migrations (drizzle-kit drop)
 10) Abrir Drizzle Studio
 11) Reiniciar Docker
+12) Build imagem para Docker Hub
+13) Push imagem para Docker Hub
 x) Sair
 EOF
 }
@@ -66,6 +68,23 @@ while true; do
    11)
       npm run build
       docker compose restart app
+      ;;
+   12)
+      read -rp "Digite seu usuário do Docker Hub: " docker_user
+      read -rp "Digite o nome da imagem: " image_name
+      read -rp "Digite a tag (padrão: latest): " tag
+      tag=${tag:-latest}
+      docker build -t "$docker_user/$image_name:$tag" .
+      echo "Imagem construída: $docker_user/$image_name:$tag"
+      ;;
+   13)
+      read -rp "Digite seu usuário do Docker Hub: " docker_user
+      read -rp "Digite o nome da imagem: " image_name
+      read -rp "Digite a tag (padrão: latest): " tag
+      tag=${tag:-latest}
+      echo "Fazendo push da imagem: $docker_user/$image_name:$tag"
+      docker push "$docker_user/$image_name:$tag"
+      echo "Push concluído!"
       ;;
    x)
       echo "Saindo..."
