@@ -1,0 +1,1 @@
+ALTER TABLE "global"."cities" DROP COLUMN "geom";
