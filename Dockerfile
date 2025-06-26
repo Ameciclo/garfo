@@ -1,17 +1,21 @@
-# Use uma imagem base do Node.js
 FROM node:18.19.0
 
-# Defina o diretório de trabalho dentro do contêiner
 WORKDIR /app
 
-# Copie o arquivo package.json e package-lock.json para o diretório de trabalho
+# Copiar package files primeiro para cache de layers
 COPY package*.json ./
+COPY tsconfig.json ./
 
-# Instale as dependências
-RUN npm install
+# Instalar dependências
+RUN npm ci --only=production
 
-# Copie o restante dos arquivos do projeto para o diretório de trabalho
+# Copiar código fonte
 COPY . .
 
-# Execute o aplicativo usando o comando "npm start"
-CMD [ "npm", "start" ]
+# Build da aplicação
+RUN npm run build
+
+# Expor porta
+EXPOSE 8080
+
+CMD ["npm", "start"]

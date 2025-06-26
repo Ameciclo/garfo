@@ -2,17 +2,18 @@ services:
   db:
     image: postgis/postgis:15-3.4
     container_name: garfo-db
-    env_file:
-      - .env
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DATABASE}
-    ports:
-      - '${POSTGRES_PORT}:5432'
     volumes:
       - db_data:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app:
     build:
@@ -22,15 +23,13 @@ services:
     env_file:
       - .env
     ports:
-      - "8080:8080"   # <-- publica a porta 8080 do contêiner para 8080 no host
-      - '4983:4983'         # adiciona o Studio
+      - "8080:8080"
     volumes:
-      - .:/app              # código no host espelhado no container
-      - /app/node_modules   # isola as deps
+      - .:/app
+      - /app/node_modules
     depends_on:
-      - db
-    # REMOVA ou ajuste este comando: se no seu package.json só existe "start", 
-    # use npm start; se tiver "dev", use npm run dev.
+      db:
+        condition: service_healthy
     command: ["npm", "start"]
 
 volumes:
