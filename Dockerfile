@@ -6,8 +6,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY tsconfig.json ./
 
-# Instalar dependências
-RUN npm ci --only=production
+# Instalar todas as dependências (dev + prod) para build
+RUN npm ci
 
 # Copiar código fonte
 COPY . .
@@ -15,7 +15,11 @@ COPY . .
 # Build da aplicação
 RUN npm run build
 
+# Limpar devDependencies após build
+RUN npm ci --only=production && npm cache clean --force
+
 # Expor porta
 EXPOSE 8080
 
-CMD ["npm", "start"]
+# Usar node diretamente para melhor performance
+CMD ["node", "dist/index.js"]

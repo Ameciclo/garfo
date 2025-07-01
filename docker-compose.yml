@@ -9,6 +9,9 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     restart: unless-stopped
+    # Porta 5432 NÃO exposta - comunicação apenas interna
+    networks:
+      - garfo-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DATABASE}"]
       interval: 10s
@@ -24,13 +27,16 @@ services:
       - .env
     ports:
       - "8080:8080"
-    volumes:
-      - .:/app
-      - /app/node_modules
+    networks:
+      - garfo-network
     depends_on:
       db:
         condition: service_healthy
-    command: ["npm", "start"]
+    restart: unless-stopped
 
 volumes:
   db_data:
+
+networks:
+  garfo-network:
+    driver: bridge
