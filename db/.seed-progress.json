@@ -1,0 +1,66 @@
+{
+  "cyclist_count_editions": {
+    "module": "cyclist_count",
+    "table": "editions",
+    "completed": true,
+    "lastBatch": 1000,
+    "totalRows": 61,
+    "timestamp": "2025-07-01T15:04:15.906Z"
+  },
+  "cyclist_count_sessions": {
+    "module": "cyclist_count",
+    "table": "sessions",
+    "completed": true,
+    "lastBatch": 1000,
+    "totalRows": 848,
+    "timestamp": "2025-07-01T15:04:18.097Z"
+  },
+  "cyclist_count_directions": {
+    "module": "cyclist_count",
+    "table": "directions",
+    "completed": true,
+    "lastBatch": 1000,
+    "totalRows": 726,
+    "timestamp": "2025-07-01T15:04:19.429Z"
+  },
+  "cyclist_count_direction_counts": {
+    "module": "cyclist_count",
+    "table": "direction_counts",
+    "completed": true,
+    "lastBatch": 11000,
+    "totalRows": 10092,
+    "timestamp": "2025-07-01T15:04:20.666Z"
+  },
+  "cyclist_count_characteristics": {
+    "module": "cyclist_count",
+    "table": "characteristics",
+    "completed": true,
+    "lastBatch": 1000,
+    "totalRows": 31,
+    "timestamp": "2025-07-01T15:04:33.050Z"
+  },
+  "cyclist_count_characteristics_counts": {
+    "module": "cyclist_count",
+    "table": "characteristics_counts",
+    "completed": true,
+    "lastBatch": 14000,
+    "totalRows": 13339,
+    "timestamp": "2025-07-01T15:04:33.818Z"
+  },
+  "casualties_crashes_sinistros": {
+    "module": "casualties",
+    "table": "crashes_sinistros",
+    "completed": false,
+    "lastBatch": 0,
+    "totalRows": 20239,
+    "timestamp": "2025-07-01T15:10:37.036Z"
+  },
+  "casualties_deaths_mortes_transito_2011": {
+    "module": "casualties",
+    "table": "deaths_mortes_transito_2011",
+    "completed": false,
+    "lastBatch": 0,
+    "totalRows": 44553,
+    "timestamp": "2025-07-01T15:12:03.115Z"
+  }
+}

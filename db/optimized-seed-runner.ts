@@ -34,9 +34,14 @@ async function main() {
           console.log("🚀 Executando todos os seeds...");
           for (const [name, fn] of Object.entries(MODULES)) {
             console.log(`\n📦 Iniciando ${name}...`);
-            await fn();
+            try {
+              await fn();
+            } catch (error) {
+              console.error(`❌ Erro em ${name}:`, error.message);
+              console.log(`⏭️ Continuando para o próximo módulo...`);
+            }
           }
-          console.log("🎉 Todos os seeds concluídos!");
+          console.log("🎉 Todos os seeds processados!");
         } else {
           console.log("Módulos disponíveis:", Object.keys(MODULES).join(', '));
         }

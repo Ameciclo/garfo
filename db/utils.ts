@@ -6,7 +6,10 @@ import fs from "fs";
 
 dotenv.config();
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const pool = new Pool({ 
+  connectionString: process.env.DATABASE_URL,
+  ssl: false
+});
 export const db = drizzle(pool);
 
 export function readCsv<T = any>(filePath: string): Promise<T[]> {
