@@ -121,22 +121,36 @@ function parseDate(d: string): string | undefined {
 
 type RawDeath = Record<string, string>;
 
+// Cache para evitar queries repetidas
+const cityCache = new Map<number, number | undefined>();
+
 async function guessCityId6(
   raw: string | undefined
 ): Promise<number | undefined> {
   if (!raw) return undefined;
   const code6 = Number(raw);
   if (isNaN(code6)) return undefined;
+  
+  // Verificar cache primeiro
+  if (cityCache.has(code6)) {
+    return cityCache.get(code6);
+  }
+  
   const match = await db
     .select({ id: cities.id })
     .from(cities)
     .where(sql`((${cities.id} / 10)::integer) = ${code6}`)
     .limit(1)
     .execute();
-  return match[0]?.id;
+  
+  const result = match[0]?.id;
+  cityCache.set(code6, result);
+  return result;
 }
 
 export async function seedDatasusDeaths() {
+  console.log("⚰️ Iniciando seed do DATASUS (mortes de trânsito)...");
+  
   const files = [
     // "mortes_transito_2011.csv",
     // "mortes_transito_2012.csv",
@@ -152,17 +166,29 @@ export async function seedDatasusDeaths() {
     "mortes_transito_2022.csv",
     "mortes_transito_2023.csv",
   ];
+  
   for (const fname of files) {
+    console.log(`📄 Processando ${fname}...`);
     const full = path.resolve(__dirname, fname);
     const rows = await readCsv<RawDeath>(full);
+    console.log(`📊 ${rows.length} registros encontrados`);
 
-    const inserts = await Promise.all(
-      rows.map(async (r) => {
+    // Processar em chunks menores para evitar timeout
+    const chunks = chunkArray(rows, 5000); // chunks menores
+    let totalProcessed = 0;
+    
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+      console.log(`⏳ Processando chunk ${i + 1}/${chunks.length} (${chunk.length} registros)...`);
+      
+      const inserts = [];
+      for (let j = 0; j < chunk.length; j++) {
+        const r = chunk[j];
         const codmunnatu = await guessCityId6(r.CODMUNNATU);
         const codmunocor = await guessCityId6(r.CODMUNOCOR);
         const codmunres = await guessCityId6(r.CODMUNRES);
 
-        return {
+        inserts.push({
           contador: Number(r.CONTADOR),
           tipobito: r.TIPOBITO,
           dtobito: parseDate(r.DTOBITO)!,
@@ -195,19 +221,30 @@ export async function seedDatasusDeaths() {
           dtinvestig: parseDate(r.DTINVESTIG),
           causabas_o: r.CAUSABAS_O,
           causabas: r.CAUSABAS,
-        };
-      })
-    );
+        });
+        
+        if ((j + 1) % 1000 === 0) {
+          console.log(`   ⏳ Processados ${j + 1}/${chunk.length} registros do chunk...`);
+        }
+      }
 
-    for (const batch of chunkArray(inserts, 1000)) {
-      await db
-        .insert(datasus_deaths)
-        .values(batch)
-        .onConflictDoNothing()
-        .execute();
+      // Inserir em batches ainda menores
+      for (const batch of chunkArray(inserts, 500)) {
+        await db
+          .insert(datasus_deaths)
+          .values(batch)
+          .onConflictDoNothing()
+          .execute();
+      }
+      
+      totalProcessed += chunk.length;
+      console.log(`✅ Chunk processado! Total: ${totalProcessed}/${rows.length}`);
     }
-    console.log(`✅ Seeded ${fname} -> ${rows.length} registros`);
+    
+    console.log(`✅ ${fname} concluído -> ${rows.length} registros`);
   }
+  
+  console.log(`🎉 Seed DATASUS concluído! Cache de cidades: ${cityCache.size} entradas`);
 }
 
 if (require.main === module) seedDatasusDeaths().catch(console.error);
