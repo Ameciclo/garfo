@@ -19,7 +19,11 @@
     "docker:logs": "docker compose logs -f",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
-    "db:seed": "tsx watch -r dotenv/config db/seed.ts"
+    "db:seed": "tsx watch -r dotenv/config db/seed.ts",
+    "db:seed:opt": "tsx -r dotenv/config db/optimized-seed-runner.ts",
+    "db:seed:status": "npm run db:seed:opt status",
+    "db:seed:reset": "npm run db:seed:opt reset",
+    "db:seed:resume": "npm run db:seed:opt resume"
   },
   "repository": {
     "type": "git",
