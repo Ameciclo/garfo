@@ -30,8 +30,13 @@ export async function seedCities() {
 
 // If run directly: `tsx db/seed/global/seed.ts`
 if (require.main === module) {
-  seedCities().catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+  seedCities()
+    .then(() => {
+      console.log('✅ Seed concluído!');
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
 }
