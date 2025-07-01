@@ -138,10 +138,10 @@ async function guessCityId6(
 
 export async function seedDatasusDeaths() {
   const files = [
-    "mortes_transito_2011.csv",
-    "mortes_transito_2012.csv",
-    "mortes_transito_2013.csv",
-    "mortes_transito_2014.csv",
+    // "mortes_transito_2011.csv",
+    // "mortes_transito_2012.csv",
+    // "mortes_transito_2013.csv",
+    // "mortes_transito_2014.csv",
     "mortes_transito_2015.csv",
     "mortes_transito_2016.csv",
     "mortes_transito_2017.csv",
