@@ -50,33 +50,59 @@ async function seedPCRStreetNames() {
 }
 
 async function seedStreetGeoms() {
+  console.log("🗺️ Processando geometrias dos logradouros...");
   const geojsonPath = path.resolve(__dirname, "trechos-de-logradouros.geojson");
   const content = await fs.readFile(geojsonPath, "utf-8");
   const geojson = JSON.parse(content);
 
-  for (const feature of geojson.features) {
-    const rawCode = feature.properties.CLOGRACODI;
-    const code =
-      typeof rawCode === "number"
-        ? Math.round(rawCode)
-        : parseInt(String(rawCode), 10);
-    if (isNaN(code)) continue;
+  console.log(`📍 Preparando ${geojson.features.length} geometrias para batch update...`);
+  
+  // Criar tabela temporária
+  await db.execute(sql`
+    CREATE TEMP TABLE temp_geometries (
+      codlogradouro INTEGER,
+      geometry_json TEXT
+    )
+  `);
+  
+  // Preparar dados válidos
+  const validGeoms = geojson.features
+    .map(feature => {
+      const rawCode = feature.properties.CLOGRACODI;
+      const code = typeof rawCode === "number" ? Math.round(rawCode) : parseInt(String(rawCode), 10);
+      if (isNaN(code)) return null;
+      return { codlogradouro: code, geometry_json: JSON.stringify(feature.geometry) };
+    })
+    .filter(Boolean);
 
-    const geometry = JSON.stringify(feature.geometry);
-    await db.execute(
-      sql`UPDATE ${schema.pcr_street_names}
-        SET geom = ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${geometry}), 4326))
-        WHERE codlogradouro = ${code}`
-    );
+  console.log(`📦 Inserindo ${validGeoms.length} geometrias na tabela temporária...`);
+  
+  // Inserir em batches na tabela temporária
+  const batches = chunkArray(validGeoms, 1000);
+  for (const batch of batches) {
+    const values = batch.map(g => `(${g.codlogradouro}, '${g.geometry_json.replace(/'/g, "''")}')`).join(',');
+    await db.execute(sql.raw(`INSERT INTO temp_geometries VALUES ${values}`));
   }
-
-  console.log("✅ Geometrias de logradouros atualizadas");
+  
+  console.log(`🔄 Executando batch update das geometrias...`);
+  
+  // Fazer o update em uma única query
+  await db.execute(sql`
+    UPDATE ${schema.pcr_street_names}
+    SET geom = ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(temp_geometries.geometry_json), 4326))
+    FROM temp_geometries
+    WHERE ${schema.pcr_street_names}.codlogradouro = temp_geometries.codlogradouro
+  `);
+  
+  console.log(`✅ ${validGeoms.length} geometrias atualizadas em batch!`);
 }
 
 // Orquestra as duas etapas de seed
 export async function seedPCRStreets() {
+  console.log("🛣️ Iniciando seed de logradouros PCR...");
   await seedPCRStreetNames();
   await seedStreetGeoms();
+  console.log("✅ Seed de logradouros PCR concluído!");
 }
 
 // Se executado diretamente
