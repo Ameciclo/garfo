@@ -8,14 +8,17 @@ import { pcr_street_names } from "../global/table_pcr_street_names";
 import { cities } from "../global/table_cities";
 import { cttu_crashes } from "./table_cttu_crashes";
 import { datasus_deaths } from "./table_datasus_deaths";
+import { samu_calls } from "./table_samu_calls";
 
 // Cache para evitar consultas repetidas
 const streetCache = new Map<string, number | null>();
 const cityCache = new Map<number, number | undefined>();
 
-async function guessStreetIdCached(rawStreet: string | undefined): Promise<number | null> {
+async function guessStreetIdCached(
+  rawStreet: string | undefined
+): Promise<number | null> {
   if (!rawStreet) return null;
-  
+
   if (streetCache.has(rawStreet)) {
     return streetCache.get(rawStreet)!;
   }
@@ -31,11 +34,13 @@ async function guessStreetIdCached(rawStreet: string | undefined): Promise<numbe
   return result;
 }
 
-async function guessCityId6Cached(raw: string | undefined): Promise<number | undefined> {
+async function guessCityId6Cached(
+  raw: string | undefined
+): Promise<number | undefined> {
   if (!raw) return undefined;
   const code6 = Number(raw);
   if (isNaN(code6)) return undefined;
-  
+
   if (cityCache.has(code6)) {
     return cityCache.get(code6);
   }
@@ -58,15 +63,17 @@ function parseDate(d: string): string | undefined {
 
 export async function seedCrashesOptimized() {
   const seeder = new OptimizedSeeder();
-  
+
   try {
-    const files = await glob("./db/modules/casualties/sinistros*.csv");
-    
+    const files = await glob(
+      "./db/modules/casualties/sinistros-cttu-2016-2024.csv"
+    );
+
     for (const file of files) {
-      const fileName = path.basename(file, '.csv');
-      
+      const fileName = path.basename(file, ".csv");
+
       await seeder.seedWithBatching(
-        'casualties',
+        "casualties",
         `crashes_${fileName}`,
         file,
         async (batch: any[]) => {
@@ -74,16 +81,38 @@ export async function seedCrashesOptimized() {
         },
         async (r: Record<string, string>) => {
           const streetId = await guessStreetIdCached(r.endereco);
-          
-          const hashInput = [
-            r.data, r.hora, r.natureza_acidente, r.situacao, r.tipo,
-            r.descricao, r.bairro, r.endereco, r.numero, r.endereco_cruzamento,
-            r.auto, r.moto, r.ciclom, r.ciclista, r.pedestre, r.onibus,
-            r.caminhao, r.viatura, r.outros, r.vitimas, r.vitimasfatais,
-            streetId?.toString()
-          ].map(v => v ?? "").join("|");
 
-          const row_hash = crypto.createHash("md5").update(hashInput).digest("hex");
+          const hashInput = [
+            r.data,
+            r.hora,
+            r.natureza_acidente,
+            r.situacao,
+            r.tipo,
+            r.descricao,
+            r.bairro,
+            r.endereco,
+            r.numero,
+            r.endereco_cruzamento,
+            r.auto,
+            r.moto,
+            r.ciclom,
+            r.ciclista,
+            r.pedestre,
+            r.onibus,
+            r.caminhao,
+            r.viatura,
+            r.outros,
+            r.vitimas,
+            r.vitimasfatais,
+            streetId?.toString(),
+          ]
+            .map((v) => v ?? "")
+            .join("|");
+
+          const row_hash = crypto
+            .createHash("md5")
+            .update(hashInput)
+            .digest("hex");
 
           return {
             data: r.data || "undefined",
@@ -113,9 +142,8 @@ export async function seedCrashesOptimized() {
         }
       );
     }
-    
+
     console.log("🎉 Crashes seed otimizado concluído");
-    
   } finally {
     await seeder.cleanup();
   }
@@ -123,23 +151,19 @@ export async function seedCrashesOptimized() {
 
 export async function seedDatasusDeathsOptimized() {
   const seeder = new OptimizedSeeder();
-  
-  try {
-    const files = [
-      "mortes_transito_2011.csv", "mortes_transito_2012.csv", "mortes_transito_2013.csv",
-      "mortes_transito_2014.csv", "mortes_transito_2015.csv", "mortes_transito_2016.csv",
-      "mortes_transito_2017.csv", "mortes_transito_2018.csv", "mortes_transito_2019.csv",
-      "mortes_transito_2020.csv", "mortes_transito_2021.csv", "mortes_transito_2022.csv",
-      "mortes_transito_2023.csv"
-    ];
 
-    for (const fileName of files) {
-      const filePath = path.resolve(__dirname, fileName);
-      
+  try {
+    const files = await glob(
+      "./db/modules/casualties/mortes_transito_*.csv"
+    );
+
+    for (const file of files) {
+      const fileName = path.basename(file, ".csv");
+
       await seeder.seedWithBatching(
-        'casualties',
-        `deaths_${fileName.replace('.csv', '')}`,
-        filePath,
+        "casualties",
+        `deaths_${fileName}`,
+        file,
         async (batch: any[]) => {
           await db.insert(datasus_deaths).values(batch).onConflictDoNothing();
         },
@@ -185,9 +209,101 @@ export async function seedDatasusDeathsOptimized() {
         }
       );
     }
-    
+
     console.log("🎉 Datasus Deaths seed otimizado concluído");
-    
+  } finally {
+    await seeder.cleanup();
+  }
+}
+
+function parseDateTime(
+  data: string,
+  hora_minuto: string
+): { data: string; hora: string } {
+  const dateOnly = data.split("T")[0];
+  const [hours, minutes] = hora_minuto.split(":");
+  const paddedHours = hours.padStart(2, "0");
+  const paddedMinutes = minutes.padStart(2, "0");
+  return {
+    data: dateOnly,
+    hora: `${paddedHours}:${paddedMinutes}:00`,
+  };
+}
+
+export async function seedSamuCallsOptimized() {
+  const seeder = new OptimizedSeeder();
+
+  try {
+    const files = await glob(
+      "./db/modules/casualties/sinistros-samu-2016-2025-ruas-corrigidas.csv"
+    );
+
+    for (const file of files) {
+      const fileName = path.basename(file, ".csv");
+
+      await seeder.seedWithBatching(
+        "casualties",
+        `samu_${fileName}`,
+        file,
+      async (batch: any[]) => {
+        await db.insert(samu_calls).values(batch).onConflictDoNothing();
+      },
+      async (r: Record<string, string>) => {
+        const streetId = await guessStreetIdCached(r.endereco_pcr);
+        const { data: dateFormatted, hora: timeFormatted } = parseDateTime(
+          r.data,
+          r.hora_minuto
+        );
+
+        const hashInput = [
+          r._id,
+          r.data,
+          r.hora_minuto,
+          r.municipio,
+          r.bairro,
+          r.endereco,
+          r.subtipo,
+          r.sexo,
+          r.idade,
+          r.endereco_pcr,
+        ]
+          .map((v) => v ?? "")
+          .join("|");
+
+        const row_hash = crypto
+          .createHash("md5")
+          .update(hashInput)
+          .digest("hex");
+
+        return {
+          original_id: Number(r._id) || undefined,
+          data: dateFormatted,
+          hora_minuto: timeFormatted,
+          municipio: r.municipio || undefined,
+          bairro: r.bairro || undefined,
+          endereco: r.endereco || undefined,
+          endereco_pcr: r.endereco_pcr || undefined,
+          origem_chamado: r.origem_chamado || undefined,
+          orig_tipo: r.orig_tipo || undefined,
+          subtipo: r.subtipo || undefined,
+          tipo: r.tipo || undefined,
+          categoria: r.categoria || undefined,
+          sexo: r.sexo || undefined,
+          idade: Number(r.idade) || undefined,
+          motivo_finalizacao: r.motivo_finalizacao || undefined,
+          motivo_desfecho: r.motivo_desfecho || undefined,
+          motivo_fin_norm: r.motivo_fin_norm || undefined,
+          motivo_desf_norm: r.motivo_desf_norm || undefined,
+          motivo_fin_cat: r.motivo_fin_cat || undefined,
+          motivo_desf_cat: r.motivo_desf_cat || undefined,
+          street_id: streetId || undefined,
+          row_hash: row_hash,
+        };
+      }
+    );
+    }
+
+    console.log("🎉 SAMU calls seed otimizado concluído");
   } finally {
     await seeder.cleanup();
   }

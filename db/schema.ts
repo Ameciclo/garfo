@@ -7,6 +7,7 @@ export * from "./modules/global/table_speed_plates";
 export * from "./modules/casualties/casualties_schema";
 export * from "./modules/casualties/table_cttu_crashes";
 export * from "./modules/casualties/table_datasus_deaths";
+export * from "./modules/casualties/table_samu_calls";
 
 export * from "./modules/cyclist_count/schema_cyclist_count";
 
