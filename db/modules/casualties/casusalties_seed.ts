@@ -32,8 +32,8 @@ async function guessStreetId(rawStreet: string | undefined) {
 type RawCSV = Record<string, string>;
 
 export async function seedCrashes() {
-  // pega TODOS os csv sinistrosXXXX.csv
-  const files = await glob("./db/modules/casualties/sinistros*.csv");
+  // pega os sinistros da cttu
+  const files = await glob("./db/modules/casualties/sinistros-cttu-2016-2024.csv");
   for (const file of files) {
     const csvRows = await readCsv<RawCSV>(file);
     // normalização mínima → adequar conforme necessidade

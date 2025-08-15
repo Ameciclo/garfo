@@ -67,7 +67,7 @@ async function seedStreetGeoms() {
   
   // Preparar dados válidos
   const validGeoms = geojson.features
-    .map(feature => {
+    .map((feature: any) => {
       const rawCode = feature.properties.CLOGRACODI;
       const code = typeof rawCode === "number" ? Math.round(rawCode) : parseInt(String(rawCode), 10);
       if (isNaN(code)) return null;
@@ -80,7 +80,7 @@ async function seedStreetGeoms() {
   // Inserir em batches na tabela temporária
   const batches = chunkArray(validGeoms, 1000);
   for (const batch of batches) {
-    const values = batch.map(g => `(${g.codlogradouro}, '${g.geometry_json.replace(/'/g, "''")}')`).join(',');
+    const values = batch.map((g: any) => `(${g.codlogradouro}, '${g.geometry_json.replace(/'/g, "''")}')`).join(',');
     await db.execute(sql.raw(`INSERT INTO temp_geometries VALUES ${values}`));
   }
   
