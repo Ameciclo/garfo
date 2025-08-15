@@ -1,12 +1,12 @@
 {
-  "id": "3e08ed9c-6125-4d93-abaa-89368380c2b8",
+  "id": "d5de6f6e-021d-4cba-bc8d-780690d9a198",
   "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "5",
-  "dialect": "pg",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "cities": {
+    "global.cities": {
       "name": "cities",
-      "schema": "",
+      "schema": "global",
       "columns": {
         "id": {
           "name": "id",
@@ -25,41 +25,22 @@
           "type": "varchar(2)",
           "primaryKey": false,
           "notNull": true
-        }
-      },
-      "indexes": {
-        "name_state_idx": {
-          "name": "name_state_idx",
-          "columns": [
-            "name",
-            "state"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "coordinates": {
-      "name": "coordinates",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
         },
-        "point": {
-          "name": "point",
+        "full_state": {
+          "name": "full_state",
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
-        "type": {
-          "name": "type",
-          "type": "varchar",
+        "rmr": {
+          "name": "rmr",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "geom": {
+          "name": "geom",
+          "type": "geometry(point)",
           "primaryKey": false,
           "notNull": false
         }
@@ -67,9 +48,603 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "characteristics": {
+    "global.pcr_street_names": {
+      "name": "pcr_street_names",
+      "schema": "global",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "codlogradouro": {
+          "name": "codlogradouro",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome_logradouro_concatenado": {
+          "name": "nome_logradouro_concatenado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome_oficial_logradouro": {
+          "name": "nome_oficial_logradouro",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome_logradouro_resumido": {
+          "name": "nome_logradouro_resumido",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cod_indica_pavimentacao": {
+          "name": "cod_indica_pavimentacao",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "desc_indica_pavimentacao": {
+          "name": "desc_indica_pavimentacao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "indica_corredor_transporte": {
+          "name": "indica_corredor_transporte",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "indica_perimetral": {
+          "name": "indica_perimetral",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "codbairro": {
+          "name": "codbairro",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nomeBairro": {
+          "name": "nomeBairro",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "geom": {
+          "name": "geom",
+          "type": "geometry(point)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "pref_street_rua_bairro_unique": {
+          "name": "pref_street_rua_bairro_unique",
+          "columns": [
+            {
+              "expression": "codlogradouro",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "codbairro",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "pcr_street_names_codlogradouro_unique": {
+          "name": "pcr_street_names_codlogradouro_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "codlogradouro"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "casualties.cttu_crashes": {
+      "name": "cttu_crashes",
+      "schema": "casualties",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "row_hash": {
+          "name": "row_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "street_id": {
+          "name": "street_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hora": {
+          "name": "hora",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "natureza": {
+          "name": "natureza",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "situacao": {
+          "name": "situacao",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bairro": {
+          "name": "bairro",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "endereco": {
+          "name": "endereco",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "numero": {
+          "name": "numero",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "endereco_cruzamento": {
+          "name": "endereco_cruzamento",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "auto": {
+          "name": "auto",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "moto": {
+          "name": "moto",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ciclom": {
+          "name": "ciclom",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ciclista": {
+          "name": "ciclista",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pedestre": {
+          "name": "pedestre",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "onibus": {
+          "name": "onibus",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "caminhao": {
+          "name": "caminhao",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "viatura": {
+          "name": "viatura",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "outros": {
+          "name": "outros",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vitimas": {
+          "name": "vitimas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vitimas_fat": {
+          "name": "vitimas_fat",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "geom": {
+          "name": "geom",
+          "type": "geometry(point)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cttu_crashes_street_id_pcr_street_names_id_fk": {
+          "name": "cttu_crashes_street_id_pcr_street_names_id_fk",
+          "tableFrom": "cttu_crashes",
+          "tableTo": "pcr_street_names",
+          "schemaTo": "global",
+          "columnsFrom": [
+            "street_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "cttu_crashes_row_hash_unique": {
+          "name": "cttu_crashes_row_hash_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "row_hash"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "casualties.datasus_deaths": {
+      "name": "datasus_deaths",
+      "schema": "casualties",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "contador": {
+          "name": "contador",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipobito": {
+          "name": "tipobito",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dtobito": {
+          "name": "dtobito",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "horaobito": {
+          "name": "horaobito",
+          "type": "varchar(5)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "natural": {
+          "name": "natural",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "codmunnat": {
+          "name": "codmunnat",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dtnasc": {
+          "name": "dtnasc",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "idade": {
+          "name": "idade",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sexo": {
+          "name": "sexo",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "racacor": {
+          "name": "racacor",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "estciv": {
+          "name": "estciv",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "esc2010": {
+          "name": "esc2010",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "seriescfal": {
+          "name": "seriescfal",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ocup": {
+          "name": "ocup",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "codmunres": {
+          "name": "codmunres",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lococor": {
+          "name": "lococor",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "codmunocor": {
+          "name": "codmunocor",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linhaa": {
+          "name": "linhaa",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linhab": {
+          "name": "linhab",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linhac": {
+          "name": "linhac",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linhad": {
+          "name": "linhad",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linhaii": {
+          "name": "linhaii",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "circobito": {
+          "name": "circobito",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "acidtrab": {
+          "name": "acidtrab",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fonte": {
+          "name": "fonte",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "origem": {
+          "name": "origem",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "esc": {
+          "name": "esc",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "exame": {
+          "name": "exame",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cirurgia": {
+          "name": "cirurgia",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dtinvestig": {
+          "name": "dtinvestig",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "causabas_o": {
+          "name": "causabas_o",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "causabas": {
+          "name": "causabas",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "datasus_deaths_contador_unique": {
+          "name": "datasus_deaths_contador_unique",
+          "columns": [
+            {
+              "expression": "contador",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "dtobito",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "datasus_deaths_codmunnat_cities_id_fk": {
+          "name": "datasus_deaths_codmunnat_cities_id_fk",
+          "tableFrom": "datasus_deaths",
+          "tableTo": "cities",
+          "schemaTo": "global",
+          "columnsFrom": [
+            "codmunnat"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "datasus_deaths_codmunres_cities_id_fk": {
+          "name": "datasus_deaths_codmunres_cities_id_fk",
+          "tableFrom": "datasus_deaths",
+          "tableTo": "cities",
+          "schemaTo": "global",
+          "columnsFrom": [
+            "codmunres"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "datasus_deaths_codmunocor_cities_id_fk": {
+          "name": "datasus_deaths_codmunocor_cities_id_fk",
+          "tableFrom": "datasus_deaths",
+          "tableTo": "cities",
+          "schemaTo": "global",
+          "columnsFrom": [
+            "codmunocor"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "cyclist_count.characteristics": {
       "name": "characteristics",
       "schema": "cyclist_count",
       "columns": {
@@ -101,9 +676,12 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "characteristics_count": {
+    "cyclist_count.characteristics_count": {
       "name": "characteristics_count",
       "schema": "cyclist_count",
       "columns": {
@@ -164,9 +742,12 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "edition": {
+    "cyclist_count.edition": {
       "name": "edition",
       "schema": "cyclist_count",
       "columns": {
@@ -194,9 +775,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "coordinates_id": {
-          "name": "coordinates_id",
-          "type": "integer",
+        "geom": {
+          "name": "geom",
+          "type": "geometry(point)",
           "primaryKey": false,
           "notNull": true
         }
@@ -207,21 +788,9 @@
           "name": "edition_city_id_cities_id_fk",
           "tableFrom": "edition",
           "tableTo": "cities",
+          "schemaTo": "global",
           "columnsFrom": [
             "city_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "edition_coordinates_id_coordinates_id_fk": {
-          "name": "edition_coordinates_id_coordinates_id_fk",
-          "tableFrom": "edition",
-          "tableTo": "coordinates",
-          "columnsFrom": [
-            "coordinates_id"
           ],
           "columnsTo": [
             "id"
@@ -231,9 +800,12 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "session": {
+    "cyclist_count.session": {
       "name": "session",
       "schema": "cyclist_count",
       "columns": {
@@ -280,9 +852,121 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "relation_cities": {
+    "cyclist_count.direction_count": {
+      "name": "direction_count",
+      "schema": "cyclist_count",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "direction_id": {
+          "name": "direction_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "direction_count_session_id_session_id_fk": {
+          "name": "direction_count_session_id_session_id_fk",
+          "tableFrom": "direction_count",
+          "tableTo": "session",
+          "schemaTo": "cyclist_count",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "direction_count_direction_id_directions_id_fk": {
+          "name": "direction_count_direction_id_directions_id_fk",
+          "tableFrom": "direction_count",
+          "tableTo": "directions",
+          "schemaTo": "cyclist_count",
+          "columnsFrom": [
+            "direction_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "cyclist_count.directions": {
+      "name": "directions",
+      "schema": "cyclist_count",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "origin": {
+          "name": "origin",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "origin_cardinal": {
+          "name": "origin_cardinal",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "destin": {
+          "name": "destin",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "destin_cardinal": {
+          "name": "destin_cardinal",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "cyclist_infra.relation_cities": {
       "name": "relation_cities",
       "schema": "cyclist_infra",
       "columns": {
@@ -319,6 +1003,7 @@
           "name": "relation_cities_cities_id_cities_id_fk",
           "tableFrom": "relation_cities",
           "tableTo": "cities",
+          "schemaTo": "global",
           "columnsFrom": [
             "cities_id"
           ],
@@ -330,9 +1015,12 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "relations": {
+    "cyclist_infra.relations": {
       "name": "relations",
       "schema": "cyclist_infra",
       "columns": {
@@ -400,9 +1088,12 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "ways": {
+    "cyclist_infra.ways": {
       "name": "ways",
       "schema": "cyclist_infra",
       "columns": {
@@ -497,117 +1188,23 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "direction_count": {
-      "name": "direction_count",
-      "schema": "cyclist_count",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "session_id": {
-          "name": "session_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "direction_id": {
-          "name": "direction_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "count": {
-          "name": "count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "direction_count_session_id_session_id_fk": {
-          "name": "direction_count_session_id_session_id_fk",
-          "tableFrom": "direction_count",
-          "tableTo": "session",
-          "schemaTo": "cyclist_count",
-          "columnsFrom": [
-            "session_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "direction_count_direction_id_directions_id_fk": {
-          "name": "direction_count_direction_id_directions_id_fk",
-          "tableFrom": "direction_count",
-          "tableTo": "directions",
-          "schemaTo": "cyclist_count",
-          "columnsFrom": [
-            "direction_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "directions": {
-      "name": "directions",
-      "schema": "cyclist_count",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "origin": {
-          "name": "origin",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "origin_cardinal": {
-          "name": "origin_cardinal",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "destin": {
-          "name": "destin",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "destin_cardinal": {
-          "name": "destin_cardinal",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {},
   "schemas": {
+    "global": "global",
+    "casualties": "casualties",
     "cyclist_count": "cyclist_count",
     "cyclist_infra": "cyclist_infra"
   },
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
   "_meta": {
     "columns": {},
     "schemas": {},

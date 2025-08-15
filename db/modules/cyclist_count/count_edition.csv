@@ -1,0 +1,62 @@
+id,city_id,coordinates_id,name,date,latitude,longitude
+1,2611606,16,Av. Rui Barbosa x R. Amélia,2013-3-25,-8.04511,-34.90207
+2,2611606,10,Av. Forte do Bom Jesus x R. Miguel Vieira,2013-4-25,-8.05351,-34.92892
+3,2611606,14,Av. Beberibe x Av. Prof. José dos Anjos,2013-4-25,-8.02793,-34.89293
+4,2611606,6,R. Padre Lemos x Estrada do Arraial,2013-10-30,-8.02676,-34.91773
+5,2611606,17,Av. Mascarenhas de Moraes x R. Eng. Alves de Souza,2014-4-9,-8.09845,-34.91019
+6,2611606,3,R. Arquiteto Luiz Nunes X R. Eng. Alves de Souza,2014-4-9,-8.09803,-34.91224
+7,2611606,12,Estrada de Belém x R. Odorico Mendes,2014-8-27,-8.03216,-34.88138
+8,2611606,18,Av. Rui Barbosa x Av. Dr. Malaquias,2015-3-18,-8.03989,-34.90401
+9,2611606,19,Av. Cons. Rosa e Silva x Av. Dr. Malaquias,2015-3-18,-8.03812,-34.90057
+10,2611606,7,R. do Futuro x Av. Dr. Malaquias,2015-3-18,-8.03876,-34.90176
+11,2611606,8,Av. Caxangá x Av. Gal. San Martin,2015-9-9,-8.05045,-34.92105
+12,2611606,1,Av. Visconde de Suassuna x R. do Hospício,2016-2-24,-8.05508,-34.88226
+13,2611606,13,R. dos Palmares x R. Treze de Maio,2016-2-24,-8.05263,-34.88374
+14,2611606,2,Av. Cosme Viana x R. 21 de Abril,2016-5-25,-8.07701,-34.90919
+15,2611606,20,Av. Gov. Agamenon Magalhães x Praça do Derby - Pista Oeste,2016-9-15,-8.05664,-34.89807
+16,2611606,15,Av. Gov. Agamenon Magalhães x Praça do Derby - Pista Leste,2016-9-15,-8.05661,-34.89772
+17,2611606,4,Av. Abdias de Carvalho x Av. Gal. San Martin,2016-11-29,-8.06046,-34.92576
+18,2611606,5,Av. Recife x R. Pintor Antonio de Albuquerque,2016-12-6,-8.10793,-34.92706
+19,2611606,21,Av. Recife x R. São Nicolau,2016-12-6,-8.10695,-34.92721
+20,2611606,9,Av. Domingos Ferreira x Av. Antônio Falcão,2017-11-23,-8.11574,-34.89552
+21,2611606,22,Varadouro | Olinda,2018-9-12,-8.02016,-34.85586
+22,2611606,23,Ponte do Janga,2018-9-20,-7.95774,-34.83079
+23,2611606,13,R. dos Palmares x R. Treze de Maio,2019-2-20,-8.05263,-34.88374
+24,2611606,1,Av. Visconde de Suassuna x R. do Hospício,2019-2-20,-8.05508,-34.88226
+25,2611606,7,R. do Futuro x Av. Dr. Malaquias,2019-3-13,-8.03876,-34.90176
+26,2611606,17,Av. Mascarenhas de Moraes x R. Eng. Alves de Souza,2019-3-27,-8.09845,-34.91019
+27,2611606,3,R. Arquiteto Luiz Nunes X R. Eng. Alves de Souza,2019-3-27,-8.09803,-34.91224
+28,2611606,14,Av. Beberibe x Av. Prof. José dos Anjos,2019-4-25,-8.02793,-34.89293
+29,2611606,18,Av. Rui Barbosa x Av. Dr. Malaquias,2019-5-8,-8.03989,-34.90401
+30,2611606,19,Av. Cons. Rosa e Silva x Av. Dr. Malaquias,2019-5-8,-8.03812,-34.90057
+31,2611606,2,Av. Cosme Viana x R. 21 de Abril,2019-5-22,-8.07701,-34.90919
+32,2611606,12,Estrada de Belém x R. Odorico Mendes,2019-8-28,-8.03216,-34.88138
+33,2611606,8,Av. Caxangá x Av. Gal. San Martin,2019-9-11,-8.05045,-34.92105
+34,2611606,20,Av. Gov. Agamenon Magalhães x Praça do Derby - Pista Oeste,2019-9-18,-8.05664,-34.89807
+35,2611606,15,Av. Gov. Agamenon Magalhães x Praça do Derby - Pista Leste,2019-9-18,-8.05661,-34.89772
+36,2611606,6,R. Padre Lemos x Estrada do Arraial,2019-10-30,-8.02676,-34.91773
+37,2611606,9,Av. Domingos Ferreira x Av. Antônio Falcão,2019-11-28,-8.11574,-34.89552
+38,2611606,21,Av. Recife x R. São Nicolau,2019-12-5,-8.10695,-34.92721
+39,2611606,4,Av. Abdias de Carvalho x Av. Gal. San Martin,2019-12-10,-8.06046,-34.92576
+40,2611606,11,Av. Caxangá x Av. Afonso Olindense,2020-9-23,-8.0313,-34.95573
+41,2611606,24,R. Padre Roma x R. Sebastião Malta Arcoverde,2021-8-25,-8.03309,-34.90729
+42,2611606,22,Varadouro | Olinda,2021-9-8,-8.02016,-34.85586
+43,2611606,23,Ponte do Janga,2021-9-23,-7.95774,-34.83079
+44,2611606,25,Av. Pres. Kennedy x Av. Antonio da Costa Azevedo,2021-10-13,-8.01313,-34.8724
+45,2611606,26,R. Santo Elias x Av. Barreto de Menezes | Jaboatão,2021-10-27,-8.16331,-34.92498
+46,2611606,9,Av. Domingos Ferreira x Av. Antônio Falcão,2021-11-10,-8.11574,-34.89552
+47,2611606,4,Av. Abdias de Carvalho x Av. Gal. San Martin,2021-11-24,-8.06046,-34.92576
+48,2611606,5,Av. Recife x R. Pintor Antonio de Albuquerque,2021-12-9,-8.10793,-34.92706
+49,2611606,16,Av. Rui Barbosa x R. Amélia,2022-3-30,-8.04511,-34.90207
+50,2611606,10,Av. Forte do Bom Jesus x R. Miguel Vieira,2022-4-27,-8.05351,-34.92892
+51,2611606,27,Av. Gov. Agamenon Magalhães x Rua do Paissandu,2022-7-28,-8.06219,-34.89757
+52,2611606,28,R. da Aurora x R. Princesa Isabel,2023-2-9,-8.05961,-34.87995
+53,2611606,29,Av. Cruz Cabugá x Rua Dr. Jayme da Fonte,2023-3-2,-8.04448,-34.87489
+54,2611606,30,Av. Guararapes x Av. Dantas Barreto,2023-3-23,-8.06392,-34.87848
+55,2611606,11,Av. Caxangá x Av. Afonso Olindense,2023-4-19,-8.0313,-34.95573
+56,2611606,2,Rua Cosme Viana X R. 21 de Abril,2023-5-11,-8.07701,-34.90919
+57,2611606,31,R. Souza Bandeira x R. Cantora Clara Nunes,2023-8-10,-8.04425,-34.91665
+58,2611606,8,Av. Caxangá x Av. Gal. San Martin,2023-8-31,-8.05045,-34.92105
+59,2603454,32,Av. Pres. Kennedy x Av. Antonio da Costa Azevedo,2023-10-3,-8.01313,-34.8724
+60,2609600,33,Praça de Camaragibe,2023-10-19,-8.01852,-34.97043
+61,2611606,14,Av. Beberibe x Av. Prof. José dos Anjos,2023-11-9,-8.02793,-34.89293

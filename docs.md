@@ -1,6 +1,51 @@
 # Documentação de Rotas da API
 
-Neste documento, você encontrará informações detalhadas sobre as rotas disponíveis na API.
+Neste documento, você encontrará informações detalhadas sobre as rotas disponíveis na API, além de instruções para rodar o ambiente de desenvolvimento com Docker Compose.
+
+---
+
+## 🛠️ Ambiente de Desenvolvimento com Docker Compose
+
+### 1. Crie o arquivo `.env` na raiz com o seguinte conteúdo:
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=1234
+POSTGRES_DATABASE=postgres
+POSTGRES_PORT=5432
+DATABASE_URL=postgresql://postgres:1234@db:5432/postgres
+```
+
+### 2. Suba os containers:
+```bash
+docker compose up -d --build
+```
+
+### 3. Verifique se os serviços estão rodando:
+```bash
+docker compose ps
+```
+
+### 4. Rode as migrations:
+```bash
+docker compose exec app npm run db:migrate
+```
+
+### 5. Rode o seed:
+```bash
+docker compose exec app npm run db:seed
+```
+
+### 6. Acesse a aplicação:
+```
+http://localhost:3000
+```
+
+### Para resetar tudo:
+```bash
+docker compose down -v
+```
+
+---
 
 # Cities Module
 
@@ -36,23 +81,19 @@ Neste documento, você encontrará informações detalhadas sobre as rotas dispo
         "max_total_of_count": 300,
         "where_max_count": {
           "id": 5,
-          "name": "Cidade X",
-          // ...
+          "name": "Cidade X"
         },
         "total_cargo": 100,
         "total_helmet": 800,
-        "total_juveniles": 50,
-        // ...
+        "total_juveniles": 50
       },
       "counts": [
         {
           "id": 1,
           "slug": "1-2023-01-05-edicao-um",
           "name": "Edição Um",
-          "date": "2023-01-05T00:00:00.000Z",
-          // ...
-        },
-        // ...
+          "date": "2023-01-05T00:00:00.000Z"
+        }
       ]
     }
     ```
@@ -71,8 +112,7 @@ Neste documento, você encontrará informações detalhadas sobre as rotas dispo
       "date": "2023-01-05T00:00:00.000Z",
       "summary": {
         "max_hour": 123,
-        "total_cyclists": 1000,
-        // ...
+        "total_cyclists": 1000
       },
       "coordinates": [
         {
@@ -80,7 +120,6 @@ Neste documento, você encontrará informações detalhadas sobre as rotas dispo
           "type": "Point",
           "name": "Recife"
         }
-        // ...
       ],
       "sessions": {
         "1": {
@@ -89,17 +128,14 @@ Neste documento, você encontrará informações detalhadas sobre as rotas dispo
           "total_cyclists": 100,
           "characteristics": {
             "cargo": 20,
-            "helmet": 50,
-            // ...
+            "helmet": 50
           },
           "quantitative": {
             "NW_SE": 10,
-            "SE_NW": 15,
-            // ...
+            "SE_NW": 15
           }
         }
-        // ...
-      },
+      ],
       "directions": {
         "NW_SE": {
           "origin": "Norte-Oeste",
@@ -107,7 +143,6 @@ Neste documento, você encontrará informações detalhadas sobre as rotas dispo
           "origin_cardinal": "NW",
           "destin_cardinal": "SE"
         }
-        // ...
       }
     }
     ```
@@ -125,10 +160,8 @@ Neste documento, você encontrará informações detalhadas sobre as rotas dispo
       {
         "id": 1,
         "name": "Relação 1",
-        "pdc_ref": "ABC123",
-        // ...
-      },
-      // ...
+        "pdc_ref": "ABC123"
+      }
     ]
     ```
 
@@ -147,13 +180,10 @@ Neste documento, você encontrará informações detalhadas sobre as rotas dispo
         "relations": [
           {
             "relation_id": 1,
-            "pdc_ref": "ABC123",
-            // ...
-          },
-          // ...
+            "pdc_ref": "ABC123"
+          }
         ]
-      },
-      // ...
+      }
     }
     ```
 
@@ -168,18 +198,14 @@ Neste documento, você encontrará informações detalhadas sobre as rotas dispo
     {
       "type": "relation",
       "id": 123456,
-      "members": [
-        // ...
-      ],
+      "members": [],
       "tags": {
-        "name": "Nome da Relação",
-        // ...
+        "name": "Nome da Relação"
       },
       "pdc": {
         "id": 1,
         "name": "Relação 1",
-        "pdc_ref": "ABC123",
-        // ...
+        "pdc_ref": "ABC123"
       }
     }
     ```
@@ -218,8 +244,7 @@ Neste documento, você encontrará informações detalhadas sobre as rotas dispo
               "category_4": 0
             }
           }
-        },
-        // ...
+        }
       ],
       "categories": {
         "category_type_1": ["category_1", "category_2"],
@@ -250,3 +275,4 @@ Neste documento, você encontrará informações detalhadas sobre as rotas dispo
       }
     }
     ```
+
