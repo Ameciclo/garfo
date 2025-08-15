@@ -6,6 +6,7 @@ import {
   seedCrashes,
   seedDatasusDeaths,
 } from "./modules/casualties/casusalties_seed";
+import { seedSamuCallsOptimized } from "./modules/casualties/optimized_seed";
 import { seedSpeedPlates } from "./modules/global/seed_speed_plates";
 
 async function runAll() {
@@ -16,6 +17,7 @@ async function runAll() {
   await seedPCRStreets();
   await seedCrashes();
   await seedDatasusDeaths();
+  await seedSamuCallsOptimized();
   await seedSpeedPlates();
   console.log("🎉 All seeds completed.");
   process.exit(0);

@@ -23,7 +23,8 @@
     "db:seed:opt": "tsx -r dotenv/config db/optimized-seed-runner.ts",
     "db:seed:status": "npm run db:seed:opt status",
     "db:seed:reset": "npm run db:seed:opt reset",
-    "db:seed:resume": "npm run db:seed:opt resume"
+    "db:seed:resume": "npm run db:seed:opt resume",
+    "setup:dev": "tsx -r dotenv/config setup-dev.ts"
   },
   "repository": {
     "type": "git",
@@ -51,21 +52,21 @@
     "cors": "^2.8.5",
     "csv-parser": "^3.0.0",
     "dotenv": "^16.3.1",
-    "drizzle-orm": "^0.42.0",
+    "drizzle-orm": "^0.44.4",
     "express": "^4.18.2",
     "fast-glob": "^3.3.3",
     "file-saver": "^2.0.5",
     "node-fetch": "^3.3.2",
     "osmtogeojson": "^3.0.0-beta.5",
     "pg": "^8.11.3",
-    "postgres": "^3.4.3"
+    "postgres": "^3.4.3",
+    "drizzle-kit": "^0.31.4",
+    "tsx": "^4.7.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "^20.11.5",
-    "drizzle-kit": "^0.31.1",
-    "tsx": "^4.7.0",
     "typescript": "^5.3.3"
   }
 }

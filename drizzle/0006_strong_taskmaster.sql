@@ -1,0 +1,30 @@
+CREATE TABLE "casualties"."samu_calls" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"row_hash" text NOT NULL,
+	"created_at" timestamp DEFAULT now(),
+	"street_id" integer,
+	"original_id" integer,
+	"data" date NOT NULL,
+	"hora_minuto" time NOT NULL,
+	"municipio" varchar(100),
+	"bairro" varchar(100),
+	"endereco" text,
+	"endereco_pcr" text,
+	"origem_chamado" varchar(50),
+	"orig_tipo" varchar(50),
+	"subtipo" varchar(50),
+	"tipo" varchar(100),
+	"categoria" varchar(100),
+	"sexo" varchar(20),
+	"idade" integer,
+	"motivo_finalizacao" text,
+	"motivo_desfecho" text,
+	"motivo_fin_norm" text,
+	"motivo_desf_norm" text,
+	"motivo_fin_cat" varchar(100),
+	"motivo_desf_cat" varchar(100),
+	"geom" geometry(point),
+	CONSTRAINT "samu_calls_row_hash_unique" UNIQUE("row_hash")
+);
+--> statement-breakpoint
+ALTER TABLE "casualties"."samu_calls" ADD CONSTRAINT "samu_calls_street_id_pcr_street_names_id_fk" FOREIGN KEY ("street_id") REFERENCES "global"."pcr_street_names"("id") ON DELETE set null ON UPDATE no action;

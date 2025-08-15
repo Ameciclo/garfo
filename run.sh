@@ -33,7 +33,8 @@ while true; do
   case "$opt" in
     1)
       npm run build
-      docker compose up -d --build
+      docker compose build --no-cache
+      docker compose up -d
       ;;
     2)
       docker compose down -v
@@ -42,13 +43,13 @@ while true; do
       docker compose logs -f db
       ;;
     4)
-      docker compose exec app npx drizzle-kit generate \
+      npx drizzle-kit generate \
         --dialect=postgresql \
         --schema=./db/schema.ts \
         --out=./drizzle
       ;;
     5)
-      docker compose exec app npx drizzle-kit generate --custom
+      npx drizzle-kit generate --custom
       ;;
     6)
       docker compose exec app npx drizzle-kit migrate
@@ -60,7 +61,7 @@ while true; do
       docker compose exec app npm run db:seed
       ;;
     9)
-      docker compose exec app npx drizzle-kit drop
+      npx drizzle-kit drop
       ;;
    10)
       docker compose exec app npx drizzle-kit studio --host localhost --port 4983

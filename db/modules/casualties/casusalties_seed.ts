@@ -33,14 +33,21 @@ type RawCSV = Record<string, string>;
 
 export async function seedCrashes() {
   // pega os sinistros da cttu
-  const files = await glob("./db/modules/casualties/sinistros-cttu-2016-2024.csv");
+  const files = await glob("./db/modules/casualties/sinistros-cttu-2016-2024-corrigidas.csv");
   for (const file of files) {
     const csvRows = await readCsv<RawCSV>(file);
     // normalização mínima → adequar conforme necessidade
-    const inserts = await Promise.all(
-      csvRows.map(async (r) => {
-        // 1. executa sua lógica de streetId primeiro
-        const streetId = await guessStreetId(r.endereco);
+    const inserts = [];
+    console.log(`📊 Processando ${csvRows.length} registros...`);
+    
+    for (let i = 0; i < csvRows.length; i++) {
+      const r = csvRows[i];
+      if ((i + 1) % 1000 === 0) {
+        console.log(`⏳ Processados ${i + 1}/${csvRows.length} registros...`);
+      }
+      
+      // 1. executa sua lógica de streetId primeiro
+      const streetId = await guessStreetId(r.endereco);
 
         // 2. monta o array de valores a serem incluídos no hash
         const hashInput = [
@@ -75,33 +82,32 @@ export async function seedCrashes() {
           .update(hashInput)
           .digest("hex");
 
-        return {
-          data: r.data || "undefined",
-          hora: r.hora || "undefined",
-          natureza: r.natureza_acidente || undefined,
-          situacao: r.situacao || undefined,
-          tipo: r.tipo || undefined,
-          descricao: r.descricao || undefined,
-          bairro: r.bairro || undefined,
-          endereco: r.endereco || undefined,
-          numero: r.numero || undefined,
-          cross_st: r.endereco_cruzamento || undefined,
-          auto: Number(r.auto) || undefined,
-          moto: Number(r.moto) || undefined,
-          ciclom: Number(r.ciclom) || undefined,
-          ciclista: Number(r.ciclista) || undefined,
-          pedestre: Number(r.pedestre) || undefined,
-          onibus: Number(r.onibus) || undefined,
-          caminhao: Number(r.caminhao) || undefined,
-          viatura: Number(r.viatura) || undefined,
-          outros: Number(r.outros) || undefined,
-          vitimas: Number(r.vitimas) || undefined,
-          vitimas_fat: Number(r.vitimasfatais) || undefined,
-          street_id: (await guessStreetId(r.endereco)) || undefined,
-          row_hash: row_hash,
-        };
-      })
-    );
+      inserts.push({
+        data: r.data || "undefined",
+        hora: r.hora || "undefined",
+        natureza: r.natureza_acidente || undefined,
+        situacao: r.situacao || undefined,
+        tipo: r.tipo || undefined,
+        descricao: r.descricao || undefined,
+        bairro: r.bairro || undefined,
+        endereco: r.endereco || undefined,
+        numero: r.numero || undefined,
+        cross_st: r.endereco_cruzamento || undefined,
+        auto: Number(r.auto) || undefined,
+        moto: Number(r.moto) || undefined,
+        ciclom: Number(r.ciclom) || undefined,
+        ciclista: Number(r.ciclista) || undefined,
+        pedestre: Number(r.pedestre) || undefined,
+        onibus: Number(r.onibus) || undefined,
+        caminhao: Number(r.caminhao) || undefined,
+        viatura: Number(r.viatura) || undefined,
+        outros: Number(r.outros) || undefined,
+        vitimas: Number(r.vitimas) || undefined,
+        vitimas_fat: Number(r.vitimasfatais) || undefined,
+        street_id: streetId || undefined,
+        row_hash: row_hash,
+      });
+    }
 
     for (const batch of chunkArray(inserts, 2000)) {
       await db.insert(cttu_crashes).values(batch).onConflictDoNothing();

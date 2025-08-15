@@ -37,7 +37,7 @@ async function main() {
             try {
               await fn();
             } catch (error) {
-              console.error(`❌ Erro em ${name}:`, error.message);
+              console.error(`❌ Erro em ${name}:`, error instanceof Error ? error.message : String(error));
               console.log(`⏭️ Continuando para o próximo módulo...`);
             }
           }

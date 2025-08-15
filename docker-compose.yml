@@ -9,7 +9,8 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     restart: unless-stopped
-    # Porta 5432 NÃO exposta - comunicação apenas interna
+    ports:
+      - "5432:5432"
     networks:
       - garfo-network
     healthcheck:

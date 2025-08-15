@@ -270,9 +270,12 @@ export async function seedSamuCallsOptimized() {
           .map((v) => v ?? "")
           .join("|");
 
-        const row_hash = crypto
+        const row_hash = hashInput ? crypto
           .createHash("md5")
           .update(hashInput)
+          .digest("hex") : crypto
+          .createHash("md5")
+          .update(`fallback_${Math.random()}`)
           .digest("hex");
 
         return {

@@ -43,6 +43,20 @@
       "when": 1750967514607,
       "tag": "0005_thin_shaman",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1755293457543,
+      "tag": "0006_strong_taskmaster",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1755293610072,
+      "tag": "0007_curious_gladiator",
+      "breakpoints": true
     }
   ]
 }
