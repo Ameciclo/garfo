@@ -9,6 +9,7 @@ Este documento descreve os endpoints disponíveis na API Garfo, uma API para ace
 3. [Infraestrutura Cicloviária](#3-infraestrutura-cicloviária)
 4. [Sinistros de Trânsito (CTTU)](#4-sinistros-de-trânsito-cttu)
 5. [Mortes no Trânsito (DATASUS)](#5-mortes-no-trânsito-datasus)
+6. [Chamadas do SAMU](#6-chamadas-do-samu)
 
 ## 1. Cidades
 
@@ -616,3 +617,122 @@ GET http://localhost:8080/datasus-deaths/filtros?transportMode=V2&deathLocation=
 - 60 a 69 anos
 - 70 a 79 anos
 - 80 anos ou mais
+
+## 6. Chamadas do SAMU
+
+### Resumo de Chamadas
+
+**Endpoint:** `/samu-calls/summary`
+
+**Método:** GET
+
+**Descrição:** Retorna um resumo das chamadas do SAMU, incluindo total de chamadas, distribuição por categoria, motivos de finalização e desfecho, e evolução anual.
+
+**Exemplo de Uso:**
+```
+GET http://localhost:8080/samu-calls/summary
+```
+
+### Top Vias com Mais Sinistros
+
+**Endpoint:** `/samu-calls/streets/top`
+
+**Método:** GET
+
+**Parâmetros:**
+- `limit` (opcional): Número máximo de vias a retornar (padrão: 50)
+
+**Descrição:** Retorna as vias com maior número de chamadas do SAMU, incluindo dados georreferenciados.
+
+**Exemplo de Uso:**
+```
+GET http://localhost:8080/samu-calls/streets/top?limit=20
+```
+
+### Buscar Sinistros por Via
+
+**Endpoint:** `/samu-calls/streets/search`
+
+**Método:** GET
+
+**Parâmetros:**
+- `street` (obrigatório): Nome da via para buscar
+- `limit` (opcional): Número máximo de resultados (padrão: 100)
+
+**Descrição:** Busca chamadas do SAMU em uma via específica.
+
+**Exemplo de Uso:**
+```
+GET http://localhost:8080/samu-calls/streets/search?street=Boa%20Viagem&limit=50
+```
+
+### Evolução Temporal
+
+**Endpoint:** `/samu-calls/evolution`
+
+**Método:** GET
+
+**Parâmetros:**
+- `startYear` (opcional): Ano inicial para filtrar
+- `endYear` (opcional): Ano final para filtrar
+
+**Descrição:** Retorna a evolução das chamadas mês a mês e ano a ano.
+
+**Exemplo de Uso:**
+```
+GET http://localhost:8080/samu-calls/evolution?startYear=2020&endYear=2023
+```
+
+### Rankings Temporais
+
+**Endpoint:** `/samu-calls/ranking/temporal`
+
+**Método:** GET
+
+**Descrição:** Retorna rankings de dias da semana, meses e distribuição horária das chamadas.
+
+**Exemplo de Uso:**
+```
+GET http://localhost:8080/samu-calls/ranking/temporal
+```
+
+### Ranking por Cidades
+
+**Endpoint:** `/samu-calls/ranking/cities`
+
+**Método:** GET
+
+**Parâmetros:**
+- `year` (opcional): Ano específico para filtrar
+
+**Descrição:** Retorna ranking de chamadas por cidade, incluindo classificação da RMR.
+
+**Exemplo de Uso:**
+```
+GET http://localhost:8080/samu-calls/ranking/cities?year=2023
+```
+
+### Filtros Avançados
+
+**Endpoint:** `/samu-calls/filters`
+
+**Método:** GET
+
+**Parâmetros:**
+- `idade_min`, `idade_max`: Filtros de idade
+- `sexo`: Sexo da vítima
+- `ano_inicio`, `ano_fim`: Período temporal
+- `categoria`, `subtipo`: Tipo de sinistro
+- `municipio`: Município
+- `hora_inicio`, `hora_fim`: Faixa horária (0-23)
+- `motivo_fin_cat`, `motivo_desf_cat`: Motivos de finalização e desfecho
+- `limit`: Número máximo de resultados (padrão: 1000)
+
+**Descrição:** Permite filtrar as chamadas do SAMU por diversos critérios.
+
+**Exemplos de Uso:**
+```
+GET http://localhost:8080/samu-calls/filters?idade_min=20&idade_max=30
+GET http://localhost:8080/samu-calls/filters?sexo=M&ano_inicio=2023
+GET http://localhost:8080/samu-calls/filters?hora_inicio=18&hora_fim=6
+```

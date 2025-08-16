@@ -18,6 +18,7 @@ import trafficCrashesGeojsonRouter from "./modules/traffic-crashes/geojson";
 import trafficCrashesVehiclesRouter from "./modules/traffic-crashes/vehicles";
 import trafficCrashesStreetsSummaryRouter from "./modules/traffic-crashes/streets-summary";
 import datasusDeathsRouter from "./modules/datasus-deaths";
+import samuCallsRouter from "./modules/samu-calls";
 //import cyclistInfraUpdateRouter from "./modules/update/updater";
 
 const port = 8080; // Define the desired port for the API
@@ -41,6 +42,7 @@ app.use("/traffic-crashes/geojson", trafficCrashesGeojsonRouter);
 app.use("/traffic-crashes/vehicles", trafficCrashesVehiclesRouter);
 app.use("/traffic-crashes/streets-summary", trafficCrashesStreetsSummaryRouter);
 app.use("/datasus-deaths", datasusDeathsRouter);
+app.use("/samu-calls", samuCallsRouter);
 //app.use("/cyclist-infra/update", cyclistInfraUpdateRouter);
 
 // Rota raiz que redireciona para /api-routes
