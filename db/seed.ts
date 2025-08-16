@@ -6,8 +6,8 @@ import {
   seedCrashes,
   seedDatasusDeaths,
 } from "./modules/casualties/casusalties_seed";
-import { seedSamuCallsOptimized } from "./modules/casualties/optimized_seed";
 import { seedSpeedPlates } from "./modules/global/seed_speed_plates";
+import { seedSamuCallsOptimized } from "./modules/casualties/optimized_seed";
 
 async function runAll() {
   console.log("▶️ Starting all seeds...");

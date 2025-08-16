@@ -91,7 +91,7 @@ class OptimizedSeeder {
       for (let i = startBatch; i < totalRows; i += BATCH_SIZE) {
         const batch = rawData.slice(i, i + BATCH_SIZE);
         const transformedBatch = transformFn 
-          ? batch.map(transformFn) 
+          ? (await Promise.all(batch.map(transformFn))).filter(item => item !== null) 
           : batch as T[];
 
         // Usa transação para cada batch

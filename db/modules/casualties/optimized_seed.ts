@@ -220,10 +220,29 @@ function parseDateTime(
   data: string,
   hora_minuto: string
 ): { data: string; hora: string } {
-  const dateOnly = data.split("T")[0];
+  if (!data) {
+    return {
+      data: "1900-01-01",
+      hora: "00:00:00"
+    };
+  }
+  
+  // Extrai apenas a data (remove a parte T00:00:00 se existir)
+  const dateOnly = data.includes("T") ? data.split("T")[0] : data;
+  
+  // Se não tem hora_minuto, usa 00:00:00
+  if (!hora_minuto) {
+    return {
+      data: dateOnly,
+      hora: "00:00:00"
+    };
+  }
+  
+  // Processa a hora do campo hora_minuto
   const [hours, minutes] = hora_minuto.split(":");
-  const paddedHours = hours.padStart(2, "0");
-  const paddedMinutes = minutes.padStart(2, "0");
+  const paddedHours = (hours || "0").padStart(2, "0");
+  const paddedMinutes = (minutes || "0").padStart(2, "0");
+  
   return {
     data: dateOnly,
     hora: `${paddedHours}:${paddedMinutes}:00`,
@@ -245,64 +264,60 @@ export async function seedSamuCallsOptimized() {
         "casualties",
         `samu_${fileName}`,
         file,
-      async (batch: any[]) => {
-        await db.insert(samu_calls).values(batch).onConflictDoNothing();
-      },
-      async (r: Record<string, string>) => {
-        const streetId = await guessStreetIdCached(r.endereco_pcr);
-        const { data: dateFormatted, hora: timeFormatted } = parseDateTime(
-          r.data,
-          r.hora_minuto
-        );
+        async (batch: any[]) => {
+          await db.insert(samu_calls).values(batch).onConflictDoNothing();
+        },
+        async (r: Record<string, string>) => {
+          // Normaliza as chaves (remove BOM e espaços)
+          const row = Object.fromEntries(
+            Object.entries(r).map(([k, v]) => [
+              k.replace(/^\uFEFF/, '').trim(),
+              typeof v === 'string' ? v.trim() : v
+            ])
+          ) as Record<string, string>;
 
-        const hashInput = [
-          r._id,
-          r.data,
-          r.hora_minuto,
-          r.municipio,
-          r.bairro,
-          r.endereco,
-          r.subtipo,
-          r.sexo,
-          r.idade,
-          r.endereco_pcr,
-        ]
-          .map((v) => v ?? "")
-          .join("|");
+          const { data: dateFormatted, hora: timeFormatted } = parseDateTime(
+            row.data ?? '',
+            row.hora_minuto ?? ''
+          );
 
-        const row_hash = hashInput ? crypto
-          .createHash("md5")
-          .update(hashInput)
-          .digest("hex") : crypto
-          .createHash("md5")
-          .update(`fallback_${Math.random()}`)
-          .digest("hex");
+          const payload = {
+            original_id: Number(row._id) || undefined,
+            data: dateFormatted,
+            hora_minuto: timeFormatted,
+            municipio: row.municipio || undefined,
+            bairro: row.bairro || undefined,
+            endereco: row.endereco || undefined,
+            endereco_pcr: row.endereco_pcr || undefined,
+            origem_chamado: row.origem_chamado || undefined,
+            orig_tipo: row.orig_tipo || undefined,
+            subtipo: row.subtipo || undefined,
+            tipo: row.tipo || undefined,
+            categoria: row.categoria || undefined,
+            sexo: row.sexo || undefined,
+            idade: Number(row.idade) || undefined,
+            motivo_finalizacao: row.motivo_finalizacao || undefined,
+            motivo_desfecho: row.motivo_desfecho || undefined,
+            motivo_fin_norm: row.motivo_fin_norm || undefined,
+            motivo_desf_norm: row.motivo_desf_norm || undefined,
+            motivo_fin_cat: row.motivo_fin_cat || undefined,
+            motivo_desf_cat: row.motivo_desf_cat || undefined,
+            street_id: await guessStreetIdCached(row.endereco_pcr) || undefined,
+          };
 
-        return {
-          original_id: Number(r._id) || undefined,
-          data: dateFormatted,
-          hora_minuto: timeFormatted,
-          municipio: r.municipio || undefined,
-          bairro: r.bairro || undefined,
-          endereco: r.endereco || undefined,
-          endereco_pcr: r.endereco_pcr || undefined,
-          origem_chamado: r.origem_chamado || undefined,
-          orig_tipo: r.orig_tipo || undefined,
-          subtipo: r.subtipo || undefined,
-          tipo: r.tipo || undefined,
-          categoria: r.categoria || undefined,
-          sexo: r.sexo || undefined,
-          idade: Number(r.idade) || undefined,
-          motivo_finalizacao: r.motivo_finalizacao || undefined,
-          motivo_desfecho: r.motivo_desfecho || undefined,
-          motivo_fin_norm: r.motivo_fin_norm || undefined,
-          motivo_desf_norm: r.motivo_desf_norm || undefined,
-          motivo_fin_cat: r.motivo_fin_cat || undefined,
-          motivo_desf_cat: r.motivo_desf_cat || undefined,
-          street_id: streetId || undefined,
-          row_hash: row_hash,
-        };
-      }
+          // Remove undefineds
+          const clean = Object.fromEntries(
+            Object.entries(payload).filter(([, v]) => v !== undefined)
+          );
+
+          // Se ficar vazio, pula a linha
+          if (Object.keys(clean).length === 0 || !clean.data) {
+            console.warn('Pulando linha inválida:', row._id);
+            return null;
+          }
+
+          return clean;
+        }
     );
     }
 

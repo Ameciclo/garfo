@@ -13,7 +13,7 @@ import { casualties } from "./casualties_schema";
 
 export const samu_calls = casualties.table("samu_calls", {
   id: serial("id").primaryKey(),
-  row_hash: text("row_hash").notNull().unique(),
+  // row_hash: text("row_hash").notNull().unique(), // removido temporariamente
   created_at: timestamp("created_at").defaultNow(),
 
   /**––– Vínculo opcional ao logradouro oficial ––––––––*/
@@ -25,8 +25,8 @@ export const samu_calls = casualties.table("samu_calls", {
   original_id: integer("original_id"), // _id do TSV
 
   /**––– Data & hora –––––––––––––––––––––––––––––––––––––*/
-  data: date("data").notNull(),
-  hora_minuto: time("hora_minuto").notNull(),
+  data: date("data"),
+  hora_minuto: time("hora_minuto"),
 
   /**––– Localização –––––––––––––––––––––––––––––––––––––*/
   municipio: varchar("municipio", { length: 100 }),
