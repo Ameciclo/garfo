@@ -20,6 +20,7 @@ echo "11) Dropar tabela SAMU"
 echo "12) Dropar tabela CTTU"
 echo "13) Dropar tabela Datasus"
 echo "14) Dropar todas tabelas casualties"
+echo "15) Reset ID sequence SAMU"
 echo ""
 echo "0) Sair"
 echo ""
@@ -85,6 +86,11 @@ case $choice in
         echo "💥 Dropando todas tabelas casualties..."
         docker compose exec db psql -U postgres -d garfo_dev -c "TRUNCATE TABLE casualties.samu_calls, casualties.cttu_crashes, casualties.datasus_deaths;"
         echo "✅ Todas tabelas casualties limpas"
+        ;;
+    15)
+        echo "🔄 Resetando ID sequence do SAMU..."
+        docker compose exec db psql -U postgres -d garfo_dev -c "ALTER SEQUENCE casualties.samu_calls_id_seq RESTART WITH 1;"
+        echo "✅ ID sequence do SAMU resetado para 1"
         ;;
     0)
         echo "👋 Saindo..."
