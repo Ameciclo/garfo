@@ -62,5 +62,13 @@
     "lastBatch": 0,
     "totalRows": 44553,
     "timestamp": "2025-07-01T15:12:03.115Z"
+  },
+  "casualties_samu_sinistros-samu-2016-2025-ruas-corrigidas": {
+    "module": "casualties",
+    "table": "samu_sinistros-samu-2016-2025-ruas-corrigidas",
+    "completed": false,
+    "lastBatch": 0,
+    "totalRows": 103584,
+    "timestamp": "2025-08-16T22:41:58.284Z"
   }
 }

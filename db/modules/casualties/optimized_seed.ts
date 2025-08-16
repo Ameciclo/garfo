@@ -9,6 +9,7 @@ import { cities } from "../global/table_cities";
 import { cttu_crashes } from "./table_cttu_crashes";
 import { datasus_deaths } from "./table_datasus_deaths";
 import { samu_calls } from "./table_samu_calls";
+import { mapCityNameToId } from "./city_mapper";
 
 // Cache para evitar consultas repetidas
 const streetCache = new Map<string, number | null>();
@@ -281,7 +282,26 @@ export async function seedSamuCallsOptimized() {
             row.hora_minuto ?? ''
           );
 
+          const streetId = await guessStreetIdCached(row.endereco_pcr);
+          const cityId = mapCityNameToId(row.municipio);
+
+          // Generate hash to prevent duplicates using key fields
+          const hashInput = [
+            row._id,
+            row.municipio,
+            row.data,
+            row.hora_minuto,
+          ]
+            .map((v) => v ?? "")
+            .join("|");
+
+          const row_hash = crypto
+            .createHash("md5")
+            .update(hashInput)
+            .digest("hex");
+
           const payload = {
+            row_hash,
             original_id: Number(row._id) || undefined,
             data: dateFormatted,
             hora_minuto: timeFormatted,
@@ -302,7 +322,8 @@ export async function seedSamuCallsOptimized() {
             motivo_desf_norm: row.motivo_desf_norm || undefined,
             motivo_fin_cat: row.motivo_fin_cat || undefined,
             motivo_desf_cat: row.motivo_desf_cat || undefined,
-            street_id: await guessStreetIdCached(row.endereco_pcr) || undefined,
+            street_id: streetId || undefined,
+            city_id: cityId,
           };
 
           // Remove undefineds

@@ -9,15 +9,21 @@ import {
   geometry,
 } from "drizzle-orm/pg-core";
 import { pcr_street_names } from "../global/table_pcr_street_names";
+import { cities } from "../global/table_cities";
 import { casualties } from "./casualties_schema";
 
 export const samu_calls = casualties.table("samu_calls", {
   id: serial("id").primaryKey(),
-  // row_hash: text("row_hash").notNull().unique(), // removido temporariamente
+  row_hash: text("row_hash").notNull().unique(),
   created_at: timestamp("created_at").defaultNow(),
 
   /**––– Vínculo opcional ao logradouro oficial ––––––––*/
   street_id: integer("street_id").references(() => pcr_street_names.id, {
+    onDelete: "set null",
+  }),
+
+  /**––– Vínculo à cidade ––––––––––––––––––––––––––––––*/
+  city_id: integer("city_id").references(() => cities.id, {
     onDelete: "set null",
   }),
 

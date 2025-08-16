@@ -1,0 +1,2 @@
+ALTER TABLE "casualties"."samu_calls" ADD COLUMN "city_id" integer;--> statement-breakpoint
+ALTER TABLE "casualties"."samu_calls" ADD CONSTRAINT "samu_calls_city_id_cities_id_fk" FOREIGN KEY ("city_id") REFERENCES "global"."cities"("id") ON DELETE set null ON UPDATE no action;
