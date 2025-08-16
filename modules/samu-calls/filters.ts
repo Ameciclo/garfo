@@ -16,6 +16,7 @@ router.get("/", async (req, res) => {
       categoria,
       subtipo,
       municipio,
+      cityId,
       hora_inicio,
       hora_fim,
       motivo_fin_cat,
@@ -55,8 +56,34 @@ router.get("/", async (req, res) => {
     }
 
     // Filtro de município
-    if (municipio) {
+    if (cityId) {
+      // Buscar nome da cidade pelo ID
+      const city = await db
+        .select({ name: cities.name })
+        .from(cities)
+        .where(eq(cities.id, parseInt(cityId as string)))
+        .limit(1);
+      
+      if (city.length > 0) {
+        whereConditions = and(whereConditions, sql`LOWER(${samu_calls.municipio}) = LOWER(${city[0].name})`)!;
+      }
+    } else if (municipio) {
       whereConditions = and(whereConditions, ilike(samu_calls.municipio, `%${municipio}%`))!;
+    } else {
+      // Se não especificou município, filtra por todos da RMR
+      const rmrCities = await db
+        .select({ name: cities.name })
+        .from(cities)
+        .where(sql`${cities.rmr} = true`);
+      
+      if (rmrCities.length > 0) {
+        const cityNames = rmrCities.map(city => city.name);
+        let cityClause = sql`false`;
+        for (const cityName of cityNames) {
+          cityClause = sql`${cityClause} OR LOWER(${samu_calls.municipio}) = LOWER(${cityName})`;
+        }
+        whereConditions = and(whereConditions, cityClause)!;
+      }
     }
 
     // Filtros de horário
@@ -101,15 +128,44 @@ router.get("/", async (req, res) => {
       .limit(parseInt(limit as string));
 
     // Estatísticas dos resultados filtrados
-    const stats = await db
+    const statsTotal = await db
       .select({
-        total: sql<number>`count(*)`,
-        por_sexo: sql<any>`json_object_agg(COALESCE(${samu_calls.sexo}, 'Não informado'), count(*))`,
-        por_categoria: sql<any>`json_object_agg(COALESCE(${samu_calls.categoria}, 'Não informado'), count(*))`
+        total: sql<number>`count(*)`
       })
       .from(samu_calls)
       .leftJoin(cities, sql`LOWER(${samu_calls.municipio}) = LOWER(${cities.name})`)
       .where(whereConditions);
+
+    const statsSexo = await db
+      .select({
+        sexo: sql<string>`COALESCE(${samu_calls.sexo}, 'Não informado')`,
+        count: sql<number>`count(*)`
+      })
+      .from(samu_calls)
+      .leftJoin(cities, sql`LOWER(${samu_calls.municipio}) = LOWER(${cities.name})`)
+      .where(whereConditions)
+      .groupBy(sql`COALESCE(${samu_calls.sexo}, 'Não informado')`);
+
+    const statsCategoria = await db
+      .select({
+        categoria: sql<string>`COALESCE(${samu_calls.categoria}, 'Não informado')`,
+        count: sql<number>`count(*)`
+      })
+      .from(samu_calls)
+      .leftJoin(cities, sql`LOWER(${samu_calls.municipio}) = LOWER(${cities.name})`)
+      .where(whereConditions)
+      .groupBy(sql`COALESCE(${samu_calls.categoria}, 'Não informado')`);
+
+    // Converter para objeto
+    const por_sexo = statsSexo.reduce((acc, item) => {
+      acc[item.sexo] = item.count;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const por_categoria = statsCategoria.reduce((acc, item) => {
+      acc[item.categoria] = item.count;
+      return acc;
+    }, {} as Record<string, number>);
 
     res.json({
       filtrosAplicados: {
@@ -121,12 +177,17 @@ router.get("/", async (req, res) => {
         categoria,
         subtipo,
         municipio,
+        cityId,
         hora_inicio,
         hora_fim,
         motivo_fin_cat,
         motivo_desf_cat
       },
-      estatisticas: stats[0],
+      estatisticas: {
+        total: statsTotal[0]?.total || 0,
+        por_sexo,
+        por_categoria
+      },
       dados: results,
       total: results.length
     });

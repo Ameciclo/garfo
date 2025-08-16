@@ -16,7 +16,7 @@ router.get("/top", async (req, res) => {
         nome_oficial_logradouro: pcr_street_names.nome_oficial_logradouro,
         nomeBairro: pcr_street_names.nomeBairro,
         count: sql<number>`count(*)`,
-        geom: pcr_street_names.geom
+        geom: sql<string>`ST_AsGeoJSON(${pcr_street_names.geom})`
       })
       .from(samu_calls)
       .innerJoin(pcr_street_names, eq(samu_calls.street_id, pcr_street_names.id))
@@ -62,7 +62,7 @@ router.get("/search", async (req, res) => {
         idade: samu_calls.idade,
         motivo_fin_cat: samu_calls.motivo_fin_cat,
         motivo_desf_cat: samu_calls.motivo_desf_cat,
-        geom: pcr_street_names.geom
+        geom: sql<string>`ST_AsGeoJSON(${pcr_street_names.geom})`
       })
       .from(samu_calls)
       .leftJoin(pcr_street_names, eq(samu_calls.street_id, pcr_street_names.id))
