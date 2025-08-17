@@ -42,8 +42,13 @@ router.get("/", async (req, res) => {
       .groupBy(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, sql`EXTRACT(MONTH FROM ${samu_calls.data})`)
       .orderBy(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, sql`EXTRACT(MONTH FROM ${samu_calls.data})`);
 
+    const series = [{
+      name: "Total de Chamadas",
+      data: byYear.map(item => [item.ano.toString(), item.count])
+    }];
+
     res.json({
-      evolucaoAnual: byYear,
+      series,
       evolucaoMensal: byMonth,
       filtros: {
         anoInicio: startYear || null,

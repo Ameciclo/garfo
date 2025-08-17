@@ -767,3 +767,89 @@ GET http://localhost:8080/samu-calls/filters?idade_min=20&idade_max=30
 GET http://localhost:8080/samu-calls/filters?sexo=M&ano_inicio=2023
 GET http://localhost:8080/samu-calls/filters?hora_inicio=18&hora_fim=6
 ```
+
+### Categorias por Cidade e Ano
+
+**Endpoint:** `/samu-calls/categories-by-city-year`
+
+**Método:** GET
+
+**Parâmetros:**
+- `cidade` (opcional): Nome do município
+- `ano_inicio` (opcional): Ano inicial
+- `ano_fim` (opcional): Ano final
+
+**Descrição:** Retorna dados de categorias de sinistros por ano.
+
+**Exemplo de Uso:**
+```
+GET http://localhost:8080/samu-calls/categories-by-city-year?cidade=Recife&ano_inicio=2020&ano_fim=2023
+```
+
+### Desfechos por Cidade/Modo
+
+**Endpoint:** `/samu-calls/outcomes`
+
+**Método:** GET
+
+**Parâmetros:**
+- `cidade` (opcional): Nome do município
+- `modo` (opcional): Tipo de sinistro (colisao, atropelamento, capotamento, outros)
+
+**Descrição:** Retorna distribuição de desfechos das chamadas.
+
+**Exemplo de Uso:**
+```
+GET http://localhost:8080/samu-calls/outcomes?cidade=Recife&modo=atropelamento
+```
+
+### Finalizações por Cidade/Modo
+
+**Endpoint:** `/samu-calls/finalizations`
+
+**Método:** GET
+
+**Parâmetros:**
+- `cidade` (opcional): Nome do município
+- `modo` (opcional): Tipo de sinistro (colisao, atropelamento, capotamento, outros)
+
+**Descrição:** Retorna distribuição de finalizações das chamadas.
+
+**Exemplo de Uso:**
+```
+GET http://localhost:8080/samu-calls/finalizations?cidade=Recife&modo=colisao
+```
+
+### Perfil de Sexo por Cidade/Modo
+
+**Endpoint:** `/samu-calls/gender-profile`
+
+**Método:** GET
+
+**Parâmetros:**
+- `cidade` (opcional): Nome do município
+- `modo` (opcional): Tipo de sinistro (colisao, atropelamento, capotamento, outros)
+
+**Descrição:** Retorna distribuição por sexo das vítimas.
+
+**Exemplo de Uso:**
+```
+GET http://localhost:8080/samu-calls/gender-profile?cidade=Recife
+```
+
+### Perfil de Idade por Cidade/Modo
+
+**Endpoint:** `/samu-calls/age-profile`
+
+**Método:** GET
+
+**Parâmetros:**
+- `cidade` (opcional): Nome do município
+- `modo` (opcional): Tipo de sinistro (colisao, atropelamento, capotamento, outros)
+
+**Descrição:** Retorna distribuição por faixa etária das vítimas.
+
+**Exemplo de Uso:**
+```
+GET http://localhost:8080/samu-calls/age-profile?modo=atropelamento
+```

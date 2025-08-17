@@ -44,3 +44,8 @@ Aqui estão as rotas disponíveis na API:
 - `/samu-calls/ranking/temporal` - [Documentação](./docs/routes.md#samu-calls-ranking-temporal)
 - `/samu-calls/ranking/cities` - [Documentação](./docs/routes.md#samu-calls-ranking-cities)
 - `/samu-calls/filters` - [Documentação](./docs/routes.md#samu-calls-filters)
+- `/samu-calls/categories-by-city-year` - [Documentação](./docs/routes.md#samu-calls-categories-by-city-year)
+- `/samu-calls/outcomes` - [Documentação](./docs/routes.md#samu-calls-outcomes)
+- `/samu-calls/finalizations` - [Documentação](./docs/routes.md#samu-calls-finalizations)
+- `/samu-calls/gender-profile` - [Documentação](./docs/routes.md#samu-calls-gender-profile)
+- `/samu-calls/age-profile` - [Documentação](./docs/routes.md#samu-calls-age-profile)

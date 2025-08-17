@@ -30,6 +30,11 @@ ROUTES=(
   "/samu-calls/ranking/temporal"
   "/samu-calls/ranking/cities"
   "/samu-calls/filters"
+  "/samu-calls/categories-by-city-year"
+  "/samu-calls/outcomes"
+  "/samu-calls/finalizations"
+  "/samu-calls/gender-profile"
+  "/samu-calls/age-profile"
 )
 
 # Contadores
