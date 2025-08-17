@@ -23,6 +23,13 @@ ROUTES=(
   "/datasus-deaths/cities-by-year"
   "/datasus-deaths/filtros"
   "/datasus-deaths/causas-secundarias"
+  "/samu-calls/summary"
+  "/samu-calls/streets/top"
+  "/samu-calls/streets/search?street=Boa%20Viagem"
+  "/samu-calls/evolution"
+  "/samu-calls/ranking/temporal"
+  "/samu-calls/ranking/cities"
+  "/samu-calls/filters"
 )
 
 # Contadores

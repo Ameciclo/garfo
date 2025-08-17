@@ -484,6 +484,37 @@ GET http://localhost:8080/datasus-deaths/causas-secundarias?cityId=2611606&start
   },
   "descricao": "Causas secundárias das mortes por sinistro de trânsito"
 }
+```
+
+### Filtros Avançados
+
+**Endpoint:** `/datasus-deaths/filtros`
+
+**Método:** GET
+
+**Parâmetros:**
+- `cityId` (opcional): ID do município específico (se não informado, usa todos da RMR)
+- `locationType` (opcional): `residence` ou `occurrence` (padrão: `occurrence`)
+- `startYear` (opcional): Ano inicial para filtrar (padrão: últimos 10 anos)
+- `endYear` (opcional): Ano final para filtrar
+- `gender` (opcional): Código do sexo (1 = Masculino, 2 = Feminino)
+- `race` (opcional): Código da raça/cor (1 = Branca, 2 = Preta, 4 = Parda, etc.)
+- `ageMin` (opcional): Idade mínima
+- `ageMax` (opcional): Idade máxima
+- `transportMode` (opcional): Código do modo de transporte (V0 = Pedestre, V2 = Motociclista, V4 = Ocupante de automóvel, etc.)
+- `deathLocation` (opcional): Código do local de ocorrência do óbito (1 = hospital, 2 = outros estabelecimentos de saúde, 3 = domicílio, 4 = via pública, 5 = outros, 9 = ignorado). Aceita múltiplos valores separados por vírgula (ex: `1,2` para locais de saúde)
+
+**Parâmetros legados (ainda suportados para compatibilidade):**
+- `municipio`: Equivalente a `cityId`
+- `tipoLocal`: Equivalente a `locationType` (`residencia` = `residence`, `ocorrencia` = `occurrence`)
+- `anoInicio`: Equivalente a `startYear`
+- `anoFim`: Equivalente a `endYear`
+- `sexo`: Equivalente a `gender`
+- `racacor`: Equivalente a `race`
+- `faixaEtariaMin`: Equivalente a `ageMin`
+- `faixaEtariaMax`: Equivalente a `ageMax`
+- `modoTransporte`: Equivalente a `transportMode`
+- `localOcorrenciaObito`: Equivalente a `deathLocation`
 
 **Descrição:** Permite filtrar os dados de mortes no trânsito por diversos critérios.
 
