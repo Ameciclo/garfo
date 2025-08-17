@@ -2,14 +2,17 @@ import express from "express";
 import { db } from "../../db";
 import { samu_calls } from "../../db/schema";
 import { sql, eq, and } from "drizzle-orm";
+import { getOutcomeFilter, parseIncludeInvalid } from "./utils";
+import { config } from "./config";
 
 const router = express.Router();
 
 router.get("/", async (req: any, res: any) => {
   try {
     const { cidade, modo } = req.query;
+    const includeInvalid = parseIncludeInvalid(req.query);
     
-    let whereConditions = [];
+    let whereConditions = [getOutcomeFilter(includeInvalid)];
     
     if (cidade) {
       whereConditions.push(eq(samu_calls.municipio, cidade as string));
@@ -17,17 +20,18 @@ router.get("/", async (req: any, res: any) => {
     
     if (modo) {
       const modoMap: Record<string, string> = {
-        'colisao': 'Colisão',
-        'atropelamento': 'Atropelamento', 
-        'capotamento': 'Capotamento',
-        'outros': 'Outros'
+        'acidente-moto': 'Acidente de Moto',
+        'acidente-carro': 'Acidente de Carro',
+        'acidente-bicicleta': 'Acidente de Bicicleta',
+        'atropelamento-carro': 'Atropelamento por Carro',
+        'atropelamento-moto': 'Atropelamento por Moto',
+        'acidente-onibus-caminhao': 'Acidente Ônibus/Caminhão',
+        'atropelamento-onibus-caminhao': 'Atropelamento Ônibus/Caminhão',
+        'atropelamento-bicicleta': 'Atropelamento por Bicicleta',
+        'outro': 'Outro'
       };
       
-      if (modo === 'outros') {
-        whereConditions.push(sql`(${samu_calls.categoria} NOT IN ('Colisão', 'Atropelamento', 'Capotamento') OR ${samu_calls.categoria} IS NULL)`);
-      } else {
-        whereConditions.push(eq(samu_calls.categoria, modoMap[modo as string]));
-      }
+      whereConditions.push(eq(samu_calls.categoria, modoMap[modo as string]));
     }
 
     const totalQuery = await db
@@ -53,10 +57,18 @@ router.get("/", async (req: any, res: any) => {
     const response = result.map((item: any) => ({
       desfecho: item.desfecho,
       total: item.total,
-      percentual: total > 0 ? Number(((item.total / total) * 100).toFixed(1)) : 0
+      percentual: total > 0 ? Number(((item.total / total) * 100).toFixed(1)) : 0,
+      categoria: config.desfechos.validos.includes(item.desfecho) ? 'válido' : 'inválido'
     }));
 
-    res.json(response);
+    res.json({
+      dados: response,
+      filtros: {
+        incluir_invalidos: includeInvalid,
+        desfechos_validos: config.desfechos.validos,
+        desfechos_invalidos: config.desfechos.invalidos
+      }
+    });
   } catch (error: any) {
     console.error("GET /samu-calls/outcomes failed:", error);
     res.status(500).json({ error: "Internal Server Error", detail: error.message });

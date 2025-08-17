@@ -17,17 +17,18 @@ router.get("/", async (req: any, res: any) => {
     
     if (modo) {
       const modoMap: Record<string, string> = {
-        'colisao': 'Colisão',
-        'atropelamento': 'Atropelamento', 
-        'capotamento': 'Capotamento',
-        'outros': 'Outros'
+        'acidente-moto': 'Acidente de Moto',
+        'acidente-carro': 'Acidente de Carro',
+        'acidente-bicicleta': 'Acidente de Bicicleta',
+        'atropelamento-carro': 'Atropelamento por Carro',
+        'atropelamento-moto': 'Atropelamento por Moto',
+        'acidente-onibus-caminhao': 'Acidente Ônibus/Caminhão',
+        'atropelamento-onibus-caminhao': 'Atropelamento Ônibus/Caminhão',
+        'atropelamento-bicicleta': 'Atropelamento por Bicicleta',
+        'outro': 'Outro'
       };
       
-      if (modo === 'outros') {
-        whereConditions.push(sql`(${samu_calls.categoria} NOT IN ('Colisão', 'Atropelamento', 'Capotamento') OR ${samu_calls.categoria} IS NULL)`);
-      } else {
-        whereConditions.push(eq(samu_calls.categoria, modoMap[modo as string]));
-      }
+      whereConditions.push(eq(samu_calls.categoria, modoMap[modo as string]));
     }
 
     const totalQuery = await db

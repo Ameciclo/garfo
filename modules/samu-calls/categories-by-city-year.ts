@@ -26,10 +26,11 @@ router.get("/", async (req: any, res: any) => {
     const result = await db
       .select({
         ano: sql<number>`EXTRACT(YEAR FROM ${samu_calls.data})`,
-        colisao: sql<number>`COUNT(CASE WHEN ${samu_calls.categoria} = 'Colisão' THEN 1 END)`,
-        atropelamento: sql<number>`COUNT(CASE WHEN ${samu_calls.categoria} = 'Atropelamento' THEN 1 END)`,
-        capotamento: sql<number>`COUNT(CASE WHEN ${samu_calls.categoria} = 'Capotamento' THEN 1 END)`,
-        outros: sql<number>`COUNT(CASE WHEN ${samu_calls.categoria} NOT IN ('Colisão', 'Atropelamento', 'Capotamento') OR ${samu_calls.categoria} IS NULL THEN 1 END)`
+        acidente_moto: sql<number>`COUNT(CASE WHEN ${samu_calls.categoria} = 'Acidente de Moto' THEN 1 END)`,
+        acidente_carro: sql<number>`COUNT(CASE WHEN ${samu_calls.categoria} = 'Acidente de Carro' THEN 1 END)`,
+        atropelamento_carro: sql<number>`COUNT(CASE WHEN ${samu_calls.categoria} = 'Atropelamento por Carro' THEN 1 END)`,
+        atropelamento_moto: sql<number>`COUNT(CASE WHEN ${samu_calls.categoria} = 'Atropelamento por Moto' THEN 1 END)`,
+        outros: sql<number>`COUNT(CASE WHEN ${samu_calls.categoria} IN ('Acidente de Bicicleta', 'Acidente Ônibus/Caminhão', 'Atropelamento Ônibus/Caminhão', 'Atropelamento por Bicicleta', 'Outro') OR ${samu_calls.categoria} IS NULL THEN 1 END)`
       })
       .from(samu_calls)
       .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)

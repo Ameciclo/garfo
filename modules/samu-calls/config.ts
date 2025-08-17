@@ -7,6 +7,24 @@ export const config = {
     anosRetroativos: 10
   },
   
+  // Categorização de desfechos
+  desfechos: {
+    validos: [
+      "Atendimento Concluído com Êxito",
+      "Removido por Particulares",
+      "Removido pelos Bombeiros/CIODS",
+      "Óbito no Local/Atendimento"
+    ],
+    invalidos: [
+      "Sem Desfecho/Casa Fechada/Não há paciente",
+      "Desistência da solicitação",
+      "Recusa de Remoção",
+      "Inválido/Duplicado/Cancelado/Trote",
+      "Não necessita/Sem Condições Clínicas",
+      "Outros Desfechos"
+    ]
+  },
+  
   // Mapeamento de códigos para valores legíveis
   mapeamentos: {
     sexo: {

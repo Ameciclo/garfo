@@ -2,18 +2,20 @@ import express from "express";
 import { db } from "../../db";
 import { samu_calls, cities } from "../../db/schema";
 import { sql, eq, and, gte, lte } from "drizzle-orm";
+import { getOutcomeFilter, parseIncludeInvalid } from "./utils";
 
 const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const currentYear = new Date().getFullYear();
-    const startYear = currentYear - 9;
+    const includeInvalid = parseIncludeInvalid(req.query);
+    const outcomeFilter = getOutcomeFilter(includeInvalid);
 
     // Total de chamadas
     const totalCalls = await db
       .select({ count: sql<number>`count(*)` })
-      .from(samu_calls);
+      .from(samu_calls)
+      .where(outcomeFilter);
 
     // Chamadas por categoria
     const byCategory = await db
@@ -22,7 +24,7 @@ router.get("/", async (req, res) => {
         count: sql<number>`count(*)`
       })
       .from(samu_calls)
-      .where(sql`${samu_calls.categoria} IS NOT NULL`)
+      .where(and(sql`${samu_calls.categoria} IS NOT NULL`, outcomeFilter))
       .groupBy(samu_calls.categoria)
       .orderBy(sql`count(*) desc`);
 
@@ -33,7 +35,7 @@ router.get("/", async (req, res) => {
         count: sql<number>`count(*)`
       })
       .from(samu_calls)
-      .where(sql`${samu_calls.motivo_fin_cat} IS NOT NULL`)
+      .where(and(sql`${samu_calls.motivo_fin_cat} IS NOT NULL`, outcomeFilter))
       .groupBy(samu_calls.motivo_fin_cat)
       .orderBy(sql`count(*) desc`);
 
@@ -44,7 +46,7 @@ router.get("/", async (req, res) => {
         count: sql<number>`count(*)`
       })
       .from(samu_calls)
-      .where(sql`${samu_calls.motivo_desf_cat} IS NOT NULL`)
+      .where(and(sql`${samu_calls.motivo_desf_cat} IS NOT NULL`, outcomeFilter))
       .groupBy(samu_calls.motivo_desf_cat)
       .orderBy(sql`count(*) desc`);
 
@@ -55,7 +57,7 @@ router.get("/", async (req, res) => {
         count: sql<number>`count(*)`
       })
       .from(samu_calls)
-      .where(sql`${samu_calls.data} IS NOT NULL`)
+      .where(and(sql`${samu_calls.data} IS NOT NULL`, outcomeFilter))
       .groupBy(sql`EXTRACT(YEAR FROM ${samu_calls.data})`)
       .orderBy(sql`EXTRACT(YEAR FROM ${samu_calls.data})`);
 
@@ -64,7 +66,10 @@ router.get("/", async (req, res) => {
       porCategoria: byCategory,
       porMotivoFinalizacao: byFinalizacao,
       porMotivoDesfecho: byDesfecho,
-      evolucaoAnual: byYear
+      evolucaoAnual: byYear,
+      filtros: {
+        incluir_invalidos: includeInvalid
+      }
     });
   } catch (error: any) {
     console.error("GET /samu-calls/summary failed:", error);

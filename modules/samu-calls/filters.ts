@@ -2,6 +2,7 @@ import express from "express";
 import { db } from "../../db";
 import { samu_calls, pcr_street_names, cities } from "../../db/schema";
 import { sql, eq, and, gte, lte, ilike } from "drizzle-orm";
+import { getOutcomeFilter, parseIncludeInvalid } from "./utils";
 
 const router = express.Router();
 
@@ -24,7 +25,8 @@ router.get("/", async (req, res) => {
       limit = "1000"
     } = req.query;
 
-    let whereConditions = sql`1=1`;
+    const includeInvalid = parseIncludeInvalid(req.query);
+    let whereConditions = getOutcomeFilter(includeInvalid);
 
     // Filtros de idade
     if (idade_min) {
@@ -181,7 +183,8 @@ router.get("/", async (req, res) => {
         hora_inicio,
         hora_fim,
         motivo_fin_cat,
-        motivo_desf_cat
+        motivo_desf_cat,
+        incluir_invalidos: includeInvalid
       },
       estatisticas: {
         total: statsTotal[0]?.total || 0,

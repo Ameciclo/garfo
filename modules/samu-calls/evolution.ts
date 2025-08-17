@@ -2,6 +2,7 @@ import express from "express";
 import { db } from "../../db";
 import { samu_calls } from "../../db/schema";
 import { sql, and, gte, lte } from "drizzle-orm";
+import { getOutcomeFilter, parseIncludeInvalid } from "./utils";
 
 const router = express.Router();
 
@@ -9,8 +10,9 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const { startYear, endYear } = req.query;
+    const includeInvalid = parseIncludeInvalid(req.query);
 
-    let whereConditions = sql`${samu_calls.data} IS NOT NULL`;
+    let whereConditions = and(sql`${samu_calls.data} IS NOT NULL`, getOutcomeFilter(includeInvalid))!;
     
     if (startYear) {
       whereConditions = and(whereConditions, gte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(startYear as string)))!;
@@ -52,7 +54,8 @@ router.get("/", async (req, res) => {
       evolucaoMensal: byMonth,
       filtros: {
         anoInicio: startYear || null,
-        anoFim: endYear || null
+        anoFim: endYear || null,
+        incluir_invalidos: includeInvalid
       }
     });
   } catch (error: any) {

@@ -794,13 +794,13 @@ GET http://localhost:8080/samu-calls/categories-by-city-year?cidade=Recife&ano_i
 
 **Parâmetros:**
 - `cidade` (opcional): Nome do município
-- `modo` (opcional): Tipo de sinistro (colisao, atropelamento, capotamento, outros)
+- `modo` (opcional): Tipo de sinistro (acidente-moto, acidente-carro, acidente-bicicleta, atropelamento-carro, atropelamento-moto, acidente-onibus-caminhao, atropelamento-onibus-caminhao, atropelamento-bicicleta, outro)
 
 **Descrição:** Retorna distribuição de desfechos das chamadas.
 
 **Exemplo de Uso:**
 ```
-GET http://localhost:8080/samu-calls/outcomes?cidade=Recife&modo=atropelamento
+GET http://localhost:8080/samu-calls/outcomes?cidade=Recife&modo=atropelamento-carro
 ```
 
 ### Finalizações por Cidade/Modo
@@ -811,13 +811,13 @@ GET http://localhost:8080/samu-calls/outcomes?cidade=Recife&modo=atropelamento
 
 **Parâmetros:**
 - `cidade` (opcional): Nome do município
-- `modo` (opcional): Tipo de sinistro (colisao, atropelamento, capotamento, outros)
+- `modo` (opcional): Tipo de sinistro (acidente-moto, acidente-carro, acidente-bicicleta, atropelamento-carro, atropelamento-moto, acidente-onibus-caminhao, atropelamento-onibus-caminhao, atropelamento-bicicleta, outro)
 
 **Descrição:** Retorna distribuição de finalizações das chamadas.
 
 **Exemplo de Uso:**
 ```
-GET http://localhost:8080/samu-calls/finalizations?cidade=Recife&modo=colisao
+GET http://localhost:8080/samu-calls/finalizations?cidade=Recife&modo=acidente-moto
 ```
 
 ### Perfil de Sexo por Cidade/Modo
@@ -828,7 +828,7 @@ GET http://localhost:8080/samu-calls/finalizations?cidade=Recife&modo=colisao
 
 **Parâmetros:**
 - `cidade` (opcional): Nome do município
-- `modo` (opcional): Tipo de sinistro (colisao, atropelamento, capotamento, outros)
+- `modo` (opcional): Tipo de sinistro (acidente-moto, acidente-carro, acidente-bicicleta, atropelamento-carro, atropelamento-moto, acidente-onibus-caminhao, atropelamento-onibus-caminhao, atropelamento-bicicleta, outro)
 
 **Descrição:** Retorna distribuição por sexo das vítimas.
 
@@ -845,11 +845,11 @@ GET http://localhost:8080/samu-calls/gender-profile?cidade=Recife
 
 **Parâmetros:**
 - `cidade` (opcional): Nome do município
-- `modo` (opcional): Tipo de sinistro (colisao, atropelamento, capotamento, outros)
+- `modo` (opcional): Tipo de sinistro (acidente-moto, acidente-carro, acidente-bicicleta, atropelamento-carro, atropelamento-moto, acidente-onibus-caminhao, atropelamento-onibus-caminhao, atropelamento-bicicleta, outro)
 
 **Descrição:** Retorna distribuição por faixa etária das vítimas.
 
 **Exemplo de Uso:**
 ```
-GET http://localhost:8080/samu-calls/age-profile?modo=atropelamento
+GET http://localhost:8080/samu-calls/age-profile?modo=atropelamento-carro
 ```

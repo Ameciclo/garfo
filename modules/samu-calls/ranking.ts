@@ -2,12 +2,16 @@ import express from "express";
 import { db } from "../../db";
 import { samu_calls, cities } from "../../db/schema";
 import { sql, eq, and, gte, lte } from "drizzle-orm";
+import { getOutcomeFilter, parseIncludeInvalid } from "./utils";
 
 const router = express.Router();
 
 // Ranking de dias da semana e meses
 router.get("/temporal", async (req, res) => {
   try {
+    const includeInvalid = parseIncludeInvalid(req.query);
+    const outcomeFilter = getOutcomeFilter(includeInvalid);
+
     // Ranking por dia da semana
     const byWeekday = await db
       .select({
@@ -26,7 +30,7 @@ router.get("/temporal", async (req, res) => {
         count: sql<number>`count(*)`
       })
       .from(samu_calls)
-      .where(sql`${samu_calls.data} IS NOT NULL`)
+      .where(and(sql`${samu_calls.data} IS NOT NULL`, outcomeFilter))
       .groupBy(sql`EXTRACT(DOW FROM ${samu_calls.data})`)
       .orderBy(sql`count(*) desc`);
 
@@ -53,7 +57,7 @@ router.get("/temporal", async (req, res) => {
         count: sql<number>`count(*)`
       })
       .from(samu_calls)
-      .where(sql`${samu_calls.data} IS NOT NULL`)
+      .where(and(sql`${samu_calls.data} IS NOT NULL`, outcomeFilter))
       .groupBy(sql`EXTRACT(MONTH FROM ${samu_calls.data})`)
       .orderBy(sql`count(*) desc`);
 
@@ -64,14 +68,17 @@ router.get("/temporal", async (req, res) => {
         count: sql<number>`count(*)`
       })
       .from(samu_calls)
-      .where(sql`${samu_calls.hora_minuto} IS NOT NULL`)
+      .where(and(sql`${samu_calls.hora_minuto} IS NOT NULL`, outcomeFilter))
       .groupBy(sql`EXTRACT(HOUR FROM ${samu_calls.hora_minuto})`)
       .orderBy(sql`EXTRACT(HOUR FROM ${samu_calls.hora_minuto})`);
 
     res.json({
       rankingDiasSemana: byWeekday,
       rankingMeses: byMonth,
-      distribuicaoHoraria: byHour
+      distribuicaoHoraria: byHour,
+      filtros: {
+        incluir_invalidos: includeInvalid
+      }
     });
   } catch (error: any) {
     console.error("GET /samu-calls/ranking/temporal failed:", error);
@@ -83,8 +90,9 @@ router.get("/temporal", async (req, res) => {
 router.get("/cities", async (req, res) => {
   try {
     const { year } = req.query;
+    const includeInvalid = parseIncludeInvalid(req.query);
 
-    let whereConditions = sql`${samu_calls.municipio} IS NOT NULL`;
+    let whereConditions = and(sql`${samu_calls.municipio} IS NOT NULL`, getOutcomeFilter(includeInvalid))!;
     
     if (year) {
       whereConditions = and(whereConditions, sql`EXTRACT(YEAR FROM ${samu_calls.data}) = ${parseInt(year as string)}`)!;
@@ -118,7 +126,8 @@ router.get("/cities", async (req, res) => {
       rankingCidades: byCities,
       porRMR: byRMR,
       filtros: {
-        ano: year || null
+        ano: year || null,
+        incluir_invalidos: includeInvalid
       }
     });
   } catch (error: any) {
