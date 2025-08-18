@@ -651,6 +651,54 @@ GET http://localhost:8080/datasus-deaths/filtros?transportMode=V2&deathLocation=
 
 ## 6. Chamadas do SAMU
 
+### Cidades com Dados do SAMU
+
+**Endpoint:** `/samu-calls/cities`
+
+**Método:** GET
+
+**Descrição:** Retorna a lista de cidades disponíveis nos dados do SAMU, incluindo contagem total de chamadas e histórico anual para cada cidade. As cidades são vinculadas através do city_id para obter informações oficiais.
+
+**Exemplo de Uso:**
+```
+GET http://localhost:8080/samu-calls/cities
+```
+
+**Resposta:**
+```json
+{
+  "cidades": [
+    {
+      "municipio_samu": "Recife",
+      "count": 15420,
+      "id": 2611606,
+      "name": "Recife",
+      "rmr": true,
+      "historico_anual": [
+        {
+          "ano": 2020,
+          "total_chamados": 3200
+        },
+        {
+          "ano": 2021,
+          "total_chamados": 3800
+        },
+        {
+          "ano": 2022,
+          "total_chamados": 4100
+        },
+        {
+          "ano": 2023,
+          "total_chamados": 4320
+        }
+      ]
+    }
+  ],
+  "total": 25,
+  "recife_id": 2611606
+}
+```
+
 ### Resumo de Chamadas
 
 **Endpoint:** `/samu-calls/summary`
