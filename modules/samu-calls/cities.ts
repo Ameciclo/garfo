@@ -1,7 +1,7 @@
 import express from "express";
 import { db } from "../../db";
 import { samu_calls, cities } from "../../db/schema";
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
 
 const router = express.Router();
 
@@ -17,13 +17,33 @@ router.get("/", async (req, res) => {
         rmr: cities.rmr
       })
       .from(samu_calls)
-      .leftJoin(cities, sql`LOWER(${samu_calls.municipio}) = LOWER(${cities.name})`)
+      .leftJoin(cities, eq(samu_calls.city_id, cities.id))
       .groupBy(samu_calls.municipio, cities.id, cities.name, cities.rmr)
       .orderBy(sql`count(*) desc`);
 
+    // Buscar histórico por ano para cada cidade
+    const citiesWithHistory = await Promise.all(
+      citiesWithData.map(async (city) => {
+        const yearlyHistory = await db
+          .select({
+            ano: sql<number>`EXTRACT(YEAR FROM ${samu_calls.data})`,
+            total_chamados: sql<number>`count(*)`
+          })
+          .from(samu_calls)
+          .where(sql`LOWER(${samu_calls.municipio}) = LOWER(${city.municipio_samu})`)
+          .groupBy(sql`EXTRACT(YEAR FROM ${samu_calls.data})`)
+          .orderBy(sql`EXTRACT(YEAR FROM ${samu_calls.data})`);
+
+        return {
+          ...city,
+          historico_anual: yearlyHistory
+        };
+      })
+    );
+
     res.json({
-      cidades: citiesWithData,
-      total: citiesWithData.length,
+      cidades: citiesWithHistory,
+      total: citiesWithHistory.length,
       recife_id: 2611606 // ID do Recife para facilitar o uso
     });
   } catch (error: any) {
