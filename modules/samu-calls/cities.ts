@@ -1,8 +1,9 @@
 import express from "express";
 import { db } from "../../db";
 import { samu_calls, cities } from "../../db/schema";
-import { sql, eq, and } from "drizzle-orm";
+import { sql, eq, and, inArray } from "drizzle-orm";
 import { getOutcomeFilter, parseIncludeInvalid } from "./utils";
+import { config } from "./config";
 
 const router = express.Router();
 
@@ -37,11 +38,19 @@ router.get("/", async (req, res) => {
 
     // Buscar histórico por ano para cada cidade
     const citiesWithHistory = await Promise.all(
-      citiesWithData.map(async (city) => {
+      citiesWithData.map(async (city, index) => {
         const yearlyHistory = await db
           .select({
             ano: sql<number>`EXTRACT(YEAR FROM ${samu_calls.data})::int`,
-            total_chamados: sql<number>`count(*)::int`
+            total_chamados: sql<number>`count(*)::int`,
+            validos: {
+              total: sql<number>`count(case when ${inArray(samu_calls.motivo_desf_cat, config.desfechos.validos)} then 1 end)::int`,
+              atendimento_concluido: sql<number>`count(case when ${samu_calls.motivo_desf_cat} = 'Atendimento Concluído com Êxito' then 1 end)::int`,
+              removido_particulares: sql<number>`count(case when ${samu_calls.motivo_desf_cat} = 'Removido por Particulares' then 1 end)::int`,
+              removido_bombeiros: sql<number>`count(case when ${samu_calls.motivo_desf_cat} = 'Removido pelos Bombeiros/CIODS' then 1 end)::int`,
+              obito_local: sql<number>`count(case when ${samu_calls.motivo_desf_cat} = 'Óbito no Local/Atendimento' then 1 end)::int`
+            },
+            invalidos: sql<number>`count(case when ${inArray(samu_calls.motivo_desf_cat, config.desfechos.invalidos)} then 1 end)::int`
           })
           .from(samu_calls)
           .where(and(
@@ -53,6 +62,7 @@ router.get("/", async (req, res) => {
 
         return {
           ...city,
+          ranking: index + 1,
           historico_anual: yearlyHistory
         };
       })
