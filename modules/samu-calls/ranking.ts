@@ -102,12 +102,14 @@ router.get("/cities", async (req, res) => {
       .select({
         municipio: samu_calls.municipio,
         count: sql<number>`count(*)`,
-        rmr: cities.rmr
+        rmr: cities.rmr,
+        id: cities.id,
+        nome_oficial: cities.name
       })
       .from(samu_calls)
       .leftJoin(cities, sql`LOWER(${samu_calls.municipio}) = LOWER(${cities.name})`)
       .where(whereConditions)
-      .groupBy(samu_calls.municipio, cities.rmr)
+      .groupBy(samu_calls.municipio, cities.rmr, cities.id, cities.name)
       .orderBy(sql`count(*) desc`);
 
     // Agrupar por classificação RMR

@@ -22,6 +22,7 @@ Selecione uma opção:
 11) Reiniciar Docker
 12) Build imagem para Docker Hub
 13) Push imagem para Docker Hub
+14) Build docker no cache
 x) Sair
 EOF
 }
@@ -33,7 +34,7 @@ while true; do
   case "$opt" in
     1)
       npm run build
-      docker compose build --no-cache
+      docker compose build
       docker compose up -d
       ;;
     2)
@@ -86,6 +87,11 @@ while true; do
       echo "Fazendo push da imagem: $docker_user/$image_name:$tag"
       docker push "$docker_user/$image_name:$tag"
       echo "Push concluído!"
+      ;;
+    14)
+      npm run build
+      docker compose build --no-cache
+      docker compose up -d
       ;;
    x)
       echo "Saindo..."
