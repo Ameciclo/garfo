@@ -61,6 +61,17 @@ app.get("/api-routes", async (req, res) => {
   }
 });
 
+// Rota para servir a página de documentação
+app.get("/docs", async (req, res) => {
+  try {
+    const docsHtml = await fs.readFile("docs.html", "utf8");
+    res.send(docsHtml);
+  } catch (error) {
+    console.error("Error reading docs.html file:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Start the Express app listening on the specified port
 app.listen(port, () => {
   console.log(`API running on port ${port}`);
