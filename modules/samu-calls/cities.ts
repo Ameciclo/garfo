@@ -32,7 +32,7 @@ router.get("/", async (req, res) => {
       })
       .from(samu_calls)
       .leftJoin(cities, eq(samu_calls.city_id, cities.id))
-      .where(whereCondition)
+      .where(and(whereCondition, sql`${cities.name} IS NOT NULL`))
       .groupBy(samu_calls.municipio, cities.id, cities.name, cities.rmr)
       .orderBy(sql`count(*) desc`);
 
@@ -50,7 +50,32 @@ router.get("/", async (req, res) => {
               removido_bombeiros: sql<number>`count(case when ${samu_calls.motivo_desf_cat} = 'Removido pelos Bombeiros/CIODS' then 1 end)::int`,
               obito_local: sql<number>`count(case when ${samu_calls.motivo_desf_cat} = 'Óbito no Local/Atendimento' then 1 end)::int`
             },
-            invalidos: sql<number>`count(case when ${inArray(samu_calls.motivo_desf_cat, config.desfechos.invalidos)} then 1 end)::int`
+            invalidos: sql<number>`count(case when ${inArray(samu_calls.motivo_desf_cat, config.desfechos.invalidos)} then 1 end)::int`,
+            por_sexo: {
+              masculino: sql<number>`count(case when ${samu_calls.sexo} = 'Masculino' then 1 end)::int`,
+              feminino: sql<number>`count(case when ${samu_calls.sexo} = 'Feminino' then 1 end)::int`,
+              nao_informado: sql<number>`count(case when ${samu_calls.sexo} IS NULL OR ${samu_calls.sexo} = '' then 1 end)::int`
+            },
+            por_faixa_etaria: {
+              "0_17_anos": sql<number>`count(case when ${samu_calls.idade} BETWEEN 0 AND 17 then 1 end)::int`,
+              "18_29_anos": sql<number>`count(case when ${samu_calls.idade} BETWEEN 18 AND 29 then 1 end)::int`,
+              "30_49_anos": sql<number>`count(case when ${samu_calls.idade} BETWEEN 30 AND 49 then 1 end)::int`,
+              "50_64_anos": sql<number>`count(case when ${samu_calls.idade} BETWEEN 50 AND 64 then 1 end)::int`,
+              "65_mais_anos": sql<number>`count(case when ${samu_calls.idade} >= 65 then 1 end)::int`,
+              nao_informado: sql<number>`count(case when ${samu_calls.idade} IS NULL then 1 end)::int`
+            },
+            por_categoria: {
+              sinistro_moto: sql<number>`count(case when ${samu_calls.categoria} = 'Acidente de Moto' then 1 end)::int`,
+              sinistro_carro: sql<number>`count(case when ${samu_calls.categoria} = 'Acidente de Carro' then 1 end)::int`,
+              atropelamento_carro: sql<number>`count(case when ${samu_calls.categoria} = 'Atropelamento por Carro' then 1 end)::int`,
+              atropelamento_moto: sql<number>`count(case when ${samu_calls.categoria} = 'Atropelamento por Moto' then 1 end)::int`,
+              sinistro_bicicleta: sql<number>`count(case when ${samu_calls.categoria} = 'Acidente de Bicicleta' then 1 end)::int`,
+              sinistro_onibus_caminhao: sql<number>`count(case when ${samu_calls.categoria} = 'Acidente Ônibus/Caminhão' then 1 end)::int`,
+              atropelamento_onibus_caminhao: sql<number>`count(case when ${samu_calls.categoria} = 'Atropelamento Ônibus/Caminhão' then 1 end)::int`,
+              atropelamento_bicicleta: sql<number>`count(case when ${samu_calls.categoria} = 'Atropelamento por Bicicleta' then 1 end)::int`,
+              outro: sql<number>`count(case when ${samu_calls.categoria} = 'Outro' then 1 end)::int`,
+              nao_informado: sql<number>`count(case when ${samu_calls.categoria} IS NULL then 1 end)::int`
+            }
           })
           .from(samu_calls)
           .where(and(
