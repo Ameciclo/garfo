@@ -607,6 +607,72 @@ GET http://localhost:8080/datasus-deaths/filtros?transportMode=V2&deathLocation=
 }
 ```
 
+### Códigos e Mapeamentos para SAMU
+
+#### Sexo
+- `M`: Masculino
+- `F`: Feminino
+- `I`: Ignorado
+
+#### Categorias
+- `ACIDENTE DE TRANSITO`: Acidente de Trânsito
+- `ACIDENTE MOTO`: Acidente de Moto
+- `ATROPELAMENTO`: Atropelamento
+- `CAPOTAMENTO`: Capotamento
+- `COLISAO`: Colisão
+- `QUEDA DE MOTO`: Queda de Moto
+
+#### Subtipos
+- `ACIDENTMOTO`: Acidente de Motocicleta
+- `ATROPELCARRO`: Atropelamento por Carro
+- `ATROPELMOTO`: Atropelamento por Moto
+- `CAPOTAMENTO`: Capotamento
+- `COLISAO`: Colisão
+- `QUEDAMOTO`: Queda de Motocicleta
+
+#### Motivos de Finalização
+- `TRANSPORTE REALIZADO`: Transporte Realizado
+- `RECUSA DE TRANSPORTE`: Recusa de Transporte
+- `OBITO NO LOCAL`: Óbito no Local
+- `CANCELADO`: Cancelado
+- `FALSO CHAMADO`: Falso Chamado
+
+#### Motivos de Desfecho
+- `ALTA HOSPITALAR`: Alta Hospitalar
+- `INTERNACAO`: Internação
+- `OBITO`: Óbito
+- `TRANSFERENCIA`: Transferência
+- `EVASAO`: Evasão
+
+#### Faixas Etárias
+- 0 a 4 anos
+- 5 a 9 anos
+- 10 a 14 anos
+- 15 a 19 anos
+- 20 a 29 anos
+- 30 a 39 anos
+- 40 a 49 anos
+- 50 a 59 anos
+- 60 a 69 anos
+- 70 a 79 anos
+- 80 anos ou mais
+
+#### Desfechos Válidos vs Inválidos
+
+**Desfechos Válidos:**
+- Atendimento Concluído com Êxito
+- Removido por Particulares
+- Removido pelos Bombeiros/CIODS
+- Óbito no Local/Atendimento
+
+**Desfechos Inválidos:**
+- Sem Desfecho/Casa Fechada/Não há paciente
+- Desistência da solicitação
+- Recusa de Remoção
+- Inválido/Duplicado/Cancelado/Trote
+- Não necessita/Sem Condições Clínicas
+- Outros Desfechos
+
 ### Códigos e Mapeamentos para DATASUS
 
 #### Sexo
@@ -793,27 +859,128 @@ GET http://localhost:8080/samu-calls/ranking/cities?year=2023
 
 ### Filtros Avançados
 
-**Endpoint:** `/samu-calls/filters`
+**Endpoint:** `/samu-calls/filters` ou `/samu-calls/filtros`
 
 **Método:** GET
 
 **Parâmetros:**
-- `idade_min`, `idade_max`: Filtros de idade
-- `sexo`: Sexo da vítima
-- `ano_inicio`, `ano_fim`: Período temporal
-- `categoria`, `subtipo`: Tipo de sinistro
-- `municipio`: Município
-- `hora_inicio`, `hora_fim`: Faixa horária (0-23)
-- `motivo_fin_cat`, `motivo_desf_cat`: Motivos de finalização e desfecho
-- `limit`: Número máximo de resultados (padrão: 1000)
+- `cityId`/`municipio`: ID do município específico (se não informado, usa todos da RMR)
+- `startYear`/`anoInicio`: Ano inicial para filtrar (padrão: últimos 10 anos)
+- `endYear`/`anoFim`: Ano final para filtrar
+- `gender`/`sexo`: Sexo da vítima (array)
+- `ageMin`/`idadeMin`: Idade mínima
+- `ageMax`/`idadeMax`: Idade máxima
+- `category`/`categoria`: Categoria do sinistro (array)
+- `subtype`/`subtipo`: Subtipo do sinistro (array)
+- `startHour`/`horaInicio`: Hora inicial (0-23)
+- `endHour`/`horaFim`: Hora final (0-23)
+- `finalizationReason`/`motivoFinalizacao`: Motivo de finalização (array)
+- `outcomeReason`/`motivoDesfecho`: Motivo de desfecho (array)
+- `includeInvalid`/`incluirInvalidos`: Incluir desfechos inválidos (padrão: false)
 
-**Descrição:** Permite filtrar as chamadas do SAMU por diversos critérios.
+**Descrição:** Permite filtrar as chamadas do SAMU por diversos critérios com agrupamentos e estatísticas detalhadas.
 
 **Exemplos de Uso:**
 ```
-GET http://localhost:8080/samu-calls/filters?idade_min=20&idade_max=30
-GET http://localhost:8080/samu-calls/filters?sexo=M&ano_inicio=2023
-GET http://localhost:8080/samu-calls/filters?hora_inicio=18&hora_fim=6
+# Filtros básicos
+GET http://localhost:8080/samu-calls/filtros?ageMin=20&ageMax=30
+GET http://localhost:8080/samu-calls/filtros?gender=M&startYear=2023
+GET http://localhost:8080/samu-calls/filtros?startHour=18&endHour=6
+
+# Filtros por categoria
+GET http://localhost:8080/samu-calls/filtros?category=ACIDENTE%20DE%20TRANSITO
+GET http://localhost:8080/samu-calls/filtros?subtype=ATROPELCARRO
+
+# Filtros por município
+GET http://localhost:8080/samu-calls/filtros?cityId=2611606
+
+# Incluir desfechos inválidos
+GET http://localhost:8080/samu-calls/filtros?includeInvalid=true
+
+# Combinação de filtros
+GET http://localhost:8080/samu-calls/filtros?cityId=2611606&startYear=2020&endYear=2023&category=ATROPELAMENTO&gender=M
+```
+
+**Resposta:**
+```json
+{
+  "filtrosAplicados": {
+    "cityId": 2611606,
+    "startYear": 2020,
+    "endYear": 2023,
+    "category": ["ATROPELAMENTO"],
+    "gender": ["M"],
+    "includeInvalid": false
+  },
+  "totalGeral": 1250,
+  "resumo": {
+    "porAno": {
+      "2020": 300,
+      "2021": 320,
+      "2022": 315,
+      "2023": 315
+    },
+    "porSexo": {
+      "Masculino": 1250,
+      "Feminino": 0
+    },
+    "porFaixaEtaria": {
+      "20 a 29 anos": 350,
+      "30 a 39 anos": 280,
+      "40 a 49 anos": 220
+    },
+    "porMunicipio": {
+      "Recife": 1250
+    },
+    "porCategoria": {
+      "Atropelamento": 1250
+    },
+    "porSubtipo": {
+      "Atropelamento por Carro": 800,
+      "Atropelamento por Moto": 450
+    },
+    "porHora": {
+      "6": 45,
+      "7": 65,
+      "8": 80,
+      "18": 95,
+      "19": 85
+    }
+  },
+  "dados": [
+    {
+      "ano": 2023,
+      "mes": 3,
+      "hora": 18,
+      "municipio": {
+        "nome": "Recife"
+      },
+      "sexo": {
+        "codigo": "M",
+        "descricao": "Masculino"
+      },
+      "idade": 35,
+      "faixaEtaria": "30 a 39 anos",
+      "categoria": {
+        "codigo": "ATROPELAMENTO",
+        "descricao": "Atropelamento"
+      },
+      "subtipo": {
+        "codigo": "ATROPELCARRO",
+        "descricao": "Atropelamento por Carro"
+      },
+      "motivoFinalizacao": {
+        "codigo": "TRANSPORTE REALIZADO",
+        "descricao": "Transporte Realizado"
+      },
+      "motivoDesfecho": {
+        "codigo": "INTERNACAO",
+        "descricao": "Internação"
+      },
+      "total": 15
+    }
+  ]
+}
 ```
 
 ### Categorias por Cidade e Ano
