@@ -673,6 +673,11 @@ GET http://localhost:8080/datasus-deaths/filtros?transportMode=V2&deathLocation=
 - Não necessita/Sem Condições Clínicas
 - Outros Desfechos
 
+**Filtros de Desfecho:**
+- `validos`: Apenas chamadas com desfechos válidos (padrão)
+- `invalidos`: Apenas chamadas com desfechos inválidos
+- `todos`: Todas as chamadas, independente do desfecho
+
 ### Códigos e Mapeamentos para DATASUS
 
 #### Sexo
@@ -810,6 +815,108 @@ GET http://localhost:8080/samu-calls/streets/top?limit=20
 ```
 GET http://localhost:8080/samu-calls/streets/search?street=Boa%20Viagem&limit=50
 ```
+
+### Histórico de Sinistros por Via
+
+**Endpoint:** `/samu-calls/streets/history`
+
+**Método:** GET
+
+**Parâmetros:**
+- `via` (opcional): Nome da via para filtrar (busca parcial)
+- `desfechos` (opcional): Filtro de desfechos - `validos` (padrão), `invalidos`, ou `todos`
+
+**Descrição:** Retorna histórico detalhado de sinistros por ano, incluindo distribuição mensal, por dia da semana, por horário, dias com dados e dias com sinistros.
+
+**Exemplos de Uso:**
+```
+# Histórico geral (todos os anos, desfechos válidos)
+GET http://localhost:8080/samu-calls/streets/history
+
+# Histórico de uma via específica
+GET http://localhost:8080/samu-calls/streets/history?via=Avenida Norte Miguel Arraes
+
+# Histórico incluindo desfechos inválidos
+GET http://localhost:8080/samu-calls/streets/history?via=Boa Viagem&desfechos=invalidos
+
+# Histórico com todos os desfechos
+GET http://localhost:8080/samu-calls/streets/history?desfechos=todos
+```
+
+**Resposta:**
+```json
+{
+  "evolucao": [
+    {
+      "ano": 2023,
+      "sinistros": 150,
+      "meses": {
+        "1": 12,  // Janeiro
+        "2": 15,  // Fevereiro
+        "3": 18,  // Março
+        "4": 10,  // Abril
+        "5": 14,  // Maio
+        "6": 16,  // Junho
+        "7": 13,  // Julho
+        "8": 11,  // Agosto
+        "9": 9,   // Setembro
+        "10": 12, // Outubro
+        "11": 10, // Novembro
+        "12": 10  // Dezembro
+      },
+      "dias_com_dados": 365,      // Dias com dados no ano (geral)
+      "dias_com_sinistros": 89,   // Dias com sinistros na via específica
+      "ultimo_dia": "2023-12-31",
+      "dias_semana": {
+        "0": 20,  // Domingo
+        "1": 25,  // Segunda-feira
+        "2": 22,  // Terça-feira
+        "3": 18,  // Quarta-feira
+        "4": 24,  // Quinta-feira
+        "5": 26,  // Sexta-feira
+        "6": 15   // Sábado
+      },
+      "horarios": {
+        "0": 2,   // 00:00-00:59
+        "1": 1,   // 01:00-01:59
+        "2": 0,   // 02:00-02:59
+        "3": 1,   // 03:00-03:59
+        "4": 2,   // 04:00-04:59
+        "5": 4,   // 05:00-05:59
+        "6": 8,   // 06:00-06:59
+        "7": 12,  // 07:00-07:59
+        "8": 15,  // 08:00-08:59
+        "9": 10,  // 09:00-09:59
+        "10": 8,  // 10:00-10:59
+        "11": 9,  // 11:00-11:59
+        "12": 11, // 12:00-12:59
+        "13": 9,  // 13:00-13:59
+        "14": 7,  // 14:00-14:59
+        "15": 6,  // 15:00-15:59
+        "16": 8,  // 16:00-16:59
+        "17": 12, // 17:00-17:59
+        "18": 14, // 18:00-18:59
+        "19": 8,  // 19:00-19:59
+        "20": 6,  // 20:00-20:59
+        "21": 4,  // 21:00-21:59
+        "22": 3,  // 22:00-22:59
+        "23": 2   // 23:00-23:59
+      }
+    }
+  ],
+  "via": "Avenida Norte Miguel Arraes",
+  "filtro_desfechos": "validos"
+}
+```
+
+**Métricas Incluídas:**
+- **sinistros**: Total de sinistros no ano
+- **meses**: Distribuição mensal (1-12)
+- **dias_com_dados**: Dias com dados no sistema (geral do ano)
+- **dias_com_sinistros**: Dias com sinistros na via específica
+- **ultimo_dia**: Última data com dados no ano
+- **dias_semana**: Distribuição por dia da semana (0=Domingo, 6=Sábado)
+- **horarios**: Distribuição por hora do dia (0-23h)
 
 ### Evolução Temporal
 

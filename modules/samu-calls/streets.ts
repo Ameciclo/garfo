@@ -1,37 +1,96 @@
 import express from "express";
 import { db } from "../../db";
 import { samu_calls, pcr_street_names } from "../../db/schema";
-import { sql, eq, ilike, and, gte, lte } from "drizzle-orm";
+import { sql, eq, ilike, and, gte, lte, inArray, notInArray } from "drizzle-orm";
+import { config } from "./config";
 
 const router = express.Router();
 
-// Top 50 vias com mais sinistros
+// Top vias com dados cumulativos
 router.get("/top", async (req, res) => {
   try {
-    const { limit = "50" } = req.query;
+    const { 
+      intervalo = "1", 
+      anoInicio = "2018", 
+      anoFim = "2024",
+      limite = "50" 
+    } = req.query;
 
+    const intervalNum = parseInt(intervalo as string);
+    const limiteNum = parseInt(limite as string);
+
+    // Buscar total de sinistros válidos no período
+    const totalSinistros = await db
+      .select({ count: sql<string>`count(*)` })
+      .from(samu_calls)
+      .where(
+        and(
+          inArray(samu_calls.motivo_desf_cat, config.desfechos.validos),
+          gte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoInicio as string)),
+          lte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoFim as string))
+        )
+      );
+
+    const totalSinistrosNum = parseInt(totalSinistros[0].count);
+
+    // Buscar vias ordenadas por sinistros
     const topStreets = await db
       .select({
-        street_id: samu_calls.street_id,
         nome_oficial_logradouro: pcr_street_names.nome_oficial_logradouro,
-        nomeBairro: pcr_street_names.nomeBairro,
-        count: sql<number>`count(*)`,
-        geom: sql<string>`ST_AsGeoJSON(${pcr_street_names.geom})`
+        count: sql<string>`count(*)`,
+        km: sql<string>`ST_Length(ST_Transform(${pcr_street_names.geom}, 3857)) / 1000`
       })
       .from(samu_calls)
       .innerJoin(pcr_street_names, eq(samu_calls.street_id, pcr_street_names.id))
+      .where(
+        and(
+          inArray(samu_calls.motivo_desf_cat, config.desfechos.validos),
+          gte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoInicio as string)),
+          lte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoFim as string))
+        )
+      )
       .groupBy(
         samu_calls.street_id,
         pcr_street_names.nome_oficial_logradouro,
-        pcr_street_names.nomeBairro,
         pcr_street_names.geom
       )
       .orderBy(sql`count(*) desc`)
-      .limit(parseInt(limit as string));
+      .limit(limiteNum);
+
+    // Calcular dados cumulativos
+    const resultado = [];
+    let sinistrosCumulativo = 0;
+    let kmCumulativo = 0;
+
+    for (let i = 0; i < topStreets.length; i += intervalNum) {
+      const grupo = topStreets.slice(i, i + intervalNum);
+      
+      const sinistrosGrupo = grupo.reduce((sum, via) => sum + parseInt(via.count), 0);
+      const kmGrupo = grupo.reduce((sum, via) => sum + parseFloat(via.km), 0);
+      
+      sinistrosCumulativo += sinistrosGrupo;
+      kmCumulativo += kmGrupo;
+      
+      const posicao = i + intervalNum;
+      const sinistrosPorKm = kmCumulativo > 0 ? sinistrosCumulativo / kmCumulativo : 0;
+      const percentualTotal = (sinistrosCumulativo / totalSinistrosNum) * 100;
+      
+      resultado.push({
+        top: posicao,
+        sinistros: sinistrosCumulativo,
+        km: Math.round(kmCumulativo * 100) / 100,
+        sinistros_por_km: Math.round(sinistrosPorKm * 100) / 100,
+        percentual_total: Math.round(percentualTotal * 100) / 100
+      });
+    }
 
     res.json({
-      topVias: topStreets,
-      total: topStreets.length
+      dados: resultado,
+      parametros: {
+        intervalo: intervalNum,
+        periodo: `${anoInicio}-${anoFim}`,
+        total_sinistros: totalSinistrosNum
+      }
     });
   } catch (error: any) {
     console.error("GET /samu-calls/streets/top failed:", error);
@@ -82,5 +141,218 @@ router.get("/search", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error", detail: error.message });
   }
 });
+
+// Mapa GeoJSON das vias com sinistros
+router.get("/map", async (req, res) => {
+  try {
+    const { anoInicio = "2018", anoFim = "2024", limite = "50", desfechos = "validos" } = req.query;
+
+    let whereCondition = and(
+      gte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoInicio as string)),
+      lte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoFim as string))
+    );
+
+    // Filtro de desfechos
+    if (desfechos === "validos") {
+      whereCondition = and(whereCondition, inArray(samu_calls.motivo_desf_cat, config.desfechos.validos))!;
+    } else if (desfechos === "invalidos") {
+      whereCondition = and(whereCondition, inArray(samu_calls.motivo_desf_cat, config.desfechos.invalidos))!;
+    }
+    // Se desfechos === "todos", não adiciona filtro
+
+    const vias = await db
+      .select({
+        id: pcr_street_names.id,
+        nome: pcr_street_names.nome_oficial_logradouro,
+        sinistros: sql<string>`count(*)`,
+        geometria: sql<any>`ST_AsGeoJSON(${pcr_street_names.geom})::json`
+      })
+      .from(samu_calls)
+      .innerJoin(pcr_street_names, eq(samu_calls.street_id, pcr_street_names.id))
+      .where(whereCondition)
+      .groupBy(
+        samu_calls.street_id,
+        pcr_street_names.id,
+        pcr_street_names.nome_oficial_logradouro,
+        pcr_street_names.geom
+      )
+      .orderBy(sql`count(*) desc`)
+      .limit(parseInt(limite as string));
+
+    const viasFormatadas = vias.map(via => ({
+      id: via.id,
+      nome: via.nome,
+      sinistros: parseInt(via.sinistros),
+      geometria: via.geometria
+    }));
+
+    res.json({
+      vias: viasFormatadas,
+      filtro_desfechos: desfechos
+    });
+  } catch (error: any) {
+    console.error("GET /samu-calls/streets/map failed:", error);
+    res.status(500).json({ error: "Internal Server Error", detail: error.message });
+  }
+});
+
+// Histórico de sinistros por via
+router.get("/history", async (req, res) => {
+  try {
+    const { via, desfechos = "validos" } = req.query;
+
+    let whereCondition = sql`${samu_calls.data} IS NOT NULL`;
+    
+    // Filtro de desfechos
+    if (desfechos === "validos") {
+      whereCondition = and(whereCondition, inArray(samu_calls.motivo_desf_cat, config.desfechos.validos))!;
+    } else if (desfechos === "invalidos") {
+      whereCondition = and(whereCondition, inArray(samu_calls.motivo_desf_cat, config.desfechos.invalidos))!;
+    }
+    // Se desfechos === "todos", não adiciona filtro
+    
+    if (via) {
+      whereCondition = and(
+        whereCondition,
+        sql`${pcr_street_names.nome_oficial_logradouro} ILIKE ${`%${via}%`}`
+      )!;
+    }
+
+    const evolucaoData = await db
+      .select({
+        ano: sql<number>`EXTRACT(YEAR FROM ${samu_calls.data})`,
+        mes: sql<number>`EXTRACT(MONTH FROM ${samu_calls.data})`,
+        count: sql<string>`count(*)`
+      })
+      .from(samu_calls)
+      .leftJoin(pcr_street_names, eq(samu_calls.street_id, pcr_street_names.id))
+      .where(whereCondition)
+      .groupBy(
+        sql`EXTRACT(YEAR FROM ${samu_calls.data})`,
+        sql`EXTRACT(MONTH FROM ${samu_calls.data})`
+      )
+      .orderBy(
+        sql`EXTRACT(YEAR FROM ${samu_calls.data})`,
+        sql`EXTRACT(MONTH FROM ${samu_calls.data})`
+      );
+
+    // Dias com dados no ano (geral)
+    let diasGeralCondition = sql`${samu_calls.data} IS NOT NULL`;
+    if (desfechos === "validos") {
+      diasGeralCondition = and(diasGeralCondition, inArray(samu_calls.motivo_desf_cat, config.desfechos.validos))!;
+    } else if (desfechos === "invalidos") {
+      diasGeralCondition = and(diasGeralCondition, inArray(samu_calls.motivo_desf_cat, config.desfechos.invalidos))!;
+    }
+    
+    const diasGeralData = await db
+      .select({
+        ano: sql<number>`EXTRACT(YEAR FROM ${samu_calls.data})`,
+        dias_com_dados: sql<string>`COUNT(DISTINCT ${samu_calls.data})`,
+        ultimo_dia: sql<string>`MAX(${samu_calls.data})`
+      })
+      .from(samu_calls)
+      .where(diasGeralCondition)
+      .groupBy(sql`EXTRACT(YEAR FROM ${samu_calls.data})`);
+
+    // Dias com sinistros na via específica
+    const diasViaData = await db
+      .select({
+        ano: sql<number>`EXTRACT(YEAR FROM ${samu_calls.data})`,
+        dias_com_sinistros: sql<string>`COUNT(DISTINCT ${samu_calls.data})`
+      })
+      .from(samu_calls)
+      .leftJoin(pcr_street_names, eq(samu_calls.street_id, pcr_street_names.id))
+      .where(whereCondition)
+      .groupBy(sql`EXTRACT(YEAR FROM ${samu_calls.data})`);
+
+    // Sinistros por dia da semana
+    const diasSemanaData = await db
+      .select({
+        ano: sql<number>`EXTRACT(YEAR FROM ${samu_calls.data})`,
+        dia_semana: sql<number>`EXTRACT(DOW FROM ${samu_calls.data})`,
+        count: sql<string>`count(*)`
+      })
+      .from(samu_calls)
+      .leftJoin(pcr_street_names, eq(samu_calls.street_id, pcr_street_names.id))
+      .where(whereCondition)
+      .groupBy(
+        sql`EXTRACT(YEAR FROM ${samu_calls.data})`,
+        sql`EXTRACT(DOW FROM ${samu_calls.data})`
+      );
+
+    // Sinistros por horário
+    const horariosData = await db
+      .select({
+        ano: sql<number>`EXTRACT(YEAR FROM ${samu_calls.data})`,
+        hora: sql<number>`EXTRACT(HOUR FROM ${samu_calls.hora_minuto})`,
+        count: sql<string>`count(*)`
+      })
+      .from(samu_calls)
+      .leftJoin(pcr_street_names, eq(samu_calls.street_id, pcr_street_names.id))
+      .where(whereCondition)
+      .groupBy(
+        sql`EXTRACT(YEAR FROM ${samu_calls.data})`,
+        sql`EXTRACT(HOUR FROM ${samu_calls.hora_minuto})`
+      );
+
+    const anosMap = new Map<number, { sinistros: number; meses: Record<string, number>; dias_com_dados: number; dias_com_sinistros: number; ultimo_dia: string; dias_semana: Record<string, number>; horarios: Record<string, number> }>();
+    
+    diasGeralData.forEach(item => {
+      const horariosInit: Record<string, number> = {};
+      for (let h = 0; h <= 23; h++) {
+        horariosInit[h.toString()] = 0;
+      }
+      
+      anosMap.set(item.ano, {
+        sinistros: 0,
+        meses: {},
+        dias_com_dados: parseInt(item.dias_com_dados),
+        dias_com_sinistros: 0,
+        ultimo_dia: item.ultimo_dia,
+        dias_semana: { "0": 0, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0 },
+        horarios: horariosInit
+      });
+    });
+    
+    diasViaData.forEach(item => {
+      if (anosMap.has(item.ano)) {
+        anosMap.get(item.ano)!.dias_com_sinistros = parseInt(item.dias_com_sinistros);
+      }
+    });
+    
+    diasSemanaData.forEach(item => {
+      if (anosMap.has(item.ano)) {
+        anosMap.get(item.ano)!.dias_semana[item.dia_semana.toString()] = parseInt(item.count);
+      }
+    });
+    
+    horariosData.forEach(item => {
+      if (anosMap.has(item.ano)) {
+        anosMap.get(item.ano)!.horarios[item.hora.toString()] = parseInt(item.count);
+      }
+    });
+    
+    evolucaoData.forEach(item => {
+      const anoData = anosMap.get(item.ano)!;
+      const countNum = parseInt(item.count);
+      anoData.sinistros += countNum;
+      anoData.meses[item.mes.toString()] = countNum;
+    });
+
+    const evolucaoAgrupada = Array.from(anosMap.entries())
+      .map(([ano, data]) => ({ ano, ...data }))
+      .sort((a, b) => a.ano - b.ano);
+
+    res.json({
+      evolucao: evolucaoAgrupada,
+      via: via || null,
+      filtro_desfechos: desfechos
+    });
+  } catch (error: any) {
+    console.error("GET /samu-calls/streets/history failed:", error);
+    res.status(500).json({ error: "Internal Server Error", detail: error.message });
+  }
+});
+
 
 export default router;
