@@ -783,20 +783,130 @@ GET http://localhost:8080/samu-calls/cities
 GET http://localhost:8080/samu-calls/summary
 ```
 
-### Top Vias com Mais Sinistros
+### Resumo Geral de Vias
+
+**Endpoint:** `/samu-calls/streets/summary`
+
+**Método:** GET
+
+**Descrição:** Retorna estatísticas gerais sobre vias com sinistros do SAMU.
+
+**Exemplo de Uso:**
+```
+GET http://localhost:8080/samu-calls/streets/summary
+```
+
+**Resposta:**
+```json
+{
+  "totalSinistros": 15420,
+  "totalVias": 2341,
+  "periodoInicio": "2016",
+  "periodoFim": "2024",
+  "mesUltimoDado": "2024.03",
+  "anoMaisPerigoso": {
+    "ano": "2023",
+    "total": 1850
+  },
+  "viaMaisPerigosa": {
+    "nome": "Avenida Norte Miguel Arraes de Alencar",
+    "id": 1,
+    "total": 245,
+    "percentual": 1.59,
+    "extensao": 2321
+  }
+}
+```
+
+### Top Vias com Dados Cumulativos
 
 **Endpoint:** `/samu-calls/streets/top`
 
 **Método:** GET
 
 **Parâmetros:**
-- `limit` (opcional): Número máximo de vias a retornar (padrão: 50)
+- `intervalo` (opcional): Intervalo para agrupamento (padrão: 1)
+- `anoInicio` (opcional): Ano inicial para filtrar (padrão: 2018)
+- `anoFim` (opcional): Ano final para filtrar (padrão: 2024)
+- `limite` (opcional): Número máximo de vias (padrão: 50)
 
-**Descrição:** Retorna as vias com maior número de chamadas do SAMU, incluindo dados georreferenciados.
+**Descrição:** Retorna análise cumulativa das vias mais perigosas, com dados de sinistros, quilometragem e densidade.
 
-**Exemplo de Uso:**
+**Exemplos de Uso:**
 ```
-GET http://localhost:8080/samu-calls/streets/top?limit=20
+# Top 50 vias com dados cumulativos
+GET http://localhost:8080/samu-calls/streets/top
+
+# Top 20 vias entre 2020-2023 com intervalo de 5
+GET http://localhost:8080/samu-calls/streets/top?limite=20&anoInicio=2020&anoFim=2023&intervalo=5
+```
+
+**Resposta:**
+```json
+{
+  "dados": [
+    {
+      "top": 1,
+      "sinistros": 245,
+      "km": 12.5,
+      "sinistros_por_km": 19.6,
+      "percentual_total": 1.59
+    },
+    {
+      "top": 2,
+      "sinistros": 467,
+      "km": 25.8,
+      "sinistros_por_km": 18.1,
+      "percentual_total": 3.03
+    }
+  ],
+  "parametros": {
+    "intervalo": 1,
+    "periodo": "2018-2024",
+    "total_sinistros": 15420
+  }
+}
+```
+
+### Mapa GeoJSON das Vias
+
+**Endpoint:** `/samu-calls/streets/map`
+
+**Método:** GET
+
+**Parâmetros:**
+- `anoInicio` (opcional): Ano inicial para filtrar (padrão: 2018)
+- `anoFim` (opcional): Ano final para filtrar (padrão: 2024)
+- `limite` (opcional): Número máximo de vias (padrão: 50)
+- `desfechos` (opcional): Filtro de desfechos - `validos` (padrão), `invalidos`, ou `todos`
+
+**Descrição:** Retorna dados geoespaciais das vias com sinistros em formato adequado para mapas.
+
+**Exemplos de Uso:**
+```
+# Mapa das 50 vias mais perigosas (desfechos válidos)
+GET http://localhost:8080/samu-calls/streets/map
+
+# Mapa das 20 vias entre 2020-2023 incluindo todos os desfechos
+GET http://localhost:8080/samu-calls/streets/map?limite=20&anoInicio=2020&anoFim=2023&desfechos=todos
+```
+
+**Resposta:**
+```json
+{
+  "vias": [
+    {
+      "id": 12345,
+      "nome": "Avenida Norte Miguel Arraes de Alencar",
+      "sinistros": 245,
+      "geometria": {
+        "type": "LineString",
+        "coordinates": [[-34.123, -8.456], [-34.124, -8.457]]
+      }
+    }
+  ],
+  "filtro_desfechos": "validos"
+}
 ```
 
 ### Buscar Sinistros por Via
