@@ -123,21 +123,64 @@ router.get("/", async (req, res) => {
       .groupBy(sql`EXTRACT(YEAR FROM ${samu_calls.data})`)
       .orderBy(sql`EXTRACT(YEAR FROM ${samu_calls.data})`);
 
+    // Período dos dados
+    const periodo = await db
+      .select({
+        inicio: sql<number>`extract(year from min(${samu_calls.data}))`,
+        fim: sql<number>`extract(year from max(${samu_calls.data}))`,
+        ultimoMes: sql<string>`to_char(max(${samu_calls.data}), 'YYYY.MM')`,
+        ultimoDia: sql<string>`to_char(max(${samu_calls.data}), 'YYYY-MM-DD')`
+      })
+      .from(samu_calls)
+      .where(and(sql`${samu_calls.data} IS NOT NULL`, outcomeFilter));
+
+    // Total de dias únicos com dados
+    const diasComDados = await db
+      .select({
+        totalDias: sql<number>`COUNT(DISTINCT ${samu_calls.data})`
+      })
+      .from(samu_calls)
+      .where(and(sql`${samu_calls.data} IS NOT NULL`, outcomeFilter));
+
     res.json({
-      totalChamadas: totalCalls[0].count,
-      totalDesfechosValidos: totalValidOutcomes[0].count,
-      totalDesfechosInvalidos: totalInvalidOutcomes[0].count,
+      totalChamadas: Number(totalCalls[0].count),
+      totalDesfechosValidos: Number(totalValidOutcomes[0].count),
+      totalDesfechosInvalidos: Number(totalInvalidOutcomes[0].count),
       cidadeMaisViolenta: mostViolentCityData.length > 0 ? {
         municipio: mostViolentCityData[0].municipio,
-        totalValidas: mostViolentCityData[0].totalValidas,
-        totalInvalidas: mostViolentCityData[0].totalInvalidas,
-        total: mostViolentCityData[0].total,
-        evolucaoAnual: mostViolentCityEvolution
+        totalValidas: Number(mostViolentCityData[0].totalValidas),
+        totalInvalidas: Number(mostViolentCityData[0].totalInvalidas),
+        total: Number(mostViolentCityData[0].total),
+        evolucaoAnual: mostViolentCityEvolution.map(item => ({
+          ano: Number(item.ano),
+          totalValidas: Number(item.totalValidas),
+          totalInvalidas: Number(item.totalInvalidas),
+          total: Number(item.total)
+        }))
       } : null,
-      porCategoria: byCategory,
-      porMotivoFinalizacao: byFinalizacao,
-      porMotivoDesfecho: byDesfecho,
-      evolucaoAnual: byYear,
+      porCategoria: byCategory.map(item => ({
+        categoria: item.categoria,
+        count: Number(item.count)
+      })),
+      porMotivoFinalizacao: byFinalizacao.map(item => ({
+        motivo_fin_cat: item.motivo_fin_cat,
+        count: Number(item.count)
+      })),
+      porMotivoDesfecho: byDesfecho.map(item => ({
+        motivo_desf_cat: item.motivo_desf_cat,
+        count: Number(item.count)
+      })),
+      evolucaoAnual: byYear.map(item => ({
+        ano: Number(item.ano),
+        count: Number(item.count)
+      })),
+      periodo: {
+        inicio: Number(periodo[0]?.inicio),
+        fim: Number(periodo[0]?.fim),
+        ultimoMes: periodo[0]?.ultimoMes,
+        ultimoDia: periodo[0]?.ultimoDia,
+        totalDiasComDados: Number(diasComDados[0]?.totalDias || 0)
+      },
       filtros: {
         incluir_invalidos: includeInvalid
       }

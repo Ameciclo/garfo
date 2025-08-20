@@ -93,11 +93,37 @@ router.get("/", async (req, res) => {
       })
     );
 
+    // Período dos dados gerais
+    const periodo = await db
+      .select({
+        inicio: sql<number>`extract(year from min(${samu_calls.data}))`,
+        fim: sql<number>`extract(year from max(${samu_calls.data}))`,
+        ultimoMes: sql<string>`to_char(max(${samu_calls.data}), 'YYYY.MM')`,
+        ultimoDia: sql<string>`to_char(max(${samu_calls.data}), 'YYYY-MM-DD')`
+      })
+      .from(samu_calls)
+      .where(and(sql`${samu_calls.data} IS NOT NULL`, whereCondition));
+
+    // Total de dias únicos com dados
+    const diasComDados = await db
+      .select({
+        totalDias: sql<number>`COUNT(DISTINCT ${samu_calls.data})`
+      })
+      .from(samu_calls)
+      .where(and(sql`${samu_calls.data} IS NOT NULL`, whereCondition));
+
     res.json({
       cidades: citiesWithHistory,
       total: citiesWithHistory.length,
       recife_id: 2611606,
-      filtro_aplicado: filter
+      filtro_aplicado: filter,
+      periodo: {
+        inicio: Number(periodo[0]?.inicio),
+        fim: Number(periodo[0]?.fim),
+        ultimoMes: periodo[0]?.ultimoMes,
+        ultimoDia: periodo[0]?.ultimoDia,
+        totalDiasComDados: Number(diasComDados[0]?.totalDias || 0)
+      }
     });
   } catch (error: any) {
     console.error("GET /samu-calls/cities failed:", error);
