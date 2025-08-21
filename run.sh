@@ -23,6 +23,7 @@ Selecione uma opção:
 12) Build imagem para Docker Hub
 13) Push imagem para Docker Hub
 14) Build docker no cache
+15) Mostrar logs do app
 x) Sair
 EOF
 }
@@ -92,6 +93,9 @@ while true; do
       npm run build
       docker compose build --no-cache
       docker compose up -d
+      ;;
+    15)
+      docker compose logs -f app
       ;;
    x)
       echo "Saindo..."

@@ -257,45 +257,65 @@ router.get("/top", async (req, res) => {
 // Buscar sinistros por via
 router.get("/search", async (req, res) => {
   try {
-    const { street, limit = "100", cityId = RECIFE_CITY_ID } = req.query;
+    const { street, limit = "100", includeGeom = "false", desfechos = "validos", cityId = RECIFE_CITY_ID } = req.query;
 
     if (!street) {
       return res.status(400).json({ error: "Parâmetro 'street' é obrigatório" });
     }
     
     const cityIdNum = parseInt(cityId as string);
+    const limitNum = limit === "all" ? undefined : parseInt(limit as string);
+    const shouldIncludeGeom = includeGeom === "true";
 
-    const results = await db
-      .select({
-        id: samu_calls.id,
-        data: samu_calls.data,
-        hora_minuto: samu_calls.hora_minuto,
-        endereco: samu_calls.endereco,
-        nome_oficial_logradouro: pcr_street_names.nome_oficial_logradouro,
-        nomeBairro: pcr_street_names.nomeBairro,
-        categoria: samu_calls.categoria,
-        subtipo: samu_calls.subtipo,
-        sexo: samu_calls.sexo,
-        idade: samu_calls.idade,
-        motivo_fin_cat: samu_calls.motivo_fin_cat,
-        motivo_desf_cat: samu_calls.motivo_desf_cat,
-        geom: sql<string>`ST_AsGeoJSON(${pcr_street_names.geom})`
-      })
+    const selectFields: any = {
+      id: samu_calls.id,
+      data: samu_calls.data,
+      hora_minuto: samu_calls.hora_minuto,
+      endereco: samu_calls.endereco,
+      nome_oficial_logradouro: pcr_street_names.nome_oficial_logradouro,
+      nomeBairro: pcr_street_names.nomeBairro,
+      categoria: samu_calls.categoria,
+      subtipo: samu_calls.subtipo,
+      sexo: samu_calls.sexo,
+      idade: samu_calls.idade,
+      motivo_fin_cat: samu_calls.motivo_fin_cat,
+      motivo_desf_cat: samu_calls.motivo_desf_cat
+    };
+
+    if (shouldIncludeGeom) {
+      selectFields.geom = sql<string>`ST_AsGeoJSON(${pcr_street_names.geom})`;
+    }
+
+    // Construir filtros base
+    let whereConditions = [
+      sql`${pcr_street_names.nome_oficial_logradouro} ILIKE ${`%${street}%`} OR ${samu_calls.endereco} ILIKE ${`%${street}%`}`,
+      eq(samu_calls.city_id, cityIdNum)
+    ];
+
+    // Aplicar filtro de desfechos usando SQL direto
+    if (desfechos === "validos") {
+      whereConditions.push(sql`${samu_calls.motivo_desf_cat} IN ('Atendimento Concluído com Êxito', 'Removido por Particulares', 'Removido pelos Bombeiros/CIODS', 'Óbito no Local/Atendimento')`);
+    } else if (desfechos === "invalidos") {
+      whereConditions.push(sql`${samu_calls.motivo_desf_cat} IN ('Sem Desfecho/Casa Fechada/Não há paciente', 'Desistência da solicitação', 'Recusa de Remoção', 'Inválido/Duplicado/Cancelado/Trote', 'Não necessita/Sem Condições Clínicas', 'Outros Desfechos')`);
+    }
+    // Se desfechos === "todos", não adiciona filtro
+
+    const baseQuery = db
+      .select(selectFields)
       .from(samu_calls)
       .leftJoin(pcr_street_names, eq(samu_calls.street_id, pcr_street_names.id))
-      .where(
-        and(
-          sql`${pcr_street_names.nome_oficial_logradouro} ILIKE ${`%${street}%`} OR ${samu_calls.endereco} ILIKE ${`%${street}%`}`,
-          eq(samu_calls.city_id, cityIdNum)
-        )
-      )
-      .orderBy(samu_calls.data)
-      .limit(parseInt(limit as string));
+      .where(and(...whereConditions))
+      .orderBy(samu_calls.data);
+
+    const results = limitNum ? await baseQuery.limit(limitNum) : await baseQuery;
 
     res.json({
       sinistros: results,
       total: results.length,
-      busca: street
+      busca: street,
+      limite: limit === "all" ? "todos" : limitNum,
+      includeGeom: shouldIncludeGeom,
+      filtro_desfechos: desfechos
     });
   } catch (error: any) {
     console.error("GET /samu-calls/streets/search failed:", error);
@@ -306,7 +326,7 @@ router.get("/search", async (req, res) => {
 // Mapa GeoJSON das vias com sinistros
 router.get("/map", async (req, res) => {
   try {
-    const { anoInicio, anoFim, limite = "50", desfechos = "validos", cityId = RECIFE_CITY_ID } = req.query;
+    const { anoInicio, anoFim, limite = "50", desfechos = "validos", via, cityId = RECIFE_CITY_ID } = req.query;
     
     const cityIdNum = parseInt(cityId as string);
 
@@ -329,6 +349,11 @@ router.get("/map", async (req, res) => {
       whereConditions.push(inArray(samu_calls.motivo_desf_cat, config.desfechos.invalidos));
     }
     // Se desfechos === "todos", não adiciona filtro
+
+    // Filtro por via específica
+    if (via) {
+      whereConditions.push(sql`${pcr_street_names.nome_oficial_logradouro} ILIKE ${`%${via}%`}`);
+    }
 
     const whereCondition = and(...whereConditions);
 
@@ -381,7 +406,8 @@ router.get("/map", async (req, res) => {
 
     res.json({
       vias: viasFormatadas,
-      filtro_desfechos: desfechos
+      filtro_desfechos: desfechos,
+      filtro_via: via || null
     });
   } catch (error: any) {
     console.error("GET /samu-calls/streets/map failed:", error);
