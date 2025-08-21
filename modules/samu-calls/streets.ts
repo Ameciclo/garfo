@@ -74,6 +74,16 @@ router.get("/summary", async (req, res) => {
       .orderBy(sql`count(*) desc`)
       .limit(1);
 
+    // Extensão total das vias
+    const extensaoVias = await db
+      .select({
+        total_vias: sql<number>`count(*)`,
+        extensao_total_km: sql<number>`sum(ST_Length(ST_Transform(${pcr_street_names.geom}, 3857)) / 1000)`,
+        extensao_media_km: sql<number>`avg(ST_Length(ST_Transform(${pcr_street_names.geom}, 3857)) / 1000)`
+      })
+      .from(pcr_street_names)
+      .where(sql`${pcr_street_names.geom} IS NOT NULL`);
+
     // Via mais perigosa
     const viaMaisPerigosa = await db
       .select({
@@ -107,6 +117,8 @@ router.get("/summary", async (req, res) => {
     res.json({
       totalSinistros: Number(totalSinistros[0]?.count || 0),
       totalVias: Number(totalVias[0]?.count || 0),
+      extensaoTotalKm: Math.round(Number(extensaoVias[0]?.extensao_total_km || 0) * 100) / 100,
+      extensaoMediaKm: Math.round(Number(extensaoVias[0]?.extensao_media_km || 0) * 100) / 100,
       periodoInicio: periodo[0]?.inicio || "N/A",
       periodoFim: periodo[0]?.fim || "N/A",
       mesUltimoDado: periodo[0]?.ultimoMes || "N/A",
