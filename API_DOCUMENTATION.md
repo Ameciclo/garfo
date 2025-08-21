@@ -1011,6 +1011,31 @@ GET http://localhost:8080/samu-calls/streets/history?desfechos=todos
         "21": 4,  // 21:00-21:59
         "22": 3,  // 22:00-22:59
         "23": 2   // 23:00-23:59
+      },
+      "por_sexo": {
+        "masculino": 95,
+        "feminino": 45,
+        "nao_informado": 10
+      },
+      "por_faixa_etaria": {
+        "0_17_anos": 8,
+        "18_29_anos": 35,
+        "30_49_anos": 45,
+        "50_64_anos": 32,
+        "65_mais_anos": 20,
+        "nao_informado": 10
+      },
+      "por_categoria": {
+        "sinistro_moto": 65,
+        "sinistro_carro": 25,
+        "atropelamento_carro": 30,
+        "atropelamento_moto": 15,
+        "sinistro_bicicleta": 8,
+        "sinistro_onibus_caminhao": 3,
+        "atropelamento_onibus_caminhao": 2,
+        "atropelamento_bicicleta": 1,
+        "outro": 1,
+        "nao_informado": 0
       }
     }
   ],
@@ -1027,6 +1052,9 @@ GET http://localhost:8080/samu-calls/streets/history?desfechos=todos
 - **ultimo_dia**: Última data com dados no ano
 - **dias_semana**: Distribuição por dia da semana (0=Domingo, 6=Sábado)
 - **horarios**: Distribuição por hora do dia (0-23h)
+- **por_sexo**: Perfil das vítimas por sexo (masculino, feminino, nao_informado)
+- **por_faixa_etaria**: Perfil das vítimas por faixa etária (0-17, 18-29, 30-49, 50-64, 65+, nao_informado)
+- **por_categoria**: Perfil das vítimas por categoria de sinistro (sinistro_moto, sinistro_carro, atropelamento_carro, atropelamento_moto, sinistro_bicicleta, sinistro_onibus_caminhao, atropelamento_onibus_caminhao, atropelamento_bicicleta, outro, nao_informado)
 
 ### Evolução Temporal
 
