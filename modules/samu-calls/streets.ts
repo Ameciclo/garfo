@@ -74,6 +74,16 @@ router.get("/summary", async (req, res) => {
       .orderBy(sql`count(*) desc`)
       .limit(1);
 
+    // Total de sinistros em vias identificadas
+    const totalViasIdentificadas = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(samu_calls)
+      .innerJoin(pcr_street_names, eq(samu_calls.street_id, pcr_street_names.id))
+      .where(and(
+        eq(samu_calls.city_id, cityIdNum),
+        desfechoFilter
+      ));
+
     // Extensão total das vias
     const extensaoVias = await db
       .select({
@@ -116,6 +126,7 @@ router.get("/summary", async (req, res) => {
 
     res.json({
       totalSinistros: Number(totalSinistros[0]?.count || 0),
+      totalViasIdentificadas: Number(totalViasIdentificadas[0]?.count || 0),
       totalVias: Number(totalVias[0]?.count || 0),
       extensaoTotalKm: Math.round(Number(extensaoVias[0]?.extensao_total_km || 0) * 100) / 100,
       extensaoMediaKm: Math.round(Number(extensaoVias[0]?.extensao_media_km || 0) * 100) / 100,
