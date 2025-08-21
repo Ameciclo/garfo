@@ -131,8 +131,8 @@ router.get("/top", async (req, res) => {
   try {
     const { 
       intervalo = "1", 
-      anoInicio = "2018", 
-      anoFim = "2024",
+      anoInicio, 
+      anoFim,
       limite = "50",
       cityId = RECIFE_CITY_ID
     } = req.query;
@@ -141,18 +141,26 @@ router.get("/top", async (req, res) => {
     const limiteNum = parseInt(limite as string);
     const cityIdNum = parseInt(cityId as string);
 
+    // Construir filtros de ano dinamicamente
+    let whereConditions = [
+      inArray(samu_calls.motivo_desf_cat, config.desfechos.validos),
+      eq(samu_calls.city_id, cityIdNum)
+    ];
+
+    if (anoInicio) {
+      whereConditions.push(gte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoInicio as string)));
+    }
+    if (anoFim) {
+      whereConditions.push(lte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoFim as string)));
+    }
+
+    const whereClause = and(...whereConditions);
+
     // Buscar total de sinistros válidos no período
     const totalSinistros = await db
       .select({ count: sql<string>`count(*)` })
       .from(samu_calls)
-      .where(
-        and(
-          inArray(samu_calls.motivo_desf_cat, config.desfechos.validos),
-          gte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoInicio as string)),
-          lte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoFim as string)),
-          eq(samu_calls.city_id, cityIdNum)
-        )
-      );
+      .where(whereClause);
 
     const totalSinistrosNum = parseInt(totalSinistros[0].count);
 
@@ -165,14 +173,7 @@ router.get("/top", async (req, res) => {
       })
       .from(samu_calls)
       .innerJoin(pcr_street_names, eq(samu_calls.street_id, pcr_street_names.id))
-      .where(
-        and(
-          inArray(samu_calls.motivo_desf_cat, config.desfechos.validos),
-          gte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoInicio as string)),
-          lte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoFim as string)),
-          eq(samu_calls.city_id, cityIdNum)
-        )
-      )
+      .where(whereClause)
       .groupBy(
         samu_calls.street_id,
         pcr_street_names.nome_oficial_logradouro,
@@ -181,7 +182,7 @@ router.get("/top", async (req, res) => {
       .orderBy(sql`count(*) desc`)
       .limit(limiteNum);
 
-    // Calcular dados cumulativos
+    // Calcular dados individuais e cumulativos
     const resultado = [];
     let sinistrosCumulativo = 0;
     let kmCumulativo = 0;
@@ -196,15 +197,21 @@ router.get("/top", async (req, res) => {
       kmCumulativo += kmGrupo;
       
       const posicao = i + intervalNum;
-      const sinistrosPorKm = kmCumulativo > 0 ? sinistrosCumulativo / kmCumulativo : 0;
-      const percentualTotal = (sinistrosCumulativo / totalSinistrosNum) * 100;
+      const sinistrosPorKm = kmGrupo > 0 ? sinistrosGrupo / kmGrupo : 0;
+      const sinistrosPorKmAcum = kmCumulativo > 0 ? sinistrosCumulativo / kmCumulativo : 0;
+      const percentual = (sinistrosGrupo / totalSinistrosNum) * 100;
+      const percentualAcum = (sinistrosCumulativo / totalSinistrosNum) * 100;
       
       resultado.push({
         top: posicao,
-        sinistros: sinistrosCumulativo,
-        km: Math.round(kmCumulativo * 100) / 100,
+        sinistros: sinistrosGrupo,
+        sinistros_acum: sinistrosCumulativo,
+        km: Math.round(kmGrupo * 100) / 100,
+        km_acum: Math.round(kmCumulativo * 100) / 100,
         sinistros_por_km: Math.round(sinistrosPorKm * 100) / 100,
-        percentual_total: Math.round(percentualTotal * 100) / 100
+        sinistros_por_km_acum: Math.round(sinistrosPorKmAcum * 100) / 100,
+        percentual: Math.round(percentual * 100) / 100,
+        percentual_acum: Math.round(percentualAcum * 100) / 100
       });
     }
 
@@ -212,8 +219,9 @@ router.get("/top", async (req, res) => {
       dados: resultado,
       parametros: {
         intervalo: intervalNum,
-        periodo: `${anoInicio}-${anoFim}`,
-        total_sinistros: totalSinistrosNum
+        periodo: anoInicio && anoFim ? `${anoInicio}-${anoFim}` : "todos os anos",
+        total_sinistros: totalSinistrosNum,
+        limite: limiteNum
       }
     });
   } catch (error: any) {

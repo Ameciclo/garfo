@@ -2,7 +2,7 @@ import express from "express";
 import { db } from "../../db";
 import { samu_calls, cities } from "../../db/schema";
 import { sql, eq, and, gte, lte, inArray } from "drizzle-orm";
-import { getOutcomeFilter, parseIncludeInvalid } from "./utils";
+import { getOutcomeFilter, parseIncludeInvalid, calcularProjecaoAnual } from "./utils";
 import { config } from "./config";
 
 const router = express.Router();
@@ -112,16 +112,24 @@ router.get("/", async (req, res) => {
       .groupBy(samu_calls.motivo_desf_cat)
       .orderBy(sql`count(*) desc`);
 
-    // Chamadas por ano
+    // Chamadas por ano com última data
     const byYear = await db
       .select({
         ano: sql<number>`EXTRACT(YEAR FROM ${samu_calls.data})`,
-        count: sql<number>`count(*)`
+        count: sql<number>`count(*)`,
+        ultimaData: sql<string>`to_char(max(${samu_calls.data}), 'YYYY-MM-DD')`
       })
       .from(samu_calls)
       .where(and(sql`${samu_calls.data} IS NOT NULL`, outcomeFilter))
       .groupBy(sql`EXTRACT(YEAR FROM ${samu_calls.data})`)
       .orderBy(sql`EXTRACT(YEAR FROM ${samu_calls.data})`);
+
+    // Calcular projeções
+    const dadosComProjecao = calcularProjecaoAnual(byYear.map(item => ({
+      ano: Number(item.ano),
+      count: Number(item.count),
+      ultimaData: item.ultimaData
+    })));
 
     // Período dos dados
     const periodo = await db
@@ -170,10 +178,7 @@ router.get("/", async (req, res) => {
         motivo_desf_cat: item.motivo_desf_cat,
         count: Number(item.count)
       })),
-      evolucaoAnual: byYear.map(item => ({
-        ano: Number(item.ano),
-        count: Number(item.count)
-      })),
+      evolucaoAnual: dadosComProjecao,
       periodo: {
         inicio: Number(periodo[0]?.inicio),
         fim: Number(periodo[0]?.fim),

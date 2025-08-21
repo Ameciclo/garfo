@@ -48,8 +48,8 @@ router.get("/", async (req: Request, res: Response) => {
             ${cttu_crashes.endereco}
           )
         `,
-        totalSinistros: sql<number>`COUNT(*)`,
-        totalFatais: sql<number>`SUM(${cttu_crashes.vitimas_fat})`,
+        totalSinistros: sql<string>`COUNT(*)`,
+        totalFatais: sql<string>`SUM(${cttu_crashes.vitimas_fat})`,
       })
       .from(cttu_crashes)
       .leftJoin(
@@ -68,8 +68,8 @@ router.get("/", async (req: Request, res: Response) => {
     const result = rows.map((r) => ({
       streetId: r.streetId,
       name: r.name,
-      totalSinistros: Number(r.totalSinistros),
-      totalFatais: Number(r.totalFatais),
+      totalSinistros: parseInt(r.totalSinistros, 10),
+      totalFatais: parseInt(r.totalFatais, 10) || 0,
     }));
 
     res.json({
