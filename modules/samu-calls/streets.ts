@@ -294,29 +294,47 @@ router.get("/search", async (req, res) => {
 // Mapa GeoJSON das vias com sinistros
 router.get("/map", async (req, res) => {
   try {
-    const { anoInicio = "2018", anoFim = "2024", limite = "50", desfechos = "validos", cityId = RECIFE_CITY_ID } = req.query;
+    const { anoInicio, anoFim, limite = "50", desfechos = "validos", cityId = RECIFE_CITY_ID } = req.query;
     
     const cityIdNum = parseInt(cityId as string);
 
-    let whereCondition = and(
-      gte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoInicio as string)),
-      lte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoFim as string)),
+    // Construir filtros dinamicamente (igual ao /top)
+    let whereConditions = [
       eq(samu_calls.city_id, cityIdNum)
-    );
+    ];
+
+    if (anoInicio) {
+      whereConditions.push(gte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoInicio as string)));
+    }
+    if (anoFim) {
+      whereConditions.push(lte(sql`EXTRACT(YEAR FROM ${samu_calls.data})`, parseInt(anoFim as string)));
+    }
 
     // Filtro de desfechos
     if (desfechos === "validos") {
-      whereCondition = and(whereCondition, inArray(samu_calls.motivo_desf_cat, config.desfechos.validos))!;
+      whereConditions.push(inArray(samu_calls.motivo_desf_cat, config.desfechos.validos));
     } else if (desfechos === "invalidos") {
-      whereCondition = and(whereCondition, inArray(samu_calls.motivo_desf_cat, config.desfechos.invalidos))!;
+      whereConditions.push(inArray(samu_calls.motivo_desf_cat, config.desfechos.invalidos));
     }
     // Se desfechos === "todos", não adiciona filtro
+
+    const whereCondition = and(...whereConditions);
+
+    // Total de sinistros para cálculo de percentual (mesmo filtro do /top)
+    const totalSinistros = await db
+      .select({ count: sql<string>`count(*)` })
+      .from(samu_calls)
+      .innerJoin(pcr_street_names, eq(samu_calls.street_id, pcr_street_names.id))
+      .where(whereCondition);
+
+    const totalSinistrosNum = parseInt(totalSinistros[0].count);
 
     const vias = await db
       .select({
         id: pcr_street_names.id,
         nome: pcr_street_names.nome_oficial_logradouro,
         sinistros: sql<string>`count(*)`,
+        km: sql<string>`ST_Length(ST_Transform(${pcr_street_names.geom}, 3857)) / 1000`,
         geometria: sql<any>`ST_AsGeoJSON(${pcr_street_names.geom})::json`
       })
       .from(samu_calls)
@@ -331,12 +349,23 @@ router.get("/map", async (req, res) => {
       .orderBy(sql`count(*) desc`)
       .limit(parseInt(limite as string));
 
-    const viasFormatadas = vias.map(via => ({
-      id: via.id,
-      nome: via.nome,
-      sinistros: parseInt(via.sinistros),
-      geometria: via.geometria
-    }));
+    const viasFormatadas = vias.map((via, index) => {
+      const sinistros = parseInt(via.sinistros);
+      const km = parseFloat(via.km);
+      const sinistrosPorKm = km > 0 ? sinistros / km : 0;
+      const percentual = totalSinistrosNum > 0 ? (sinistros / totalSinistrosNum) * 100 : 0;
+      
+      return {
+        id: via.id,
+        nome: via.nome,
+        top: index + 1,
+        sinistros: sinistros,
+        km: Math.round(km * 100) / 100,
+        sinistros_por_km: Math.round(sinistrosPorKm * 100) / 100,
+        percentual: Math.round(percentual * 100) / 100,
+        geometria: via.geometria
+      };
+    });
 
     res.json({
       vias: viasFormatadas,
