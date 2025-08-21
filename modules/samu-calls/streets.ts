@@ -496,7 +496,42 @@ router.get("/history", async (req, res) => {
         sql`EXTRACT(HOUR FROM ${samu_calls.hora_minuto})`
       );
 
-    const anosMap = new Map<number, { sinistros: number; meses: Record<string, number>; dias_com_dados: number; dias_com_sinistros: number; ultimo_dia: string; dias_semana: Record<string, number>; horarios: Record<string, number> }>();
+    // Perfil das vítimas por ano
+    const perfilVitimasData = await db
+      .select({
+        ano: sql<number>`EXTRACT(YEAR FROM ${samu_calls.data})`,
+        por_sexo: {
+          masculino: sql<number>`count(case when ${samu_calls.sexo} = 'Masculino' then 1 end)::int`,
+          feminino: sql<number>`count(case when ${samu_calls.sexo} = 'Feminino' then 1 end)::int`,
+          nao_informado: sql<number>`count(case when ${samu_calls.sexo} IS NULL OR ${samu_calls.sexo} = '' then 1 end)::int`
+        },
+        por_faixa_etaria: {
+          "0_17_anos": sql<number>`count(case when ${samu_calls.idade} BETWEEN 0 AND 17 then 1 end)::int`,
+          "18_29_anos": sql<number>`count(case when ${samu_calls.idade} BETWEEN 18 AND 29 then 1 end)::int`,
+          "30_49_anos": sql<number>`count(case when ${samu_calls.idade} BETWEEN 30 AND 49 then 1 end)::int`,
+          "50_64_anos": sql<number>`count(case when ${samu_calls.idade} BETWEEN 50 AND 64 then 1 end)::int`,
+          "65_mais_anos": sql<number>`count(case when ${samu_calls.idade} >= 65 then 1 end)::int`,
+          nao_informado: sql<number>`count(case when ${samu_calls.idade} IS NULL then 1 end)::int`
+        },
+        por_categoria: {
+          sinistro_moto: sql<number>`count(case when ${samu_calls.categoria} = 'Acidente de Moto' then 1 end)::int`,
+          sinistro_carro: sql<number>`count(case when ${samu_calls.categoria} = 'Acidente de Carro' then 1 end)::int`,
+          atropelamento_carro: sql<number>`count(case when ${samu_calls.categoria} = 'Atropelamento por Carro' then 1 end)::int`,
+          atropelamento_moto: sql<number>`count(case when ${samu_calls.categoria} = 'Atropelamento por Moto' then 1 end)::int`,
+          sinistro_bicicleta: sql<number>`count(case when ${samu_calls.categoria} = 'Acidente de Bicicleta' then 1 end)::int`,
+          sinistro_onibus_caminhao: sql<number>`count(case when ${samu_calls.categoria} = 'Acidente Ônibus/Caminhão' then 1 end)::int`,
+          atropelamento_onibus_caminhao: sql<number>`count(case when ${samu_calls.categoria} = 'Atropelamento Ônibus/Caminhão' then 1 end)::int`,
+          atropelamento_bicicleta: sql<number>`count(case when ${samu_calls.categoria} = 'Atropelamento por Bicicleta' then 1 end)::int`,
+          outro: sql<number>`count(case when ${samu_calls.categoria} = 'Outro' then 1 end)::int`,
+          nao_informado: sql<number>`count(case when ${samu_calls.categoria} IS NULL then 1 end)::int`
+        }
+      })
+      .from(samu_calls)
+      .leftJoin(pcr_street_names, eq(samu_calls.street_id, pcr_street_names.id))
+      .where(whereCondition)
+      .groupBy(sql`EXTRACT(YEAR FROM ${samu_calls.data})`);
+
+    const anosMap = new Map<number, { sinistros: number; meses: Record<string, number>; dias_com_dados: number; dias_com_sinistros: number; ultimo_dia: string; dias_semana: Record<string, number>; horarios: Record<string, number>; por_sexo: any; por_faixa_etaria: any; por_categoria: any }>();
     
     diasGeralData.forEach(item => {
       const horariosInit: Record<string, number> = {};
@@ -511,7 +546,10 @@ router.get("/history", async (req, res) => {
         dias_com_sinistros: 0,
         ultimo_dia: item.ultimo_dia,
         dias_semana: { "0": 0, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0 },
-        horarios: horariosInit
+        horarios: horariosInit,
+        por_sexo: { masculino: 0, feminino: 0, nao_informado: 0 },
+        por_faixa_etaria: { "0_17_anos": 0, "18_29_anos": 0, "30_49_anos": 0, "50_64_anos": 0, "65_mais_anos": 0, nao_informado: 0 },
+        por_categoria: { sinistro_moto: 0, sinistro_carro: 0, atropelamento_carro: 0, atropelamento_moto: 0, sinistro_bicicleta: 0, sinistro_onibus_caminhao: 0, atropelamento_onibus_caminhao: 0, atropelamento_bicicleta: 0, outro: 0, nao_informado: 0 }
       });
     });
     
@@ -530,6 +568,15 @@ router.get("/history", async (req, res) => {
     horariosData.forEach(item => {
       if (anosMap.has(item.ano)) {
         anosMap.get(item.ano)!.horarios[item.hora.toString()] = parseInt(item.count);
+      }
+    });
+    
+    perfilVitimasData.forEach(item => {
+      if (anosMap.has(item.ano)) {
+        const anoData = anosMap.get(item.ano)!;
+        anoData.por_sexo = item.por_sexo;
+        anoData.por_faixa_etaria = item.por_faixa_etaria;
+        anoData.por_categoria = item.por_categoria;
       }
     });
     
