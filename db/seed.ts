@@ -11,14 +11,14 @@ import { seedSamuCallsOptimized } from "./modules/casualties/optimized_seed";
 
 async function runAll() {
   console.log("▶️ Starting all seeds...");
-  await seedCities();
-  await seedCyclistInfra();
-  await seedCyclistCount();
+  //await seedCities();
+  //await seedCyclistInfra();
+  //await seedCyclistCount();
   await seedPCRStreets();
-  await seedCrashes();
-  await seedDatasusDeaths();
-  await seedSamuCallsOptimized();
-  await seedSpeedPlates();
+  //await seedCrashes();
+  //await seedDatasusDeaths();
+  //await seedSamuCallsOptimized();
+  //await seedSpeedPlates();
   console.log("🎉 All seeds completed.");
   process.exit(0);
 }

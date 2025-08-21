@@ -1,0 +1,1 @@
+ALTER TABLE "global"."pcr_street_names" ADD COLUMN "slug" varchar;

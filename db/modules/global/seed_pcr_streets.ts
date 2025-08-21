@@ -3,12 +3,14 @@ import { db, readCsv } from "../../utils";
 import fs from "fs/promises";
 import path from "path";
 import { sql } from "drizzle-orm";
+import { slugify } from "../../../commons/utils";
 
 type PrefStreetInsert = {
   codlogradouro: number;
   nome_logradouro_concatenado: string;
   nome_oficial_logradouro: string;
   nome_logradouro_resumido: string;
+  slug?: string;
   cod_indica_pavimentacao?: string;
   desc_indica_pavimentacao?: string;
   indica_corredor_transporte?: string;
@@ -30,13 +32,18 @@ async function seedPCRStreetNames() {
     path.resolve(__dirname, "trechoslogradouro.csv")
   );
 
-  const valid = data.filter(
-    (r) =>
-      r.codlogradouro != null &&
-      r.nome_logradouro_concatenado &&
-      r.nome_oficial_logradouro &&
-      r.nome_logradouro_resumido
-  );
+  const valid = data
+    .filter(
+      (r) =>
+        r.codlogradouro != null &&
+        r.nome_logradouro_concatenado &&
+        r.nome_oficial_logradouro &&
+        r.nome_logradouro_resumido
+    )
+    .map((r) => ({
+      ...r,
+      slug: slugify(r.nome_oficial_logradouro)
+    }));
 
   const batches = chunkArray(valid, 1000);
   for (const batch of batches) {
@@ -45,7 +52,7 @@ async function seedPCRStreetNames() {
       .values(batch)
       .onConflictDoNothing()
       .execute();
-    console.log(`✅ Inseridos ${batch.length} logradouros`);
+    console.log(`✅ Inseridos ${batch.length} logradouros com slugs`);
   }
 }
 

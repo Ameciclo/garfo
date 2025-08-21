@@ -254,6 +254,122 @@ router.get("/top", async (req, res) => {
   }
 });
 
+// Buscar sinistros por slug da via
+router.get("/slug/:slug", async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { limit = "100", includeGeom = "false", desfechos = "validos", cityId = RECIFE_CITY_ID } = req.query;
+    
+    const cityIdNum = parseInt(cityId as string);
+    const limitNum = limit === "all" ? undefined : parseInt(limit as string);
+    const shouldIncludeGeom = includeGeom === "true";
+
+    const selectFields: any = {
+      id: samu_calls.id,
+      data: samu_calls.data,
+      hora_minuto: samu_calls.hora_minuto,
+      endereco: samu_calls.endereco,
+      nome_oficial_logradouro: pcr_street_names.nome_oficial_logradouro,
+      slug: pcr_street_names.slug,
+      nomeBairro: pcr_street_names.nomeBairro,
+      categoria: samu_calls.categoria,
+      subtipo: samu_calls.subtipo,
+      sexo: samu_calls.sexo,
+      idade: samu_calls.idade,
+      motivo_fin_cat: samu_calls.motivo_fin_cat,
+      motivo_desf_cat: samu_calls.motivo_desf_cat
+    };
+
+    if (shouldIncludeGeom) {
+      selectFields.geom = sql<string>`ST_AsGeoJSON(${pcr_street_names.geom})`;
+    }
+
+    let whereConditions = [
+      eq(pcr_street_names.slug, slug),
+      eq(samu_calls.city_id, cityIdNum)
+    ];
+
+    if (desfechos === "validos") {
+      whereConditions.push(sql`${samu_calls.motivo_desf_cat} IN ('Atendimento Concluído com Êxito', 'Removido por Particulares', 'Removido pelos Bombeiros/CIODS', 'Óbito no Local/Atendimento')`);
+    } else if (desfechos === "invalidos") {
+      whereConditions.push(sql`${samu_calls.motivo_desf_cat} IN ('Sem Desfecho/Casa Fechada/Não há paciente', 'Desistência da solicitação', 'Recusa de Remoção', 'Inválido/Duplicado/Cancelado/Trote', 'Não necessita/Sem Condições Clínicas', 'Outros Desfechos')`);
+    }
+
+    const baseQuery = db
+      .select(selectFields)
+      .from(samu_calls)
+      .innerJoin(pcr_street_names, eq(samu_calls.street_id, pcr_street_names.id))
+      .where(and(...whereConditions))
+      .orderBy(samu_calls.data);
+
+    const results = limitNum ? await baseQuery.limit(limitNum) : await baseQuery;
+
+    res.json({
+      sinistros: results,
+      total: results.length,
+      slug: slug,
+      limite: limit === "all" ? "todos" : limitNum,
+      includeGeom: shouldIncludeGeom,
+      filtro_desfechos: desfechos
+    });
+  } catch (error: any) {
+    console.error("GET /samu-calls/streets/slug failed:", error);
+    res.status(500).json({ error: "Internal Server Error", detail: error.message });
+  }
+});
+
+// Listar vias com slugs ou buscar via específica por slug
+router.get("/list", async (req, res) => {
+  try {
+    const { cityId = RECIFE_CITY_ID, limit = "100", slug } = req.query;
+    
+    const cityIdNum = parseInt(cityId as string);
+    const limitNum = limit === "all" ? undefined : parseInt(limit as string);
+
+    let whereConditions = [sql`EXISTS (
+      SELECT 1 FROM casualties.samu_calls sc 
+      WHERE sc.street_id = ${pcr_street_names.id} 
+      AND sc.city_id = ${cityIdNum}
+    )`];
+
+    // Se slug foi fornecido, filtrar por ele
+    if (slug) {
+      whereConditions.push(eq(pcr_street_names.slug, slug as string));
+    }
+
+    const baseQuery = db
+      .select({
+        id: pcr_street_names.id,
+        codlogradouro: pcr_street_names.codlogradouro,
+        nome_oficial_logradouro: pcr_street_names.nome_oficial_logradouro,
+        nome_logradouro_concatenado: pcr_street_names.nome_logradouro_concatenado,
+        nome_logradouro_resumido: pcr_street_names.nome_logradouro_resumido,
+        slug: pcr_street_names.slug,
+        nomeBairro: pcr_street_names.nomeBairro,
+        codbairro: pcr_street_names.codbairro,
+        cod_indica_pavimentacao: pcr_street_names.cod_indica_pavimentacao,
+        desc_indica_pavimentacao: pcr_street_names.desc_indica_pavimentacao,
+        indica_corredor_transporte: pcr_street_names.indica_corredor_transporte,
+        indica_perimetral: pcr_street_names.indica_perimetral
+      })
+      .from(pcr_street_names)
+      .where(and(...whereConditions))
+      .orderBy(pcr_street_names.nome_oficial_logradouro);
+
+    const results = limitNum ? await baseQuery.limit(limitNum) : await baseQuery;
+
+    res.json({
+      vias: results,
+      total: results.length,
+      limite: limit === "all" ? "todas" : limitNum,
+      filtro_slug: slug || null
+    });
+  } catch (error: any) {
+    console.error("GET /samu-calls/streets/list failed:", error);
+    res.status(500).json({ error: "Internal Server Error", detail: error.message });
+  }
+});
+
 // Buscar sinistros por via
 router.get("/search", async (req, res) => {
   try {

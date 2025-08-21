@@ -17,6 +17,7 @@ export const pcr_street_names = global.table(
     nome_logradouro_concatenado: text("nome_logradouro_concatenado").notNull(),
     nome_oficial_logradouro: text("nome_oficial_logradouro").notNull(),
     nome_logradouro_resumido: text("nome_logradouro_resumido").notNull(),
+    slug: varchar("slug"),
     cod_indica_pavimentacao: varchar("cod_indica_pavimentacao"),
     desc_indica_pavimentacao: text("desc_indica_pavimentacao"),
     indica_corredor_transporte: varchar("indica_corredor_transporte"),
