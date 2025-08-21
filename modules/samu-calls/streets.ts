@@ -179,10 +179,11 @@ router.get("/top", async (req, res) => {
 
     const whereClause = and(...whereConditions);
 
-    // Buscar total de sinistros válidos no período
+    // Buscar total de sinistros válidos no período (com vias identificadas)
     const totalSinistros = await db
       .select({ count: sql<string>`count(*)` })
       .from(samu_calls)
+      .innerJoin(pcr_street_names, eq(samu_calls.street_id, pcr_street_names.id))
       .where(whereClause);
 
     const totalSinistrosNum = parseInt(totalSinistros[0].count);
