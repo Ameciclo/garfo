@@ -909,6 +909,111 @@ GET http://localhost:8080/samu-calls/streets/map?limite=20&anoInicio=2020&anoFim
 }
 ```
 
+### Listar Vias com Slugs
+
+**Endpoint:** `/samu-calls/streets/list`
+
+**Método:** GET
+
+**Parâmetros:**
+- `cityId` (opcional): ID da cidade (padrão: 2611606 - Recife)
+- `limit` (opcional): Número máximo de resultados (padrão: 100, "all" para todas)
+- `slug` (opcional): Slug específico da via para buscar
+
+**Descrição:** Lista vias com sinistros do SAMU, incluindo seus slugs. Se o parâmetro `slug` for fornecido, retorna dados completos da via específica.
+
+**Exemplos de Uso:**
+```
+# Listar todas as vias com slugs
+GET http://localhost:8080/samu-calls/streets/list
+
+# Listar 20 vias
+GET http://localhost:8080/samu-calls/streets/list?limit=20
+
+# Buscar via específica por slug
+GET http://localhost:8080/samu-calls/streets/list?slug=avenida-boa-viagem
+```
+
+**Resposta (listagem):**
+```json
+{
+  "vias": [
+    {
+      "id": 12345,
+      "codlogradouro": 67890,
+      "nome_oficial_logradouro": "Avenida Boa Viagem",
+      "nome_logradouro_concatenado": "AVENIDA BOA VIAGEM",
+      "nome_logradouro_resumido": "AV BOA VIAGEM",
+      "slug": "avenida-boa-viagem",
+      "nomeBairro": "Boa Viagem",
+      "codbairro": 123,
+      "cod_indica_pavimentacao": "A",
+      "desc_indica_pavimentacao": "Asfalto",
+      "indica_corredor_transporte": "S",
+      "indica_perimetral": "N"
+    }
+  ],
+  "total": 1,
+  "limite": 100,
+  "filtro_slug": "avenida-boa-viagem"
+}
+```
+
+### Buscar Sinistros por Slug da Via
+
+**Endpoint:** `/samu-calls/streets/slug/:slug`
+
+**Método:** GET
+
+**Parâmetros:**
+- `slug` (obrigatório): Slug da via (na URL)
+- `limit` (opcional): Número máximo de resultados (padrão: 100, "all" para todos)
+- `includeGeom` (opcional): Incluir geometria (padrão: false)
+- `desfechos` (opcional): Filtro de desfechos - `validos` (padrão), `invalidos`, ou `todos`
+- `cityId` (opcional): ID da cidade (padrão: 2611606 - Recife)
+
+**Descrição:** Busca chamadas do SAMU em uma via específica usando seu slug.
+
+**Exemplos de Uso:**
+```
+# Buscar sinistros na Avenida Boa Viagem
+GET http://localhost:8080/samu-calls/streets/slug/avenida-boa-viagem
+
+# Buscar com geometria incluída
+GET http://localhost:8080/samu-calls/streets/slug/avenida-boa-viagem?includeGeom=true
+
+# Buscar incluindo desfechos inválidos
+GET http://localhost:8080/samu-calls/streets/slug/avenida-boa-viagem?desfechos=invalidos
+```
+
+**Resposta:**
+```json
+{
+  "sinistros": [
+    {
+      "id": 123456,
+      "data": "2023-03-15",
+      "hora_minuto": "18:30:00",
+      "endereco": "Avenida Boa Viagem, 1234",
+      "nome_oficial_logradouro": "Avenida Boa Viagem",
+      "slug": "avenida-boa-viagem",
+      "nomeBairro": "Boa Viagem",
+      "categoria": "Acidente de Moto",
+      "subtipo": "Colisão",
+      "sexo": "M",
+      "idade": 28,
+      "motivo_fin_cat": "Transporte Realizado",
+      "motivo_desf_cat": "Atendimento Concluído com Êxito"
+    }
+  ],
+  "total": 1,
+  "slug": "avenida-boa-viagem",
+  "limite": 100,
+  "includeGeom": false,
+  "filtro_desfechos": "validos"
+}
+```
+
 ### Buscar Sinistros por Via
 
 **Endpoint:** `/samu-calls/streets/search`
@@ -918,8 +1023,11 @@ GET http://localhost:8080/samu-calls/streets/map?limite=20&anoInicio=2020&anoFim
 **Parâmetros:**
 - `street` (obrigatório): Nome da via para buscar
 - `limit` (opcional): Número máximo de resultados (padrão: 100)
+- `includeGeom` (opcional): Incluir geometria (padrão: false)
+- `desfechos` (opcional): Filtro de desfechos - `validos` (padrão), `invalidos`, ou `todos`
+- `cityId` (opcional): ID da cidade (padrão: 2611606 - Recife)
 
-**Descrição:** Busca chamadas do SAMU em uma via específica.
+**Descrição:** Busca chamadas do SAMU em uma via específica por nome (busca parcial).
 
 **Exemplo de Uso:**
 ```
