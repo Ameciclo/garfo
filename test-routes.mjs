@@ -19,7 +19,17 @@ const routes = [
   '/datasus-deaths/matrix',
   '/datasus-deaths/cities-by-year',
   '/datasus-deaths/filtros',
-  '/datasus-deaths/causas-secundarias'
+  '/datasus-deaths/causas-secundarias',
+  '/samu-calls/summary',
+  '/samu-calls/cities',
+  '/samu-calls/filters',
+  '/samu-calls/filtros',
+  '/samu-calls/streets/summary',
+  '/samu-calls/streets/top',
+  '/samu-calls/streets/list',
+  '/samu-calls/streets/search?street=rua',
+  '/samu-calls/streets/map',
+  '/samu-calls/streets/history'
 ];
 
 // URL base da API

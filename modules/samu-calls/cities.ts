@@ -36,9 +36,15 @@ router.get("/", async (req, res) => {
       .groupBy(samu_calls.municipio, cities.id, cities.name, cities.rmr)
       .orderBy(sql`count(*) desc`);
 
-    // Buscar histórico por ano para cada cidade
-    const citiesWithHistory = await Promise.all(
-      citiesWithData.map(async (city, index) => {
+    // Processar cidades em lotes menores para evitar timeout
+    const citiesWithHistory = [];
+    const batchSize = 10; // Processar 10 cidades por vez
+    
+    for (let i = 0; i < citiesWithData.length; i += batchSize) {
+      const batch = citiesWithData.slice(i, i + batchSize);
+      const batchResults = await Promise.all(
+        batch.map(async (city, batchIndex) => {
+          const index = i + batchIndex;
         const yearlyHistory = await db
           .select({
             ano: sql<number>`EXTRACT(YEAR FROM ${samu_calls.data})::int`,
@@ -93,16 +99,18 @@ router.get("/", async (req, res) => {
           ultimaData: item.ultimaData
         })));
 
-        return {
-          ...city,
-          ranking: index + 1,
-          historico_anual: yearlyHistory.map((item, idx) => ({
-            ...item,
-            projecao_total_chamados: historicoComProjecao[idx]?.projecao
-          }))
-        };
-      })
-    );
+          return {
+            ...city,
+            ranking: index + 1,
+            historico_anual: yearlyHistory.map((item, idx) => ({
+              ...item,
+              projecao_total_chamados: historicoComProjecao[idx]?.projecao
+            }))
+          };
+        })
+      );
+      citiesWithHistory.push(...batchResults);
+    }
 
     // Período dos dados gerais
     const periodo = await db
