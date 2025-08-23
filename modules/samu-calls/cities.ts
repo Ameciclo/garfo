@@ -45,13 +45,13 @@ router.get("/", async (req, res) => {
             total_chamados: sql<number>`count(*)::int`,
             ultimaData: sql<string>`to_char(max(${samu_calls.data}), 'YYYY-MM-DD')`,
             validos: {
-              total: sql<number>`count(case when ${inArray(samu_calls.motivo_desf_cat, config.desfechos.validos)} then 1 end)::int`,
+              total: sql<number>`count(case when ${samu_calls.motivo_desf_cat} in ('Atendimento Concluído com Êxito', 'Removido por Particulares', 'Removido pelos Bombeiros/CIODS', 'Óbito no Local/Atendimento') then 1 end)::int`,
               atendimento_concluido: sql<number>`count(case when ${samu_calls.motivo_desf_cat} = 'Atendimento Concluído com Êxito' then 1 end)::int`,
               removido_particulares: sql<number>`count(case when ${samu_calls.motivo_desf_cat} = 'Removido por Particulares' then 1 end)::int`,
               removido_bombeiros: sql<number>`count(case when ${samu_calls.motivo_desf_cat} = 'Removido pelos Bombeiros/CIODS' then 1 end)::int`,
               obito_local: sql<number>`count(case when ${samu_calls.motivo_desf_cat} = 'Óbito no Local/Atendimento' then 1 end)::int`
             },
-            invalidos: sql<number>`count(case when ${inArray(samu_calls.motivo_desf_cat, config.desfechos.invalidos)} then 1 end)::int`,
+            invalidos: sql<number>`count(case when ${samu_calls.motivo_desf_cat} in ('Sem Desfecho/Casa Fechada/Não há paciente', 'Desistência da solicitação', 'Recusa de Remoção', 'Inválido/Duplicado/Cancelado/Trote', 'Não necessita/Sem Condições Clínicas', 'Outros Desfechos') then 1 end)::int`,
             por_sexo: {
               masculino: sql<number>`count(case when ${samu_calls.sexo} = 'Masculino' then 1 end)::int`,
               feminino: sql<number>`count(case when ${samu_calls.sexo} = 'Feminino' then 1 end)::int`,
